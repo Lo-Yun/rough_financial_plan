@@ -50,7 +50,6 @@ export const settings: Settings = {
   fxRates: [{ currency: 'USD', rateToBase: 32, asOf: '2026-10-01' }],
   checkInFrequency: 'monthly',
   pinLockEnabled: false,
-  analyticsEnabled: true,
   dismissedTips: [],
 };
 

@@ -481,7 +481,7 @@ db.version(1).stores({
   checkIns:     'id, householdId, date',
   settings:     'householdId',
   assumptions:  'householdId',
-  meta:         'key',          // schemaVersion、installId、上次遷移時間
+  meta:         'key',          // schemaVersion、上次遷移時間等
 });
 ```
 

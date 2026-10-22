@@ -43,7 +43,6 @@ export function defaultSettings(householdId: ID, pack: LocalePack): Settings {
     fxRates: [],
     checkInFrequency: 'monthly',
     pinLockEnabled: false,
-    analyticsEnabled: true,
     dismissedTips: [],
   };
 }
@@ -201,7 +200,7 @@ export class Repo {
     });
   }
 
-  /** 刪除所有資料（含匿名識別碼） */
+  /** 刪除所有資料 */
   async deleteAll(): Promise<void> {
     await this.db.transaction('rw', this.allTables(), () => this.clearAllInTransaction());
     await this.db.meta.clear();

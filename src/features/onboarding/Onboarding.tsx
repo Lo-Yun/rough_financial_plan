@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { precisionBucket, track } from '../../analytics';
 import { recordSnapshot } from '../../app/actions';
 import { useApp, useFormat } from '../../app/context';
 import { requestPersistentStorage } from '../../app/pwa';
@@ -76,8 +75,6 @@ export function Onboarding() {
     let nextIndex = stepIndex + delta;
     // 沒有收入就跳過年終題
     if (STEPS[nextIndex] === 'bonus' && !a.hasIncome) nextIndex += delta;
-    if (step === 'welcome' && delta > 0) track({ name: 'onboarding_started' });
-    if (delta > 0) track({ name: 'onboarding_step', step });
     if (STEPS[nextIndex] === 'result') {
       setSaving(true);
       try {
@@ -172,7 +169,6 @@ export function Onboarding() {
   }
 
   const finish = async () => {
-    track({ name: 'onboarding_completed', precision_bucket: precisionBucket(app.overview.precision.score) });
     await repo.updateSettings(data.household.id, { onboardingCompletedAt: new Date().toISOString() });
   };
 
@@ -194,17 +190,6 @@ export function Onboarding() {
             <li>{t('onboarding.welcome.point2')}</li>
             <li>{t('onboarding.welcome.point3')}</li>
           </ul>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={data.settings.analyticsEnabled}
-              onChange={(e) => void repo.updateSettings(data.household.id, { analyticsEnabled: e.target.checked })}
-            />
-            <span>
-              {t('settings.analytics.label')}
-              <small className="muted block">{t('settings.analytics.short')}</small>
-            </span>
-          </label>
           <p className="disclaimer">{t('common.disclaimer')}</p>
         </section>
       )}

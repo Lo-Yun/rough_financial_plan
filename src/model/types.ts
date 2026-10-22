@@ -212,8 +212,6 @@ export interface Settings {
   lastBackupAt?: ISODateTime;
   pinLockEnabled: boolean;
   onboardingCompletedAt?: ISODateTime;
-  /** 匿名使用統計（不含任何金額） */
-  analyticsEnabled: boolean;
   dismissedTips: string[];
 }
 

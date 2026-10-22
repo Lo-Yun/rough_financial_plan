@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { track } from '../../analytics';
 import { useApp } from '../../app/context';
 import { EstimateInput } from '../../components/EstimateInput';
 import { blankToUnknown } from '../../core/estimate';
@@ -58,14 +57,12 @@ function AssetEditor({ id }: { id?: string }) {
 
   const save = async () => {
     await repo.saveAsset(hid, { ...draft, value: { ...draft.value, estimate: blankToUnknown(draft.value.estimate) }, id: existing?.id });
-    track({ name: 'item_saved', kind: 'asset', category: draft.category, mode: draft.value.estimate.mode, is_new: !existing });
     navigate('/');
   };
 
   const archive = async () => {
     if (!existing || !confirm(t('editor.confirmDelete'))) return;
     await repo.archiveAsset(existing.id);
-    track({ name: 'item_archived', kind: 'asset', category: existing.category });
     navigate('/');
   };
 
@@ -139,14 +136,12 @@ function LiabilityEditor({ id }: { id?: string }) {
 
   const save = async () => {
     await repo.saveLiability(hid, { ...draft, balance: { ...draft.balance, estimate: blankToUnknown(draft.balance.estimate) }, id: existing?.id });
-    track({ name: 'item_saved', kind: 'liability', category: draft.category, mode: draft.balance.estimate.mode, is_new: !existing });
     navigate('/');
   };
 
   const archive = async () => {
     if (!existing || !confirm(t('editor.confirmDelete'))) return;
     await repo.archiveLiability(existing.id);
-    track({ name: 'item_archived', kind: 'liability', category: existing.category });
     navigate('/');
   };
 

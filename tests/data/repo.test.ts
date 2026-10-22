@@ -24,7 +24,7 @@ describe('Repo', () => {
     const a = await repo.ensureHousehold(twPack);
     const b = await repo.ensureHousehold(twPack);
     expect(a.id).toBe(b.id);
-    expect(await repo.db.settings.get(a.id)).toMatchObject({ analyticsEnabled: true, defaultTolerance: 0.15 });
+    expect(await repo.db.settings.get(a.id)).toMatchObject({ defaultTolerance: 0.15 });
     expect(await repo.db.members.count()).toBe(1);
   });
 
@@ -85,10 +85,10 @@ describe('Repo', () => {
   it('deleteAll wipes everything', async () => {
     const h = await repo.ensureHousehold(twPack);
     await repo.saveAsset(h.id, cash);
-    await repo.setMeta('installId', 'x');
+    await repo.setMeta('k', 'x');
     await repo.deleteAll();
     expect(await repo.db.households.count()).toBe(0);
     expect(await repo.db.assets.count()).toBe(0);
-    expect(await repo.getMeta('installId')).toBeUndefined();
+    expect(await repo.getMeta('k')).toBeUndefined();
   });
 });

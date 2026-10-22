@@ -1,9 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
-import { ulid } from 'ulid';
-import { configureAnalytics, track } from '../analytics';
 import { todayISO } from '../core/date';
 import { computeOverview } from '../core/overview';
 import { AppDB } from '../data/db';
@@ -15,7 +13,6 @@ import { SettingsPage } from '../features/settings/SettingsPage';
 import { defaultPack, getPack } from '../locales';
 import { AppContext, type AppState } from './context';
 import { loadFinancialData } from './load';
-import { isStandalone } from './pwa';
 
 // 圖表套件較大，歷史頁面延遲載入
 const HistoryPage = lazy(() => import('../features/history/HistoryPage').then((m) => ({ default: m.HistoryPage })));
@@ -42,8 +39,6 @@ export function App() {
   const pack = getPack(data?.household.localeCode);
   const today = todayISO();
   const overview = useMemo(() => (data ? computeOverview(data, pack, today) : null), [data, pack, today]);
-
-  useAnalyticsSetup(data?.settings.analyticsEnabled, pack.code);
 
   if (!data || !overview || !loaded) {
     return <div className="loading">{t('common.loading')}</div>;
@@ -93,29 +88,4 @@ export function App() {
       )}
     </AppContext.Provider>
   );
-}
-
-/** 依設定開關匿名統計；首次啟用時建立隨機的安裝識別碼 */
-function useAnalyticsSetup(enabled: boolean | undefined, locale: string) {
-  const opened = useRef(false);
-  useEffect(() => {
-    if (enabled === undefined) return;
-    let cancelled = false;
-    void (async () => {
-      let installId = await repo.getMeta<string>('installId');
-      if (!installId) {
-        installId = ulid();
-        await repo.setMeta('installId', installId);
-      }
-      if (cancelled) return;
-      configureAnalytics({ enabled, installId, locale });
-      if (enabled && !opened.current) {
-        opened.current = true;
-        track({ name: 'app_opened', standalone: isStandalone() });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [enabled, locale]);
 }

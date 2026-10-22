@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { configureAnalytics, track } from '../../analytics';
 import { useApp } from '../../app/context';
 import { isIOS, isStandalone, useInstallPrompt } from '../../app/pwa';
 import { BackupError, buildExport, inspectExport, parseExport } from '../../data/backup';
@@ -50,23 +49,6 @@ export function SettingsPage() {
 
       <BackupSection />
 
-      <section className="card">
-        <h2>{t('settings.analytics.title')}</h2>
-        <label className="toggle-row">
-          <input
-            type="checkbox"
-            checked={s.analyticsEnabled}
-            onChange={async (e) => {
-              const enabled = e.target.checked;
-              await update({ analyticsEnabled: enabled });
-              configureAnalytics({ enabled });
-              if (enabled) track({ name: 'analytics_enabled' });
-            }}
-          />
-          <span>{t('settings.analytics.label')}</span>
-        </label>
-        <p className="muted small">{t('settings.analytics.detail')}</p>
-      </section>
 
       <InstallSection />
 
@@ -158,7 +140,6 @@ function BackupSection() {
     a.click();
     URL.revokeObjectURL(url);
     await repo.updateSettings(data.household.id, { lastBackupAt: new Date().toISOString() });
-    track({ name: 'backup_exported', encrypted: !!password });
     setMessage({ kind: 'ok', text: t('backup.exported') });
   };
 
@@ -171,7 +152,6 @@ function BackupSection() {
       const payload = await parseExport(text, pw);
       if (!confirm(t('backup.confirmImport'))) return;
       await repo.importAll(payload);
-      track({ name: 'backup_imported' });
       setMessage({ kind: 'ok', text: t('backup.imported') });
     } catch (e) {
       const code = e instanceof BackupError ? e.code : 'invalid_format';
@@ -230,8 +210,7 @@ function InstallSection() {
           type="button"
           className="btn primary"
           onClick={async () => {
-            const outcome = await install.prompt();
-            if (outcome) track({ name: 'install_prompt', outcome });
+            await install.prompt();
           }}
         >
           {t('pwa.install')}

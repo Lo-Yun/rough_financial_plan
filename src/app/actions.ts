@@ -1,4 +1,3 @@
-import { track } from '../analytics';
 import { todayISO } from '../core/date';
 import { buildSnapshotData, computeOverview } from '../core/overview';
 import type { Repo } from '../data/repo';
@@ -18,6 +17,5 @@ export async function recordSnapshot(
   const today = todayISO();
   const overview = computeOverview(data, pack, today);
   const snap = await repo.saveSnapshot(householdId, buildSnapshotData(data, overview, pack, today, trigger));
-  track({ name: 'snapshot_created', trigger });
   return snap;
 }
