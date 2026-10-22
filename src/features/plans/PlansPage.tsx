@@ -10,6 +10,14 @@ export function goalName(g: { name?: string; type: GoalType }, t: (k: string) =>
   return g.name || t(`plans.type.${g.type}.name`);
 }
 
+/** 沒有目標金額時的提示：依目標類型說明缺什麼 */
+export function noTargetKey(type: GoalType): string {
+  if (type === 'debt_payoff') return 'plans.proj.pickDebts';
+  if (type === 'home_down_payment') return 'plans.proj.noTarget.home';
+  if (type === 'emergency_fund' || type === 'retirement_fi') return 'plans.proj.noTarget.expenses';
+  return 'plans.proj.noTarget.other';
+}
+
 export function PlansPage() {
   const { t } = useTranslation();
   const { goals, pack, overview } = useApp();
@@ -66,7 +74,7 @@ export function PlansPage() {
                   ? t('plans.proj.never')
                   : p.target
                     ? t('plans.proj.noContribution')
-                    : t('plans.proj.noTarget')}
+                    : t(noTargetKey(goal.type))}
           </p>
         </Link>
       ))}

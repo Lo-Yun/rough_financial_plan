@@ -267,7 +267,7 @@ function AllocationEditor({
               <button
                 key={c}
                 type="button"
-                className={!mixed && single === c ? 'chip active' : 'chip'}
+                aria-pressed={!mixed && single === c} className={!mixed && single === c ? 'chip active' : 'chip'}
                 onClick={() => {
                   setMixed(false);
                   onChange({ [c]: 1 });
@@ -278,7 +278,7 @@ function AllocationEditor({
             ))}
             <button
               type="button"
-              className={mixed ? 'chip active' : 'chip'}
+              aria-pressed={mixed} className={mixed ? 'chip active' : 'chip'}
               onClick={() => {
                 setMixed(true);
                 onChange(effective);

@@ -77,10 +77,10 @@ export function CheckInPage() {
           <h2>{t('checkin.change.title')}</h2>
           <p className="muted small">{t('checkin.change.hint')}</p>
           <div className="chips">
-            <button type="button" className={majorChange === false ? 'chip active' : 'chip'} onClick={() => setMajorChange(false)}>
+            <button type="button" aria-pressed={majorChange === false} className={majorChange === false ? 'chip active' : 'chip'} onClick={() => setMajorChange(false)}>
               {t('checkin.change.no')}
             </button>
-            <button type="button" className={majorChange === true ? 'chip active' : 'chip'} onClick={() => setMajorChange(true)}>
+            <button type="button" aria-pressed={majorChange === true} className={majorChange === true ? 'chip active' : 'chip'} onClick={() => setMajorChange(true)}>
               {t('checkin.change.yes')}
             </button>
           </div>
@@ -120,7 +120,7 @@ export function CheckInPage() {
           <h2>{t('checkin.feel.title')}</h2>
           <div className="chips">
             {MOODS.map((m) => (
-              <button key={m} type="button" className={mood === m ? 'chip active' : 'chip'} onClick={() => setMood(mood === m ? undefined : m)}>
+              <button key={m} type="button" aria-pressed={mood === m} className={mood === m ? 'chip active' : 'chip'} onClick={() => setMood(mood === m ? undefined : m)}>
                 {t(`checkin.feel.mood${m}`)}
               </button>
             ))}

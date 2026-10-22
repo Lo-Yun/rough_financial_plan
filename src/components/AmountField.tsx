@@ -11,10 +11,12 @@ interface Props {
   label?: string;
   placeholder?: string;
   autoFocus?: boolean;
+  /** false 時不顯示預設的輸入提示（只顯示解讀結果或錯誤），讓外層統一顯示一次 */
+  showHint?: boolean;
 }
 
 /** 金額輸入：支援「600萬」「35k」等寫法，並即時顯示解讀結果 */
-export function AmountField({ value, onChange, pack, label, placeholder, autoFocus }: Props) {
+export function AmountField({ value, onChange, pack, label, placeholder, autoFocus, showHint = true }: Props) {
   const { t } = useTranslation();
   const fmt = useFormat(pack);
   const id = useId();
@@ -47,7 +49,7 @@ export function AmountField({ value, onChange, pack, label, placeholder, autoFoc
         }}
       />
       <div className={invalid ? 'field-hint error' : 'field-hint'}>
-        {invalid ? t('amount.invalid') : parsed !== null && parsed >= 10_000 ? `= ${fmt.money(parsed)}` : t('amount.hint')}
+        {invalid ? t('amount.invalid') : parsed !== null && parsed >= 10_000 ? `= ${fmt.money(parsed)}` : showHint ? t('amount.hint') : ''}
       </div>
     </div>
   );

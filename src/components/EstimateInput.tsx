@@ -27,6 +27,9 @@ export function EstimateInput(props: Props) {
   const fmt = useFormat(pack);
   const ctx = { statistics: pack.statistics, defaultTolerance };
 
+  // 還沒填的範圍（0 ~ 0）留白，讓 placeholder 顯示
+  const blank = value.mode === 'range' && value.low === 0 && value.high === 0;
+
   const switchMode = (m: EstimateMode) => onChange(withStatKey(convertEstimate(value, m, ctx, today), statKey));
 
   return (
@@ -57,7 +60,7 @@ export function EstimateInput(props: Props) {
                   <button
                     key={b.id}
                     type="button"
-                    className={value.bracketId === b.id ? 'chip active' : 'chip'}
+                    aria-pressed={value.bracketId === b.id} className={value.bracketId === b.id ? 'chip active' : 'chip'}
                     onClick={() => onChange({ mode: 'range', low: b.low, high: b.high, bracketId: b.id })}
                   >
                     {b.low === 0 ? t('estimate.below', { v: fmt.money(b.high) }) : fmt.range({ low: b.low, mid: 0, high: b.high })}
@@ -69,16 +72,21 @@ export function EstimateInput(props: Props) {
               <AmountField
                 pack={pack}
                 label={t('estimate.low')}
-                value={value.low}
+                value={blank ? undefined : value.low}
+                showHint={false}
+                placeholder={t('amount.placeholderShort')}
                 onChange={(v) => onChange({ mode: 'range', low: v ?? 0, high: value.high })}
               />
               <AmountField
                 pack={pack}
                 label={t('estimate.high')}
-                value={value.high}
+                value={value.high || undefined}
+                showHint={false}
+                placeholder={t('amount.placeholderShort')}
                 onChange={(v) => onChange({ mode: 'range', low: value.low, high: v ?? 0 })}
               />
             </div>
+            <p className="muted small">{t('amount.hint')}</p>
           </>
         )}
 
