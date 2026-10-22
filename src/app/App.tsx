@@ -12,6 +12,7 @@ import { NetWorthPage } from '../features/balance-sheet/NetWorthPage';
 import { Onboarding } from '../features/onboarding/Onboarding';
 import { defaultPack, getPack } from '../locales';
 import { AppContext, type AppState } from './context';
+import { DEMO_DB_NAME, discardDemoData, exitDemo, isDemoMode, seedDemo } from './demo';
 import { loadFinancialData } from './load';
 
 // 淨值頁與資產編輯以外的頁面都延遲載入，縮小首次載入的程式大小
@@ -29,7 +30,16 @@ const ActionsPage = lazy(() => import('../features/actions/ActionsPage').then((m
 const LadderPage = lazy(() => import('../features/ladder/LadderPage').then((m) => ({ default: m.LadderPage })));
 const CheckInPage = lazy(() => import('../features/checkin/CheckInPage').then((m) => ({ default: m.CheckInPage })));
 
-const repo = new Repo(new AppDB());
+const demo = isDemoMode();
+const repo = new Repo(new AppDB(demo ? DEMO_DB_NAME : undefined));
+if (!demo) discardDemoData();
+
+/** 示範資料在每次載入頁面時只產生一次 */
+let demoSeed: Promise<{ id: string }> | null = null;
+function firstHousehold() {
+  if (demo && !demoSeed) demoSeed = seedDemo(repo, defaultPack, todayISO());
+  return demoSeed ?? repo.ensureHousehold(defaultPack);
+}
 
 export function App() {
   const { t } = useTranslation();
@@ -42,7 +52,9 @@ export function App() {
 
   // 第一次開啟，或刪除全部資料後，建立新的家庭
   useEffect(() => {
-    if (householdId === null || (loaded && !loaded.data)) {
+    if (householdId === null) {
+      void firstHousehold().then((h) => setHouseholdId(h.id));
+    } else if (loaded && !loaded.data) {
       void repo.ensureHousehold(defaultPack).then((h) => setHouseholdId(h.id));
     }
   }, [householdId, loaded]);
@@ -75,6 +87,7 @@ export function App() {
 
   return (
     <AppContext.Provider value={state}>
+      {demo && <DemoBanner />}
       {data.settings.onboardingCompletedAt ? (
         <HashRouter>
           <div className="app-shell">
@@ -140,5 +153,17 @@ export function App() {
         <Onboarding />
       )}
     </AppContext.Provider>
+  );
+}
+
+function DemoBanner() {
+  const { t } = useTranslation();
+  return (
+    <div className="demo-banner" role="status">
+      <span>{t('demo.banner')}</span>
+      <button type="button" className="btn small" onClick={exitDemo}>
+        {t('demo.exit')}
+      </button>
+    </div>
   );
 }

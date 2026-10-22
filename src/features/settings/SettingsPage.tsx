@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp, useFormat } from '../../app/context';
 import { PercentField } from '../../components/EditorParts';
+import { canUseDemo, enterDemo, exitDemo, isDemoMode } from '../../app/demo';
 import { isIOS, isStandalone, useInstallPrompt } from '../../app/pwa';
 import { BackupError, buildExport, inspectExport, parseExport } from '../../data/backup';
 import type { FxRate } from '../../model/types';
@@ -67,11 +68,14 @@ export function SettingsPage() {
 
       <AssumptionsSection />
 
-      <BackupSection />
+      {/* 示範模式下不提供備份與刪除，避免把虛構資料當成真的 */}
+      {!isDemoMode() && <BackupSection />}
 
+      <DemoSection />
 
       <InstallSection />
 
+      {!isDemoMode() && (
       <section className="card">
         <h2>{t('settings.danger.title')}</h2>
         <button
@@ -86,6 +90,7 @@ export function SettingsPage() {
           {t('settings.danger.deleteAll')}
         </button>
       </section>
+      )}
 
       <section className="card about">
         <h2>{t('settings.about.title')}</h2>
@@ -98,6 +103,21 @@ export function SettingsPage() {
         <p className="disclaimer">{t('common.disclaimer')}</p>
       </section>
     </div>
+  );
+}
+
+function DemoSection() {
+  const { t } = useTranslation();
+  if (!canUseDemo()) return null;
+  const demo = isDemoMode();
+  return (
+    <section className="card">
+      <h2>{t('demo.title')}</h2>
+      <p className="muted small">{demo ? t('demo.activeHint') : t('demo.hint')}</p>
+      <button type="button" className="btn" onClick={demo ? exitDemo : enterDemo}>
+        {demo ? t('demo.exit') : t('demo.enter')}
+      </button>
+    </section>
   );
 }
 

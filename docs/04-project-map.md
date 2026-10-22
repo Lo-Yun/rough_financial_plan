@@ -84,6 +84,7 @@
 | `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
 | `F-BAK` | 備份匯出／還原 | 設定頁 | `SettingsPage.tsx` 的 `BackupSection` | — | 全部 | `backup.*` |
 | `F-PWA` | 安裝、離線、持久化儲存 | — | `app/pwa.ts`、`vite.config.ts` | — | — | `pwa.*` |
+| `F-DEMO` | 示範資料模式 | 歡迎頁連結、設定頁、頂端橫幅 | `app/demo.ts`、`locales/tw/demo.ts`、`App.tsx` 的 `DemoBanner` | — | 另一個資料庫 `rough-financial-plan-demo` | `demo.*` |
 | `F-ACT` | 行動建議與行動清單 | 淨值頁「下一步行動」卡片、`#/actions` | `features/actions/ActionsCard.tsx`、`ActionsPage.tsx`、`ActionParts.tsx` | `computeAdvice`、`computeMetrics`、`evaluateRules`、`buildActionBoard` | userActions | `actions.*`、`action.*` |
 | `F-LADP` | 財富階梯完整頁 | `#/ladder` | `features/ladder/LadderPage.tsx` | `ladderPosition`、`monthsToNextLevel`、`worryFreeSpending` | — | `ladder.*` |
 | `F-CHK` | 每月回顧 | `#/checkin`（淨值頁到期提醒） | `features/checkin/CheckInPage.tsx` | `isCheckInDue`、`pickReviewItems`、`compareSnapshots`、`nextCheckInDate` | checkIns、snapshots、settings | `checkin.*` |
@@ -175,6 +176,7 @@
 | `load.ts` | `loadFinancialData()`：一次讀出所有表 |
 | `actions.ts` | 跨多表的動作：`recordSnapshot()`、`syncAssetFromHoldings()` |
 | `pwa.ts` | 是否已安裝、iOS 判斷、持久化儲存、安裝提示 |
+| `demo.ts` | 示範模式：旗標存在 sessionStorage（關掉分頁就回到真實資料）、切換時重新載入頁面並改用示範資料庫、每次載入重新產生示範資料、一般模式下清掉舊的示範資料庫 |
 
 `useApp()` 可取得：`repo`、`pack`、`data`（household、settings、assets、liabilities、incomes、expenses）、`overview`、`snapshots`、`goals`、`holdings`、`assumptions`（已套預設值）、`storedAssumptions`、`primaryMember`、`userActions`、`checkIns`、`today`。
 
@@ -201,13 +203,15 @@
 
 文字在 `zh-TW.json`，依功能代號表的「文字 key 前綴」分區。
 
+示範資料在 `src/locales/tw/demo.ts`（`buildTwDemo`）：虛構的雙薪有小孩家庭，含 12 個月的歷史快照與回顧、持股、理財目標與行動紀錄。改了資料模型時要一起更新，`tests/locales/demo.test.ts` 會檢查資料是否完整。
+
 ---
 
 ## 8. 測試與檢查
 
 | 指令 | 內容 |
 |---|---|
-| `npm test` | 單元測試（Vitest），目前 118 個 |
+| `npm test` | 單元測試（Vitest），目前 122 個 |
 | `npm run typecheck` | TypeScript 型別檢查 |
 | `npm run build` | 建置到 `dist/` |
 | `npm run test:e2e` | 瀏覽器端對端測試（Playwright，手機尺寸 Chromium）；需先 `npm run build` |
@@ -216,9 +220,10 @@
 |---|---|
 | `tests/core/*.test.ts` | 每個計算核心模組一個檔案 |
 | `tests/data/repo.test.ts` | Repo 讀寫、快照、備份加密、v1→v2→v3 資料庫升級與備份遷移、持股同步 |
+| `tests/locales/demo.test.ts` | 示範資料：每筆都能解析、歷史淨值逐月上升、所有關聯 id 都存在、行動清單有內容 |
 | `tests/i18n.test.ts` | 程式中用到的文字 key 都存在於 `zh-TW.json` |
 | `tests/helpers.ts` | 測試用的資產、負債、設定工廠函式 |
-| `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧 |
+| `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧、示範模式進出且不影響真實資料 |
 | `tests/e2e/helpers.ts` | 共用步驟：`completeOnboarding`、`tap`、`tab`、`watchErrors`（任何主控台錯誤都會讓測試失敗） |
 
 **持續整合**：`.github/workflows/ci.yml` 在 PR 與 `main` 上跑型別檢查、單元測試、建置、瀏覽器測試（失敗時會上傳 Playwright 報告）；`deploy.yml` 在 `main` 更新時部署到 GitHub Pages。

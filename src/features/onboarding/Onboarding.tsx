@@ -1,3 +1,4 @@
+import { canUseDemo, enterDemo } from '../../app/demo';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { recordSnapshot } from '../../app/actions';
@@ -348,6 +349,14 @@ export function Onboarding() {
             {saving ? t('common.saving') : step === 'welcome' ? t('onboarding.welcome.start') : STEPS[stepIndex + 1] === 'result' ? t('onboarding.seeResult') : t('common.next')}
           </button>
         </div>
+      )}
+
+      {step === 'welcome' && canUseDemo() && (
+        <p className="demo-entry">
+          <button type="button" className="btn link" onClick={enterDemo}>
+            {t('demo.tryFirst')}
+          </button>
+        </p>
       )}
     </div>
   );
