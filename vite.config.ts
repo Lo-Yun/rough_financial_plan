@@ -42,8 +42,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: '隨便理財',
-        short_name: '隨便理財',
+        name: '順便理財',
+        short_name: '順便理財',
         description: '用大概的數字，看懂自己的財務狀況',
         lang: 'zh-TW',
         start_url: './',

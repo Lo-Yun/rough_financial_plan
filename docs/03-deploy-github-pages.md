@@ -1,6 +1,6 @@
 # 部署到 GitHub Pages
 
-隨便理財是純靜態網站，沒有後端，直接由 GitHub Pages 免費提供。
+順便理財是純靜態網站，沒有後端，直接由 GitHub Pages 免費提供。
 
 - 網址：<https://lo-yun.github.io/rough_financial_plan/>
 - 流程：推送或合併到 `main` → `.github/workflows/deploy.yml` 執行測試與建置 → 把 `dist/` 強制推送到 `gh-pages` 分支 → GitHub Pages 從 `gh-pages` 分支的根目錄提供網站。

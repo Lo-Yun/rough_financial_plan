@@ -1,4 +1,4 @@
-# 隨便理財（Rough Financial Plan）
+# 順便理財（Rough Financial Plan）
 
 用「大概的數字」就能看懂自己的財務狀況：簡單的財務分析、理財計畫、投資組合儀表板與資產負債淨值表，再一步步把數字變精確，並以財富階梯（Maggiulli《The Wealth Ladder》）引導行動。
 
