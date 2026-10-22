@@ -1016,3 +1016,8 @@ fieldset {
 .review-row .button-row {
   margin-top: 6px;
 }
+
+/* 文字中的 \n 顯示為換行 */
+.pre-line {
+  white-space: pre-line;
+}

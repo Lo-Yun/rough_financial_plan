@@ -182,8 +182,9 @@ export function Onboarding() {
 
       {step === 'welcome' && (
         <section className="card hero">
-          <h1>{t('onboarding.welcome.title')}</h1>
-          <p className="lead">{t('onboarding.welcome.lead')}</p>
+          {/* 文字中的 \n 是刻意的換行 */}
+          <h1 className="pre-line">{t('onboarding.welcome.title')}</h1>
+          <p className="lead pre-line">{t('onboarding.welcome.lead')}</p>
           <ul className="bullets">
             <li>{t('onboarding.welcome.point1')}</li>
             <li>{t('onboarding.welcome.point2')}</li>
