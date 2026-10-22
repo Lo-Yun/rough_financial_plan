@@ -278,7 +278,7 @@ w: 不知道 = 0、區間 = 0.4、大約 = 0.75、精確 = 1.0
 | 圖表 | Recharts（或 ECharts） | 圓餅、折線、區間帶 |
 | 國際化 | i18next | 文字與數字格式化抽離 |
 | 測試 | Vitest（計算核心）+ Playwright（E2E） | 計算核心要求高覆蓋率 |
-| 部署 | Cloudflare Pages（見 [部署說明](./03-deploy-cloudflare.md)） | 沒有後端，成本接近零；推送分支自動產生預覽網址 |
+| 部署 | GitHub Pages（見 [部署說明](./03-deploy-github-pages.md)） | 沒有後端，免費；合併到 main 自動部署 |
 
 ### 6.2 分層
 

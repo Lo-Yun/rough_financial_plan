@@ -1,8 +1,31 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
+
+// GitHub Pages 無法設定回應標頭，改用 <meta> 設定內容安全政策。
+// connect-src 'self' 讓網頁無法把資料送到其他網站。只在建置時加入，開發伺服器需要行內程式碼。
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "manifest-src 'self'",
+  "worker-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
+const cspMeta: Plugin = {
+  name: 'csp-meta',
+  apply: 'build',
+  transformIndexHtml: (html) =>
+    html.replace('<head>', `<head>\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`),
+};
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string };
 
@@ -14,6 +37,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    cspMeta,
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png'],

@@ -2,6 +2,7 @@
 
 用「大概的數字」就能看懂自己的財務狀況：簡單的財務分析、理財計畫、投資組合儀表板與資產負債淨值表，再一步步把數字變精確，並以財富階梯（Maggiulli《The Wealth Ladder》）引導行動。
 
+- 網址：<https://lo-yun.github.io/rough_financial_plan/>
 - 形式：PWA，資料只存在本機（IndexedDB），不需要註冊，也不收集任何使用統計
 - 市場：先做台灣，台灣專屬規則集中在地區資料包（`src/locales/tw/`），保留國際化彈性
 
@@ -9,7 +10,7 @@
 
 - [系統規格書](docs/01-system-spec.md)
 - [資料模型](docs/02-data-model.md)
-- [部署到 Cloudflare Pages](docs/03-deploy-cloudflare.md)
+- [部署到 GitHub Pages](docs/03-deploy-github-pages.md)
 
 ## 開發
 
@@ -20,7 +21,7 @@ npm install
 npm run dev        # 開發伺服器
 npm test           # 單元測試（計算核心、資料層、翻譯完整性）
 npm run typecheck
-npm run build      # 產生 dist/（部署方式見 docs/03-deploy-cloudflare.md）
+npm run build      # 產生 dist/（合併到 main 後自動部署，見 docs/03-deploy-github-pages.md）
 ```
 
 ## 目錄
