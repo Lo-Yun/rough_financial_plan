@@ -120,5 +120,7 @@ export function migratePayload(p: ExportPayload, fromVersion: number): ExportPay
   let out = p;
   // v1 → v2：新增理財目標
   if (fromVersion < 2) out = { ...out, goals: [] };
+  // v2 → v3：新增持股明細
+  if (fromVersion < 3) out = { ...out, holdings: [] };
   return out;
 }

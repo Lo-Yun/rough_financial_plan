@@ -778,3 +778,127 @@ fieldset {
 .page > .btn.primary {
   width: 100%;
 }
+
+/* Phase 3：投資組合。大類顏色取自 dataviz 參考調色盤的類別色前四槽（依固定順序） */
+:root {
+  --g-equity: #2a78d6;
+  --g-bond: #eb6834;
+  --g-cash: #1baf7a;
+  --g-alternative: #eda100;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --g-equity: #3987e5;
+    --g-bond: #d95926;
+    --g-cash: #199e70;
+    --g-alternative: #c98500;
+  }
+}
+.alloc-bar-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+.alloc-bar-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.alloc-bar {
+  display: flex;
+  gap: 2px;
+  height: 22px;
+}
+.alloc-bar .seg {
+  min-width: 3px;
+}
+.alloc-bar .seg:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.alloc-bar .seg:last-child {
+  border-radius: 0 4px 4px 0;
+}
+.alloc-bar .seg:only-child {
+  border-radius: 4px;
+}
+.g-equity {
+  background: var(--g-equity);
+}
+.g-bond {
+  background: var(--g-bond);
+}
+.g-cash {
+  background: var(--g-cash);
+}
+.g-alternative {
+  background: var(--g-alternative);
+}
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: 0;
+}
+.alloc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin-top: 8px;
+}
+.alloc-table th,
+.alloc-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.alloc-table th:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+.alloc-table thead th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+.class-breakdown {
+  margin-top: 10px;
+}
+.class-breakdown summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+.risk-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+.toggle-row.inline {
+  justify-content: center;
+}
+.mode-badge.warn {
+  color: var(--warn);
+}
+.item-list .row a.name {
+  color: inherit;
+  text-decoration: none;
+}
+.tab-bar a {
+  font-size: 0.7rem;
+}
+.item-list .row a {
+  display: block;
+  min-height: 0;
+  padding: 0;
+}
+.item-list .row a.name {
+  flex: 1;
+}

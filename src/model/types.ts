@@ -167,9 +167,33 @@ export interface Asset extends BaseEntity {
   value: MoneyEstimate;
   liquidity: Liquidity;
   isPrimaryResidence?: boolean;
+  /** 各資產類別比例，總和為 1；未填時依類別預設（地區資料包），有持股明細時以持股為準 */
   allocation?: Partial<Record<AssetClass, number>>;
+  /** 有持股明細時，帳戶價值改用持股加總 */
+  valueFromHoldings?: boolean;
   note?: string;
 }
+
+/** 選用的持股明細（P3） */
+export interface Holding extends BaseEntity {
+  assetId: ID;
+  /** 代號，例如 '0050'、'VT' */
+  symbol?: string;
+  name: string;
+  assetClass: AssetClass;
+  quantity?: number;
+  /** 手動輸入的現價（不串接報價） */
+  price?: { value: number; currency: CurrencyCode; asOf: ISODate };
+  /** 沒有數量或現價時，直接估算市值 */
+  marketValue?: MoneyEstimate;
+  /** 總成本（選填，用來顯示損益） */
+  costBasis?: MoneyEstimate;
+}
+
+/** 配置比較用的大類 */
+export type AllocationGroup = 'equity' | 'bond' | 'cash' | 'alternative';
+
+export type TargetAllocation = { preset: string } | { custom: Record<AllocationGroup, number> };
 
 export type LiabilityCategory =
   | 'mortgage'
@@ -215,6 +239,8 @@ export interface Settings {
   dismissedTips: string[];
   /** 對帳檢查：使用者估計過去一年存款（含投資）增加多少，用來比對收支估算 */
   reconciliation?: { lastYearSavingsChange: MoneyEstimate; answeredAt: ISODate };
+  /** 投資組合是否包含現金與存款（預設不含，因為多半是緊急預備金） */
+  portfolioIncludeCash?: boolean;
 }
 
 /** 報酬率類型：短期目標用現金，長期目標用股債配置 */
@@ -228,6 +254,8 @@ export interface Assumptions {
   /** 保守／樂觀情境 = 中性 ∓ spread（現金類只用四分之一） */
   scenarioSpread?: number;
   safeWithdrawalRate?: number;
+  /** 投資組合的目標配置（P3） */
+  targetAllocation?: TargetAllocation;
 }
 
 export type GoalType =

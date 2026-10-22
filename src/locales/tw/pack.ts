@@ -57,15 +57,15 @@ export const twPack: LocalePack = {
       { key: 'other', i18nKey: 'category.expense.other' },
     ],
     asset: [
-      { key: 'cash', i18nKey: 'category.asset.cash', icon: '💵', defaultLiquidity: 'liquid' },
-      { key: 'investment', i18nKey: 'category.asset.investment', icon: '📈', defaultLiquidity: 'semi_liquid' },
-      { key: 'crypto', i18nKey: 'category.asset.crypto', icon: '🪙', defaultLiquidity: 'semi_liquid' },
-      { key: 'retirement', i18nKey: 'category.asset.retirement', icon: '🧓', defaultLiquidity: 'illiquid' },
-      { key: 'insurance_cash_value', i18nKey: 'category.asset.insurance_cash_value', icon: '🛡️', defaultLiquidity: 'illiquid' },
-      { key: 'real_estate', i18nKey: 'category.asset.real_estate', icon: '🏠', defaultLiquidity: 'illiquid' },
-      { key: 'vehicle', i18nKey: 'category.asset.vehicle', icon: '🚗', defaultLiquidity: 'illiquid' },
-      { key: 'receivable', i18nKey: 'category.asset.receivable', icon: '🤝', defaultLiquidity: 'semi_liquid' },
-      { key: 'other', i18nKey: 'category.asset.other', icon: '📦', defaultLiquidity: 'semi_liquid' },
+      { key: 'cash', i18nKey: 'category.asset.cash', icon: '💵', defaultLiquidity: 'liquid', defaultAllocation: { cash: 1 }, inPortfolio: false },
+      { key: 'investment', i18nKey: 'category.asset.investment', icon: '📈', defaultLiquidity: 'semi_liquid', defaultAllocation: { equity_domestic: 1 }, inPortfolio: true },
+      { key: 'crypto', i18nKey: 'category.asset.crypto', icon: '🪙', defaultLiquidity: 'semi_liquid', defaultAllocation: { crypto: 1 }, inPortfolio: true },
+      { key: 'retirement', i18nKey: 'category.asset.retirement', icon: '🧓', defaultLiquidity: 'illiquid', defaultAllocation: { other: 1 }, inPortfolio: true },
+      { key: 'insurance_cash_value', i18nKey: 'category.asset.insurance_cash_value', icon: '🛡️', defaultLiquidity: 'illiquid', defaultAllocation: { insurance: 1 }, inPortfolio: true },
+      { key: 'real_estate', i18nKey: 'category.asset.real_estate', icon: '🏠', defaultLiquidity: 'illiquid', defaultAllocation: { real_estate: 1 }, inPortfolio: false },
+      { key: 'vehicle', i18nKey: 'category.asset.vehicle', icon: '🚗', defaultLiquidity: 'illiquid', defaultAllocation: { other: 1 }, inPortfolio: false },
+      { key: 'receivable', i18nKey: 'category.asset.receivable', icon: '🤝', defaultLiquidity: 'semi_liquid', defaultAllocation: { other: 1 }, inPortfolio: false },
+      { key: 'other', i18nKey: 'category.asset.other', icon: '📦', defaultLiquidity: 'semi_liquid', defaultAllocation: { other: 1 }, inPortfolio: false },
     ],
     liability: [
       { key: 'mortgage', i18nKey: 'category.liability.mortgage', icon: '🏠', defaultSecured: true, defaultAnnualRate: 0.022, defaultTermMonths: 240 },
@@ -139,6 +139,16 @@ export const twPack: LocalePack = {
   },
 
   homeDefaults: { downPaymentRatio: 0.2, feesRatio: 0.03, mortgageTermMonths: 360 },
+
+  // 見規格 4.7；範本只用股、債、現金、其他四大類比較，不涉及任何特定商品
+  allocationPresets: [
+    { id: 'conservative', i18nKey: 'portfolio.preset.conservative', allocation: { equity: 0.3, bond: 0.5, cash: 0.2, alternative: 0 } },
+    { id: 'balanced', i18nKey: 'portfolio.preset.balanced', allocation: { equity: 0.6, bond: 0.3, cash: 0.1, alternative: 0 } },
+    { id: 'aggressive', i18nKey: 'portfolio.preset.aggressive', allocation: { equity: 0.85, bond: 0.1, cash: 0.05, alternative: 0 } },
+    { id: 'age_110', i18nKey: 'portfolio.preset.age_110', ageRule: { base: 110, cash: 0.05 } },
+  ],
+  concentrationLimit: 0.2,
+  rebalanceBand: 0.05,
 
   forgottenExpenses: [
     'forgotten.insurance',

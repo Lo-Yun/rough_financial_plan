@@ -17,7 +17,8 @@
     "settings": "設定",
     "cashflow": "收支",
     "health": "健檢",
-    "plans": "計畫"
+    "plans": "計畫",
+    "portfolio": "投資"
   },
   "unit": {
     "wan": "萬",
@@ -670,5 +671,122 @@
         "red": "約佔經常性收入 {{pct}}，負擔太重，建議降低房價或提高自備款。"
       }
     }
+  },
+  "allocation": {
+    "title": "投資在哪些類別",
+    "mixed": "混合",
+    "usingDefault": "還沒指定，暫時用預設類別計算。",
+    "sum": "合計 {{pct}}%（不必剛好 100%，會依比例換算）",
+    "fromHoldings": "已有 {{count}} 筆持股明細，類別依持股計算。",
+    "holdingsLink": "持股明細（{{count}} 筆）",
+    "valueFromHoldingsHint": "這個帳戶設定為「用持股加總」，修改持股時會自動更新這裡的金額。"
+  },
+  "portfolio": {
+    "title": "投資組合",
+    "total": "投資組合總值",
+    "includeCash": "包含現金與存款",
+    "unresolved": "有 {{count}} 筆投資還不知道金額，暫時沒有算進去",
+    "unresolved_other": "有 {{count}} 筆投資還不知道金額，暫時沒有算進去",
+    "empty": "還沒有投資類的資產（股票、基金、ETF、加密資產、退休帳戶、儲蓄險）。",
+    "guessed": "有 {{count}} 個帳戶還沒指定投資類別，暫時當作「台股」計算。點下方帳戶設定，配置會更準。",
+    "guessed_other": "有 {{count}} 個帳戶還沒指定投資類別，暫時當作「台股」計算。點下方帳戶設定，配置會更準。",
+    "allocation": "資產配置",
+    "actual": "目前",
+    "target": "目標",
+    "group": "大類",
+    "byClass": "依細項類別",
+    "groupName": {
+      "equity": "股票",
+      "bond": "債券",
+      "cash": "現金",
+      "alternative": "其他"
+    },
+    "class": {
+      "equity_domestic": "台股",
+      "equity_global": "海外股票",
+      "bond": "債券",
+      "cash": "現金",
+      "real_estate": "不動產（REITs）",
+      "crypto": "加密資產",
+      "insurance": "儲蓄險",
+      "other": "其他"
+    },
+    "risk": {
+      "label": "風險程度",
+      "level1": "保守",
+      "level2": "穩健偏保守",
+      "level3": "穩健",
+      "level4": "成長",
+      "level5": "積極"
+    },
+    "targetTitle": "目標配置",
+    "targetExplain": "選一個範本當作參考，就能看出目前配置偏離多少。範本只是常見的原則，不是投資建議。",
+    "preset": {
+      "conservative": "保守",
+      "balanced": "穩健",
+      "aggressive": "積極",
+      "age_110": "110 − 年齡",
+      "custom": "自訂",
+      "none": "不設定"
+    },
+    "presetDesc": {
+      "conservative": "股票 30%、債券 50%、現金 20%。波動小，適合短期內要用錢或不能承受虧損的人。",
+      "balanced": "股票 60%、債券 30%、現金 10%。兼顧成長與穩定。",
+      "aggressive": "股票 85%、債券 10%、現金 5%。長期報酬較高，但可能短期大跌。",
+      "age_110": "股票比例 = 110 − 年齡（你目前約 {{age}} 歲），其餘大多為債券，留 5% 現金。年紀越大越保守。"
+    },
+    "birthYear": "出生年",
+    "customSum": "合計 {{pct}}%（會依比例換算成 100%）",
+    "rebalance": {
+      "title": "再平衡提示",
+      "over": "{{group}}比目標多 {{pp}} 個百分點（約 {{amount}}）",
+      "under": "{{group}}比目標少 {{pp}} 個百分點（約 {{amount}}）",
+      "how": "一般原則：先用新投入的錢補足不足的類別，比賣出更省手續費與稅；偏離很大時再考慮賣出超出的部分。",
+      "ok": "每一類都在目標的 ±{{band}} 個百分點內，不需要調整。"
+    },
+    "concentration": {
+      "title": "集中度提醒",
+      "item": "{{name}} 佔整個投資組合 {{pct}}",
+      "explain": "單一標的超過 {{limit}}% 時，一家公司或一個市場出事就會大幅影響整體。指數型基金本身已分散，可以視情況忽略。"
+    },
+    "currency": "幣別分布",
+    "accounts": "投資帳戶",
+    "source": {
+      "holdings": "依持股明細",
+      "user": "自己指定",
+      "default": "預設類別",
+      "guessed": "預設類別，請確認"
+    },
+    "holdingsLink": "持股 {{count}} 筆",
+    "holdingsLink_other": "持股 {{count}} 筆",
+    "disclaimer": "本頁只依你輸入的資料計算配置比例，不提供任何個別商品的買賣建議。",
+    "noValue": "還沒填金額"
+  },
+  "holdings": {
+    "title": "{{name}} 的持股",
+    "explain": "可以只填帳戶總值；想知道更細的配置或集中度，再逐筆填持股。不需要每天更新價格。",
+    "total": "持股加總",
+    "useTotal": "用持股加總當作帳戶價值",
+    "useTotalHint": "開啟後，新增或修改持股時會自動更新這個帳戶的金額。",
+    "empty": "還沒有持股明細。",
+    "add": "新增持股",
+    "qtyPrice": "{{q}} 股 × {{p}} {{c}}（{{date}}）",
+    "priceNote": "價格需要手動更新，App 不會連線取得報價。",
+    "name": "名稱",
+    "namePlaceholder": "例如：元大台灣50",
+    "symbol": "代號（可以不填）",
+    "class": "類別",
+    "classHint": "股票型 ETF 選股票；債券 ETF 選債券；平衡型基金可以拆成兩筆。",
+    "valueMode": "怎麼計算市值",
+    "mode": {
+      "priced": "股數 × 現價",
+      "value": "直接估市值"
+    },
+    "quantity": "股數（單位數）",
+    "price": "現價",
+    "pricePlaceholder": "例如 150",
+    "priceDate": "價格日期：{{date}}（修改價格時會更新為今天）",
+    "marketValue": "目前市值",
+    "unnamed": "未命名持股"
   }
 }
