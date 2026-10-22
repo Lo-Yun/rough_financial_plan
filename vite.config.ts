@@ -44,7 +44,7 @@ export default defineConfig({
       manifest: {
         name: '順便理財',
         short_name: '順便理財',
-        description: '用大概的數字，看懂自己的財務狀況',
+        description: '用差不多的數字，看懂你的財務',
         lang: 'zh-TW',
         start_url: './',
         scope: './',

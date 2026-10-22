@@ -17,6 +17,7 @@
 | 2026-10-22 | 調整 | 改名「順便理財」 | [#4](https://github.com/Lo-Yun/rough_financial_plan/pull/4) |
 | 2026-10-22 | 文件 | 新增專案地圖與這份路線圖 | [#5](https://github.com/Lo-Yun/rough_financial_plan/pull/5) |
 | 2026-10-22 | **P4 財富階梯行動與追蹤** | 行動建議引擎（19 個範本與規則）、行動清單、財富階梯完整頁（到下一層的時間、0.01% 法則）、每月回顧；資料庫 v4；頁面延遲載入與框架分包；瀏覽器測試納入 CI | [#6](https://github.com/Lo-Yun/rough_financial_plan/pull/6) |
+| 2026-10-22 | 調整 | 歡迎頁文案改為「用差不多的數字，看懂你的財務」，並同步網頁描述 | [#7](https://github.com/Lo-Yun/rough_financial_plan/pull/7) |
 
 網站：<https://lo-yun.github.io/rough_financial_plan/>（合併到 `main` 後自動部署）
 
