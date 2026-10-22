@@ -11,6 +11,8 @@
 - [系統規格書](docs/01-system-spec.md)
 - [資料模型](docs/02-data-model.md)
 - [部署到 GitHub Pages](docs/03-deploy-github-pages.md)
+- [專案地圖](docs/04-project-map.md)：功能代號、檔案位置、除錯指南
+- [開發歷程與路線圖](docs/05-roadmap.md)：做過什麼、決策紀錄、技術債、未來方向
 
 ## 開發
 
