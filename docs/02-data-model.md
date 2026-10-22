@@ -390,6 +390,7 @@ interface CheckIn extends BaseEntity {
 ## 4. 地區資料包（LocalePack）
 
 隨 App 發布的唯讀資料，不存在 IndexedDB。新增國家時，只要新增一份資料包。
+P1 已實作的欄位見 `src/model/localePack.ts`；`healthThresholds`、`defaultAssumptions`、`allocationPresets`、`actionTemplates`、`rules` 於 P2 以後加入。
 
 ```ts
 interface LocalePack {
@@ -397,7 +398,9 @@ interface LocalePack {
   version: string;                  // '2026.10.0'，快照會記錄
   baseCurrency: CurrencyCode;
   defaultLanguage: string;
-  numberFormat: { largeUnit?: { value: number; i18nKey: string } }; // 台灣：1 萬
+  commonCurrencies: CurrencyCode[];                                // 輸入時可選的幣別
+  numberUnits: { value: number; i18nKey: string }[];               // 顯示單位，由大到小：億、萬
+  inputUnitAliases: Record<string, number>;                        // 輸入單位：'萬' → 10000、'k' → 1000
 
   categories: {
     income: CategoryDef[];
@@ -410,7 +413,7 @@ interface LocalePack {
   brackets: Record<string, { id: string; low: number; high: number }[]>;
 
   /** 「不知道」時代入的統計值；key 例如 'expense.monthly_total.couple' */
-  statistics: Record<string, { p25: number; p50: number; p75: number; source: string; year: number }>;
+  statistics: Record<string, { p25: number; p50: number; p75: number; source: string; year: number; verified: boolean }>;
 
   /** 健檢指標的門檻 */
   healthThresholds: Record<HealthMetricKey, { red?: [number, number]; yellow?: [number, number]; green?: [number, number]; higherIsBetter: boolean }>;
@@ -463,6 +466,7 @@ type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*'
 ## 5. IndexedDB 結構（Dexie）
 
 ```ts
+// P1 已建立的表見 src/data/db.ts；holdings、goals、userActions、checkIns 於後續版本加入
 db.version(1).stores({
   households:   'id',
   members:      'id, householdId',

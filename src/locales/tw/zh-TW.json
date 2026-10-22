@@ -1,0 +1,357 @@
+{
+  "common": {
+    "loading": "載入中…",
+    "back": "上一步",
+    "next": "下一步",
+    "save": "儲存",
+    "saving": "儲存中…",
+    "delete": "刪除",
+    "dismiss": "知道了",
+    "yes": "有",
+    "no": "沒有",
+    "disclaimer": "本工具提供一般性的財務教育與估算，不構成投資建議。所有資料只儲存在你的裝置上。"
+  },
+  "nav": {
+    "label": "主要功能",
+    "netWorth": "淨值",
+    "history": "歷史",
+    "settings": "設定"
+  },
+  "unit": {
+    "wan": "萬",
+    "yi": "億"
+  },
+  "amount": {
+    "placeholder": "例如 35000 或 600萬",
+    "invalid": "看不懂這個數字，可以寫成 35000、3.5萬 或 600萬",
+    "hint": "可以直接寫「萬」，例如 600萬"
+  },
+  "estimate": {
+    "modeLabel": "你對這個數字有多確定？",
+    "mode": {
+      "unknown": "不確定",
+      "range": "範圍",
+      "approx": "大約",
+      "exact": "精確"
+    },
+    "below": "{{v}} 以下",
+    "low": "最少",
+    "high": "最多",
+    "approxNote": "我們會當作上下差 {{pct}}% 左右來計算",
+    "asOf": "這是哪一天的數字",
+    "currency": "幣別",
+    "unknownWithStat": "沒關係！先用台灣同類家庭的常見範圍（{{range}}）代入，之後再改。",
+    "unknownNoStat": "沒關係！這一項先不算進去，之後想到再補。",
+    "stale": "該更新了"
+  },
+  "range": {
+    "about": "約 "
+  },
+  "precision": {
+    "aria": "精確度 {{pct}}%"
+  },
+  "category": {
+    "income": {
+      "salary": "薪資",
+      "bonus": "年終與獎金",
+      "side_hustle": "副業",
+      "business": "營業收入",
+      "rental": "租金收入",
+      "dividend_interest": "股利與利息",
+      "pension": "退休金與年金",
+      "other": "其他收入"
+    },
+    "expense": {
+      "housing": "居住",
+      "utilities": "水電瓦斯",
+      "food": "飲食",
+      "transport": "交通",
+      "telecom": "通訊",
+      "insurance": "保險費",
+      "children_education": "子女教育",
+      "medical": "醫療",
+      "family_support": "孝親費",
+      "leisure_travel": "娛樂與旅遊",
+      "shopping": "購物",
+      "annual_irregular": "年度不定期支出",
+      "other": "其他支出"
+    },
+    "asset": {
+      "cash": "現金與存款",
+      "investment": "投資",
+      "crypto": "加密資產",
+      "retirement": "退休帳戶",
+      "insurance_cash_value": "儲蓄險",
+      "real_estate": "房地產",
+      "vehicle": "車輛",
+      "receivable": "應收款",
+      "other": "其他資產"
+    },
+    "liability": {
+      "mortgage": "房貸",
+      "car_loan": "車貸",
+      "personal_loan": "信貸",
+      "credit_card": "信用卡",
+      "student_loan": "學貸",
+      "family_loan": "親友借款",
+      "business_loan": "經營借款",
+      "other": "其他負債"
+    }
+  },
+  "householdType": {
+    "single": "單身",
+    "couple": "夫妻或伴侶",
+    "couple_with_children": "有小孩的家庭",
+    "single_parent": "單親家庭",
+    "other": "其他"
+  },
+  "liquidity": {
+    "liquid": "隨時可用",
+    "semi_liquid": "幾天到幾週可變現",
+    "illiquid": "不容易變現",
+    "liquidHint": "例如活存、貨幣基金，今天就能動用。",
+    "semi_liquidHint": "例如股票、定存，需要一點時間或小損失才能拿到現金。",
+    "illiquidHint": "例如房子、車子、退休帳戶、儲蓄險，短期內很難或不划算變現。"
+  },
+  "onboarding": {
+    "progress": "第 {{n}} 題，共 {{total}} 題",
+    "seeResult": "看結果",
+    "welcome": {
+      "title": "用大概的數字，看懂你的財務",
+      "lead": "接下來大約 10 個問題、5 分鐘，就能估出你的身價。",
+      "point1": "不確定也沒關係，選「不確定」或一個範圍就好。",
+      "point2": "所有資料只存在這台裝置上，不需要註冊。",
+      "point3": "之後想到更精確的數字，隨時都能改。",
+      "start": "開始估算"
+    },
+    "household": {
+      "title": "你的家庭狀況是？",
+      "birthYear": "出生年（可以不填）",
+      "birthYearHint": "之後規劃退休時會用到。"
+    },
+    "income": {
+      "title": "每個月大約收入多少？",
+      "hint": "填實際拿到手的金額（稅後、扣完勞健保）。夫妻可以填兩人合計。",
+      "has": "有收入",
+      "none": "目前沒有收入"
+    },
+    "bonus": {
+      "title": "年終與獎金一年大約有幾個月？",
+      "hint": "用月薪的倍數估就好。",
+      "none": "沒有",
+      "months": "{{count}} 個月",
+      "months_other": "{{count}} 個月"
+    },
+    "expense": {
+      "title": "每個月大約花多少？",
+      "hint": "包含房租、吃飯、交通、保險等所有開銷，但不含房貸、車貸等還款。很多人會低估 2～3 成，可以估高一點。",
+      "itemLabel": "每月總花費"
+    },
+    "cash": {
+      "title": "現金和存款大約有多少？",
+      "hint": "活存、定存、外幣存款、家裡的現金都算。"
+    },
+    "investment": {
+      "title": "有沒有股票、ETF、基金等投資？",
+      "hint": "用目前的市值估算就好。"
+    },
+    "home": {
+      "title": "有沒有自己住的房子？",
+      "hint": "用現在大概能賣多少來估。不知道可以參考附近的實價登錄。",
+      "itemLabel": "自住房"
+    },
+    "vehicle": {
+      "title": "有沒有汽車或機車？",
+      "hint": "用現在的二手價估算，不是當初買的價格。"
+    },
+    "debts": {
+      "title": "目前有哪些貸款或欠款？",
+      "hint": "可以複選。沒有就直接下一步。",
+      "type": {
+        "mortgage": "房貸",
+        "car_loan": "車貸",
+        "personal_loan": "信貸",
+        "credit_card": "卡債（信用卡循環）",
+        "student_loan": "學貸"
+      },
+      "howMuch": "{{type}}大約還欠多少？",
+      "noneSelected": "沒有任何負債，很好！"
+    },
+    "result": {
+      "netWorth": "你的淨值（身價）",
+      "precision": "精確度 {{pct}}%。這是粗估，數字越精確，結果越可靠。",
+      "surplus": "每個月大約可以存下",
+      "deficit": "每月大約不夠 {{v}}",
+      "surplusRange": "範圍：{{range}}（含年終平均）",
+      "nextTitle": "下一步",
+      "nextBody": "進入後，App 會提示你先把哪一項改精確，效果最大。每個月回來記錄一次，就能看到淨值的變化。",
+      "enter": "進入我的財務"
+    }
+  },
+  "netWorth": {
+    "view": {
+      "all": "淨值",
+      "accessible": "可動用淨值"
+    },
+    "accessibleHint": "不含自住房、車子、退休帳戶等不容易變現的資產，以及它們的貸款。",
+    "precision": "精確度 {{pct}}%",
+    "stale": "{{count}} 個精確數字超過有效期，該更新了",
+    "stale_other": "{{count}} 個精確數字超過有效期，該更新了",
+    "unresolved": "有 {{count}} 項還不知道金額，暫時沒有算進去",
+    "unresolved_other": "有 {{count}} 項還不知道金額，暫時沒有算進去",
+    "missingFx": "缺少匯率：{{list}}，請到設定填寫。",
+    "nextStep": "下一步",
+    "refine": {
+      "unknown": "填一下「{{name}}」的金額，估算會準很多",
+      "stale": "「{{name}}」的數字有點舊了，更新一下吧",
+      "imprecise": "把「{{name}}」改成更精確的數字，精確度提升最多"
+    },
+    "section": {
+      "asset": "資產",
+      "liability": "負債"
+    },
+    "empty": {
+      "asset": "還沒有資產。",
+      "liability": "沒有負債。"
+    },
+    "add": {
+      "asset": "新增資產",
+      "liability": "新增負債"
+    },
+    "noFx": "缺匯率"
+  },
+  "ladder": {
+    "title": "財富階梯",
+    "negative": "目前負債大於資產，先從處理債務開始。",
+    "spans": "依你的估算範圍，可能在第 {{a}} 層到第 {{b}} 層之間。",
+    "progressLabel": "往下一層的進度",
+    "next": "第 {{level}} 層從 {{amount}} 開始（每一層約是上一層的 10 倍）",
+    "level1": {
+      "name": "月光階段",
+      "desc": "收入大多用在生活開銷，一筆意外支出就可能造成壓力。重點：穩定現金流、還清高利債、存下第一筆緊急預備金。"
+    },
+    "level2": {
+      "name": "買菜自由",
+      "desc": "買日常用品不用再斤斤計較。重點：把緊急預備金存滿、提升收入、開始定期投資。"
+    },
+    "level3": {
+      "name": "餐廳自由",
+      "desc": "上館子不必太在意價格。重點：提高儲蓄率、做好資產配置，讓投資替你工作。"
+    },
+    "level4": {
+      "name": "旅行自由",
+      "desc": "旅行可以照自己的意思安排。重點：保住已有的資產，留意稅務與傳承。"
+    },
+    "level5": {
+      "name": "買房自由",
+      "desc": "想住的房子大多買得起。這個階段建議尋求專業顧問。"
+    },
+    "level6": {
+      "name": "慈善自由",
+      "desc": "有能力透過捐贈改變社會。這個階段建議尋求專業顧問。"
+    }
+  },
+  "snapshot": {
+    "recordToday": "記錄今天的淨值",
+    "updateToday": "更新今天的紀錄",
+    "hint": "建議每個月記錄一次，就能看到淨值的變化。",
+    "trigger": {
+      "manual": "手動記錄",
+      "check_in": "定期回顧",
+      "onboarding": "首次估算"
+    }
+  },
+  "editor": {
+    "category": "類別",
+    "label": "名稱（可以不填）",
+    "labelPlaceholder": "例如：玉山活存、台北的房子",
+    "value": "目前價值",
+    "balance": "目前還欠多少",
+    "liquidity": "變現難易度",
+    "primaryResidence": "這是我自己住的房子",
+    "insuranceHint": "儲蓄險請填「現在解約能拿回多少」（保單價值準備金或解約金），不是已繳保費。",
+    "retirementHint": "勞退個人專戶的金額可以在勞保局 e 化服務系統或 App 查詢。",
+    "secured": "有擔保品",
+    "securedHint": "例如房貸以房子擔保、車貸以車子擔保。",
+    "securedBy": "擔保品是哪一項資產",
+    "securedByNone": "未指定",
+    "revolving": "有動用循環信用",
+    "revolvingHint": "沒有全額繳清、被收循環利息。每月全額繳清的話請取消勾選。",
+    "note": "備註",
+    "confirmDelete": "確定要刪除這一項嗎？"
+  },
+  "history": {
+    "title": "淨值歷史",
+    "needTwo": "記錄兩次以上就會出現淨值曲線。建議每個月記錄一次。",
+    "chartAria": "淨值隨時間變化的折線圖，陰影為估算範圍",
+    "band": "估算範圍",
+    "mid": "淨值",
+    "bandHint": "線是估算的中間值，陰影是可能範圍。數字越精確，陰影越窄。",
+    "precision": "精確度 {{pct}}%",
+    "confirmDelete": "刪除 {{date}} 的紀錄？",
+    "empty": "還沒有任何紀錄。"
+  },
+  "backup": {
+    "title": "備份與還原",
+    "explain": "資料只存在這台裝置上。換手機、清除瀏覽器資料前，請先匯出備份檔。",
+    "last": "上次備份：{{date}}",
+    "never": "還沒有備份過。",
+    "password": "備份密碼（可以不填）",
+    "passwordHint": "設定密碼後，備份檔會加密。忘記密碼就無法還原。",
+    "export": "匯出備份",
+    "import": "從備份還原",
+    "exported": "已匯出備份檔。",
+    "imported": "已從備份還原。",
+    "askPassword": "這個備份檔有加密，請輸入密碼：",
+    "confirmImport": "還原會取代目前所有資料，確定嗎？",
+    "remindNever": "還沒有備份過資料。點這裡匯出備份，避免資料遺失。",
+    "remindDays": "已經 {{days}} 天沒有備份了，點這裡匯出備份。",
+    "error": {
+      "invalid_format": "這不是有效的備份檔。",
+      "needs_password": "這個備份檔需要密碼。",
+      "wrong_password": "密碼不對，或檔案已損壞。",
+      "unsupported_version": "這個備份檔來自較新版本的 App，請先更新 App。"
+    }
+  },
+  "pwa": {
+    "title": "安裝到主畫面",
+    "why": "安裝後可以離線使用，也能避免瀏覽器自動清除資料。",
+    "install": "安裝 App",
+    "manual": "請用瀏覽器選單中的「安裝應用程式」或「加到主畫面」。",
+    "iosInstall": "iPhone 使用者：請點 Safari 下方的「分享」按鈕，選「加入主畫面」。沒有加入的話，太久沒開啟時 Safari 可能會清除資料。"
+  },
+  "settings": {
+    "title": "設定",
+    "fx": {
+      "title": "匯率",
+      "hint": "1 單位外幣等於多少 {{base}}。有外幣資產時才需要填。",
+      "required": "需要填寫",
+      "asOf": "{{date}} 更新"
+    },
+    "estimates": {
+      "title": "估算",
+      "tolerance": "「大約」代表上下差多少",
+      "stale": "精確數字多久後提醒更新",
+      "days": "{{count}} 天",
+      "days_other": "{{count}} 天"
+    },
+    "analytics": {
+      "title": "匿名使用統計",
+      "label": "分享匿名使用統計，幫助我們改善 App",
+      "short": "不含任何金額或個人資料，可以隨時關閉。",
+      "detail": "我們只收集「使用了哪些功能」等匿名事件（例如完成快速估算、新增了一筆現金類資產），用來改善 App。絕不收集任何金額、名稱、備註或可以識別你身分的資料。你的財務資料永遠只存在你的裝置上。"
+    },
+    "danger": {
+      "title": "刪除資料",
+      "deleteAll": "刪除所有資料",
+      "confirm1": "這會永久刪除這台裝置上的所有財務資料，而且無法復原。建議先匯出備份。確定繼續？",
+      "confirm2": "請輸入「刪除」兩個字確認：",
+      "keyword": "刪除"
+    },
+    "about": {
+      "title": "關於",
+      "version": "版本 {{version}}・地區資料 {{pack}}",
+      "stats": "選「不確定」時使用的統計預設值，來自行政院主計總處的公開資料，目前為概略值，正式版會再校對。"
+    }
+  }
+}
