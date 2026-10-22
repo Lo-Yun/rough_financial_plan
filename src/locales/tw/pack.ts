@@ -68,14 +68,14 @@ export const twPack: LocalePack = {
       { key: 'other', i18nKey: 'category.asset.other', icon: '📦', defaultLiquidity: 'semi_liquid' },
     ],
     liability: [
-      { key: 'mortgage', i18nKey: 'category.liability.mortgage', icon: '🏠', defaultSecured: true },
-      { key: 'car_loan', i18nKey: 'category.liability.car_loan', icon: '🚗', defaultSecured: true },
-      { key: 'personal_loan', i18nKey: 'category.liability.personal_loan', icon: '🏦', defaultSecured: false },
-      { key: 'credit_card', i18nKey: 'category.liability.credit_card', icon: '💳', defaultSecured: false },
-      { key: 'student_loan', i18nKey: 'category.liability.student_loan', icon: '🎓', defaultSecured: false },
-      { key: 'family_loan', i18nKey: 'category.liability.family_loan', icon: '👪', defaultSecured: false },
-      { key: 'business_loan', i18nKey: 'category.liability.business_loan', icon: '🏪', defaultSecured: false },
-      { key: 'other', i18nKey: 'category.liability.other', icon: '📄', defaultSecured: false },
+      { key: 'mortgage', i18nKey: 'category.liability.mortgage', icon: '🏠', defaultSecured: true, defaultAnnualRate: 0.022, defaultTermMonths: 240 },
+      { key: 'car_loan', i18nKey: 'category.liability.car_loan', icon: '🚗', defaultSecured: true, defaultAnnualRate: 0.04, defaultTermMonths: 60 },
+      { key: 'personal_loan', i18nKey: 'category.liability.personal_loan', icon: '🏦', defaultSecured: false, defaultAnnualRate: 0.06, defaultTermMonths: 84 },
+      { key: 'credit_card', i18nKey: 'category.liability.credit_card', icon: '💳', defaultSecured: false, defaultAnnualRate: 0.15, defaultTermMonths: 24 },
+      { key: 'student_loan', i18nKey: 'category.liability.student_loan', icon: '🎓', defaultSecured: false, defaultAnnualRate: 0.018, defaultTermMonths: 96 },
+      { key: 'family_loan', i18nKey: 'category.liability.family_loan', icon: '👪', defaultSecured: false, defaultAnnualRate: 0, defaultTermMonths: 60 },
+      { key: 'business_loan', i18nKey: 'category.liability.business_loan', icon: '🏪', defaultSecured: false, defaultAnnualRate: 0.04, defaultTermMonths: 84 },
+      { key: 'other', i18nKey: 'category.liability.other', icon: '📄', defaultSecured: false, defaultAnnualRate: 0.05, defaultTermMonths: 60 },
     ],
   },
 
@@ -115,5 +115,39 @@ export const twPack: LocalePack = {
     { level: 4, minNetWorth: 3000 * WAN, i18nKey: 'ladder.level4' },
     { level: 5, minNetWorth: 3 * YI, i18nKey: 'ladder.level5' },
     { level: 6, minNetWorth: 30 * YI, i18nKey: 'ladder.level6' },
+  ],
+
+  highInterestRate: 0.08,
+
+  // 見規格 4.5；台灣常用規則：無擔保負債不超過月收入 22 倍（DBR 22）、保費不超過年收入 10%（雙十原則）
+  healthThresholds: {
+    savings_rate: { better: 'higher', green: 0.1, yellow: 0, excellent: 0.2 },
+    emergency_months: { better: 'higher', green: 3, yellow: 1, excellent: 6, tooHigh: 12 },
+    debt_service_ratio: { better: 'lower', green: 0.3, yellow: 0.4 },
+    housing_cost_ratio: { better: 'lower', green: 0.3, yellow: 0.4 },
+    high_interest_debt: { better: 'lower', green: 0, yellow: 0 },
+    unsecured_debt_multiple: { better: 'lower', green: 15, yellow: 22 },
+    insurance_premium_ratio: { better: 'lower', green: 0.1, yellow: 0.2 },
+  },
+
+  // 見規格 5.6；名目年報酬，計算時一律換成扣除通膨的實質報酬
+  defaultAssumptions: {
+    inflation: 0.02,
+    nominalReturn: { cash: 0.015, balanced: 0.05, growth: 0.065 },
+    scenarioSpread: 0.02,
+    safeWithdrawalRate: 0.04,
+  },
+
+  homeDefaults: { downPaymentRatio: 0.2, feesRatio: 0.03, mortgageTermMonths: 360 },
+
+  forgottenExpenses: [
+    'forgotten.insurance',
+    'forgotten.tax',
+    'forgotten.red_envelope',
+    'forgotten.travel',
+    'forgotten.car_maintenance',
+    'forgotten.gifts',
+    'forgotten.medical',
+    'forgotten.subscriptions',
   ],
 };

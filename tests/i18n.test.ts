@@ -49,6 +49,26 @@ describe('zh-TW translations', () => {
       ...['manual', 'check_in', 'onboarding'].map((x) => `snapshot.trigger.${x}`),
       ...['invalid_format', 'needs_password', 'wrong_password', 'unsupported_version'].map((x) => `backup.error.${x}`),
       ...['all', 'accessible'].map((x) => `netWorth.view.${x}`),
+      ...['weekly', 'monthly', 'quarterly', 'yearly'].flatMap((f) => [`frequency.${f}`, `cashflow.amountPer.${f}`]),
+      ...['income', 'expense'].flatMap((k) => [`cashflow.section.${k}`, `cashflow.empty.${k}`, `cashflow.add.${k}`, `cashflow.labelPlaceholder.${k}`]),
+      ...['ok', 'expense_underestimated', 'income_underestimated'].map((x) => `reconcile.result.${x}`),
+      ...['red', 'yellow', 'green', 'none'].map((x) => `health.light.${x}`),
+      ...['higher', 'lower'].map((x) => `health.goal.${x}`),
+      ...['no_income', 'no_expense', 'no_housing', 'no_insurance'].map((x) => `health.missing.${x}`),
+      ...Object.keys(twPack.healthThresholds).flatMap((k) => ['name', 'explain', 'action', 'cta'].map((f) => `health.metric.${k}.${f}`)),
+      'health.metric.savings_rate.excellent',
+      'health.metric.emergency_months.excellent',
+      'health.metric.emergency_months.too_high',
+      ...['emergency_fund', 'debt_payoff', 'home_down_payment', 'retirement_fi', 'education', 'big_purchase', 'custom'].flatMap((g) => [
+        `plans.type.${g}.name`,
+        `plans.type.${g}.desc`,
+      ]),
+      ...['avalanche', 'snowball'].flatMap((s) => [`plans.strategy.${s}`, `plans.strategy.${s}Hint`]),
+      ...['cash', 'balanced', 'growth'].flatMap((p) => [`plans.profile.${p}.name`, `plans.profile.${p}.desc`]),
+      ...['emergency_fund', 'retirement_fi', 'other'].map((x) => `plans.field.linkedHint.${x}`),
+      ...['user', 'surplus'].map((x) => `plans.proj.contribution.${x}`),
+      ...['green', 'yellow', 'red'].map((x) => `plans.home.ratio.${x}`),
+      ...twPack.forgottenExpenses,
     ];
     expect(dynamic.filter((k) => !has(k))).toEqual([]);
   });

@@ -4,7 +4,6 @@ import { recordSnapshot } from '../../app/actions';
 import { useApp, useFormat } from '../../app/context';
 import { requestPersistentStorage } from '../../app/pwa';
 import { blankToUnknown, resolveEstimate } from '../../core/estimate';
-import { sub } from '../../core/interval';
 import { EstimateInput } from '../../components/EstimateInput';
 import { PrecisionRing, ProgressBar, RangeValue } from '../../components/Display';
 import { statKeys, type Bracket, type LocalePack } from '../../model/localePack';
@@ -405,7 +404,7 @@ function Result({ onFinish }: { onFinish: () => Promise<void> }) {
   const { overview, pack } = useApp();
   const fmt = useFormat(pack);
   const bs = overview.balanceSheet;
-  const surplus = overview.income.total && overview.expense.total ? sub(overview.income.total, overview.expense.total) : null;
+  const surplus = overview.surplus;
   const pct = Math.round(overview.precision.score * 100);
 
   return (

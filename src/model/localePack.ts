@@ -1,5 +1,6 @@
 import type {
   AssetCategory,
+  ReturnProfile,
   CurrencyCode,
   ExpenseCategory,
   HouseholdType,
@@ -26,7 +27,13 @@ export interface LocalePack {
     income: CategoryDef<IncomeCategory>[];
     expense: CategoryDef<ExpenseCategory>[];
     asset: (CategoryDef<AssetCategory> & { defaultLiquidity: Liquidity })[];
-    liability: (CategoryDef<LiabilityCategory> & { defaultSecured: boolean })[];
+    liability: (CategoryDef<LiabilityCategory> & {
+      defaultSecured: boolean;
+      /** 使用者沒填利率時的預設年利率 */
+      defaultAnnualRate: number;
+      /** 使用者沒填每月還款時，用來推算的預設剩餘期數 */
+      defaultTermMonths: number;
+    })[];
   };
 
   /** 輸入級距，key 例如 'monthly_income' */
@@ -37,6 +44,40 @@ export interface LocalePack {
 
   /** 財富階梯，依序 L1→L6 的淨值下限（主要幣別） */
   wealthLadder: LadderLevelDef[];
+
+  /** 年利率達到此值視為高利負債 */
+  highInterestRate: number;
+  healthThresholds: Record<HealthMetricKey, Threshold>;
+  defaultAssumptions: {
+    inflation: number;
+    nominalReturn: Record<ReturnProfile, number>;
+    scenarioSpread: number;
+    safeWithdrawalRate: number;
+  };
+  homeDefaults: { downPaymentRatio: number; feesRatio: number; mortgageTermMonths: number };
+  /** 對帳檢查時提醒「常被忘記的支出」，值為 i18n key */
+  forgottenExpenses: string[];
+}
+
+export type HealthMetricKey =
+  | 'savings_rate'
+  | 'emergency_months'
+  | 'debt_service_ratio'
+  | 'housing_cost_ratio'
+  | 'high_interest_debt'
+  | 'unsecured_debt_multiple'
+  | 'insurance_premium_ratio';
+
+/**
+ * 燈號門檻。higher：數值 ≥ green 為綠燈、≥ yellow 為黃燈、其餘紅燈；lower 則相反。
+ * excellent／tooHigh 只用來加註說明，不影響燈號。
+ */
+export interface Threshold {
+  better: 'higher' | 'lower';
+  green: number;
+  yellow: number;
+  excellent?: number;
+  tooHigh?: number;
 }
 
 export interface CategoryDef<K extends string = string> {

@@ -36,3 +36,13 @@ export function isPoint(r: Range): boolean {
 export function relativeWidth(r: Range): number {
   return r.mid === 0 ? 0 : (r.high - r.low) / Math.abs(r.mid);
 }
+
+/**
+ * 區間相除（分母必須全為正）。分母可能為 0 或負數時回傳 null。
+ * mid 取兩個中間值相除，不是區間的中點。
+ */
+export function div(a: Range, b: Range): Range | null {
+  if (!(b.low > 0)) return null;
+  const c = [a.low / b.low, a.low / b.high, a.high / b.low, a.high / b.high];
+  return { low: Math.min(...c), mid: a.mid / b.mid, high: Math.max(...c) };
+}

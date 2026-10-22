@@ -213,15 +213,54 @@ export interface Settings {
   pinLockEnabled: boolean;
   onboardingCompletedAt?: ISODateTime;
   dismissedTips: string[];
+  /** 對帳檢查：使用者估計過去一年存款（含投資）增加多少，用來比對收支估算 */
+  reconciliation?: { lastYearSavingsChange: MoneyEstimate; answeredAt: ISODate };
 }
 
+/** 報酬率類型：短期目標用現金，長期目標用股債配置 */
+export type ReturnProfile = 'cash' | 'balanced' | 'growth';
+
+/** 使用者自訂的計算假設；未填的欄位使用地區資料包的預設值 */
 export interface Assumptions {
   householdId: ID;
   inflation?: number;
-  nominalReturn?: Partial<Record<AssetClass, number>>;
+  nominalReturn?: Partial<Record<ReturnProfile, number>>;
+  /** 保守／樂觀情境 = 中性 ∓ spread（現金類只用四分之一） */
   scenarioSpread?: number;
-  salaryGrowth?: number;
   safeWithdrawalRate?: number;
+}
+
+export type GoalType =
+  | 'emergency_fund'
+  | 'debt_payoff'
+  | 'home_down_payment'
+  | 'retirement_fi'
+  | 'education'
+  | 'big_purchase'
+  | 'custom';
+
+export type GoalParams =
+  | { kind: 'emergency_fund'; months: number }
+  | { kind: 'retirement_fi'; withdrawalRate?: number }
+  | { kind: 'home_down_payment'; homePrice: MoneyEstimate; downPaymentRatio: number; feesRatio: number }
+  | { kind: 'debt_payoff'; liabilityIds: ID[]; strategy: 'avalanche' | 'snowball' };
+
+export interface Goal extends BaseEntity {
+  type: GoalType;
+  /** 未填時顯示類型名稱 */
+  name?: string;
+  /** 以今天幣值表示；未填時由系統依類型自動計算（緊急預備金、財務自由、頭期款、還債） */
+  target?: MoneyEstimate;
+  targetDate?: ISODate;
+  priority: number;
+  /** 已撥給這個目標的資產；未填時依類型預設（緊急預備金 = 隨時可用資產，財務自由 = 投資類資產） */
+  linkedAssets?: { assetId: ID; share: number }[];
+  /** 每月投入；未填時用目前的每月結餘試算 */
+  monthlyContribution?: MoneyEstimate;
+  returnProfile?: ReturnProfile;
+  params?: GoalParams;
+  status: 'active' | 'achieved' | 'paused';
+  achievedAt?: ISODate;
 }
 
 export interface SnapshotSummary {

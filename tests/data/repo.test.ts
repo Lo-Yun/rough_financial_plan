@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import Dexie from 'dexie';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AppDB } from '../../src/data/db';
 import { Repo } from '../../src/data/repo';
@@ -90,5 +91,63 @@ describe('Repo', () => {
     expect(await repo.db.households.count()).toBe(0);
     expect(await repo.db.assets.count()).toBe(0);
     expect(await repo.getMeta('k')).toBeUndefined();
+  });
+});
+
+describe('schema v2', () => {
+  it('saves goals and assumptions and exports them', async () => {
+    const h = await repo.ensureHousehold(twPack);
+    const g = await repo.saveGoal(h.id, { type: 'emergency_fund', priority: 1, status: 'active', params: { kind: 'emergency_fund', months: 6 } });
+    await repo.saveAssumptions(h.id, { inflation: 0.03 });
+    await repo.saveAssumptions(h.id, { safeWithdrawalRate: 0.035 });
+    const p = await repo.exportAll();
+    expect(p.goals.map((x) => x.id)).toEqual([g.id]);
+    expect(p.assumptions).toMatchObject({ inflation: 0.03, safeWithdrawalRate: 0.035 });
+
+    const other = new Repo(new AppDB(`test-${++n}`));
+    await other.importAll(await parseExport(await buildExport(p, { appVersion: 't' })));
+    expect(await other.db.goals.count()).toBe(1);
+    expect((await other.db.assumptions.toArray())[0]?.inflation).toBe(0.03);
+  });
+
+  it('imports v1 backups by adding empty goals', async () => {
+    const h = await repo.ensureHousehold(twPack);
+    const p = await repo.exportAll();
+    const { goals: _goals, assumptions: _a, ...v1 } = p;
+    const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 1, exportedAt: '', appVersion: 'old', encrypted: false, payload: v1 });
+    const migrated = await parseExport(text);
+    expect(migrated.goals).toEqual([]);
+    expect(migrated.household.id).toBe(h.id);
+  });
+
+  it('rejects backups from a newer schema', async () => {
+    const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 99, exportedAt: '', appVersion: 'x', encrypted: false, payload: {} });
+    await expect(parseExport(text)).rejects.toMatchObject({ code: 'unsupported_version' });
+  });
+});
+
+describe('IndexedDB upgrade', () => {
+  it('opens a database created by v1 and keeps its data', async () => {
+    const name = `upgrade-${++n}`;
+    const v1 = new Dexie(name);
+    v1.version(1).stores({
+      households: 'id',
+      members: 'id, householdId',
+      incomeItems: 'id, householdId, category, archivedAt',
+      expenseItems: 'id, householdId, category, archivedAt',
+      assets: 'id, householdId, category, archivedAt',
+      liabilities: 'id, householdId, category, archivedAt',
+      snapshots: 'id, householdId, &[householdId+date], date',
+      settings: 'householdId',
+      assumptions: 'householdId',
+      meta: 'key',
+    });
+    await v1.table('assets').put({ id: 'a1', householdId: 'h', ...cash, createdAt: '', updatedAt: '' });
+    v1.close();
+
+    const upgraded = new Repo(new AppDB(name));
+    expect(await upgraded.db.assets.get('a1')).toMatchObject({ category: 'cash' });
+    expect(await upgraded.db.goals.count()).toBe(0);
+    expect(upgraded.db.verno).toBe(2);
   });
 });

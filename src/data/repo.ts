@@ -2,8 +2,10 @@ import type { Table } from 'dexie';
 import { ulid } from 'ulid';
 import type {
   Asset,
+  Assumptions,
   BaseEntity,
   ExpenseItem,
+  Goal,
   Household,
   ID,
   IncomeItem,
@@ -27,7 +29,9 @@ export interface ExportPayload {
   assets: Asset[];
   liabilities: Liability[];
   snapshots: Snapshot[];
+  goals: Goal[];
   settings: Settings;
+  assumptions?: Assumptions;
 }
 
 function now(): string {
@@ -132,6 +136,24 @@ export class Repo {
   archiveLiability(id: ID) {
     return this.archive(this.db.liabilities, id);
   }
+  archiveIncome(id: ID) {
+    return this.archive(this.db.incomeItems, id);
+  }
+  archiveExpense(id: ID) {
+    return this.archive(this.db.expenseItems, id);
+  }
+  saveGoal(householdId: ID, d: Draft<Goal>) {
+    return this.save(this.db.goals, householdId, d);
+  }
+  archiveGoal(id: ID) {
+    return this.archive(this.db.goals, id);
+  }
+
+  /** 儲存使用者自訂的計算假設；欄位值為 undefined 代表改回預設 */
+  async saveAssumptions(householdId: ID, patch: Partial<Omit<Assumptions, 'householdId'>>): Promise<void> {
+    const existing = (await this.db.assumptions.get(householdId)) ?? { householdId };
+    await this.db.assumptions.put({ ...existing, ...patch, householdId });
+  }
 
   /** 同一天只保留一筆快照：已存在就覆蓋，保留原 id */
   async saveSnapshot(
@@ -161,7 +183,7 @@ export class Repo {
 
   /** 清除收支與資產負債（快速估算重新開始時使用），保留家庭與設定 */
   async clearFinancialItems(householdId: ID): Promise<void> {
-    const tables = [this.db.incomeItems, this.db.expenseItems, this.db.assets, this.db.liabilities, this.db.snapshots];
+    const tables = [this.db.incomeItems, this.db.expenseItems, this.db.assets, this.db.liabilities, this.db.snapshots, this.db.goals];
     await this.db.transaction('rw', tables, async () => {
       for (const t of tables) await t.where('householdId').equals(householdId).delete();
     });
@@ -181,7 +203,9 @@ export class Repo {
       assets: await by(this.db.assets),
       liabilities: await by(this.db.liabilities),
       snapshots: await by(this.db.snapshots),
+      goals: await by(this.db.goals),
       settings,
+      assumptions: await this.db.assumptions.get(household.id),
     };
   }
 
@@ -196,7 +220,9 @@ export class Repo {
       await this.db.assets.bulkAdd(p.assets);
       await this.db.liabilities.bulkAdd(p.liabilities);
       await this.db.snapshots.bulkAdd(p.snapshots);
+      await this.db.goals.bulkAdd(p.goals);
       await this.db.settings.add(p.settings);
+      if (p.assumptions) await this.db.assumptions.add(p.assumptions);
     });
   }
 
@@ -216,7 +242,7 @@ export class Repo {
 
   private allTables() {
     const d = this.db;
-    return [d.households, d.members, d.incomeItems, d.expenseItems, d.assets, d.liabilities, d.snapshots, d.settings, d.assumptions];
+    return [d.households, d.members, d.incomeItems, d.expenseItems, d.assets, d.liabilities, d.snapshots, d.goals, d.settings, d.assumptions];
   }
 
   private async clearAllInTransaction() {

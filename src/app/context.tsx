@@ -1,10 +1,11 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatCompact, formatRange, type DisplayUnit } from '../core/format';
-import type { FinancialData, Overview } from '../core/overview';
+import { formatCompact, formatPercent, formatPercentRange, formatRange, type DisplayUnit } from '../core/format';
+import { moneyContext, type FinancialData, type Overview } from '../core/overview';
+import type { PlanningContext, ResolvedAssumptions } from '../core/planning';
 import type { Repo } from '../data/repo';
 import type { LocalePack } from '../model/localePack';
-import type { ISODate, Range, Snapshot } from '../model/types';
+import type { Assumptions, Goal, ISODate, Range, Snapshot } from '../model/types';
 
 export interface AppState {
   repo: Repo;
@@ -13,6 +14,12 @@ export interface AppState {
   snapshots: Snapshot[];
   overview: Overview;
   today: ISODate;
+  /** 未封存的理財目標，依優先順序 */
+  goals: Goal[];
+  /** 套用預設值後的計算假設 */
+  assumptions: ResolvedAssumptions;
+  /** 使用者自訂的假設（未自訂的欄位為 undefined） */
+  storedAssumptions?: Assumptions;
 }
 
 export const AppContext = createContext<AppState | null>(null);
@@ -31,6 +38,24 @@ export function useFormat(pack: LocalePack) {
     return {
       money: (n: number) => formatCompact(n, units),
       range: (r: Range) => formatRange(r, units),
+      pct: formatPercent,
+      pctRange: formatPercentRange,
+      /** 月數 → 「3 年 2 個月」 */
+      duration: (months: number) => {
+        const y = Math.floor(months / 12);
+        const m = months % 12;
+        if (y === 0) return t('duration.months', { count: m });
+        if (m === 0) return t('duration.years', { count: y });
+        return t('duration.yearsMonths', { y, m });
+      },
     };
   }, [pack, t]);
+}
+
+export function usePlanningContext(): PlanningContext {
+  const { overview, data, pack, assumptions, today } = useApp();
+  return useMemo(
+    () => ({ overview, money: moneyContext(data, pack), assumptions, pack, today }),
+    [overview, data, pack, assumptions, today],
+  );
 }

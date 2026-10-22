@@ -4,9 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { todayISO } from '../core/date';
 import { computeOverview } from '../core/overview';
+import { resolveAssumptions } from '../core/planning';
 import { AppDB } from '../data/db';
 import { Repo } from '../data/repo';
 import { ItemEditor } from '../features/balance-sheet/ItemEditor';
+import { CashflowPage } from '../features/cashflow/CashflowPage';
+import { FlowEditor } from '../features/cashflow/FlowEditor';
+import { HealthPage } from '../features/health/HealthPage';
+import { GoalEditor } from '../features/plans/GoalEditor';
+import { PlansPage } from '../features/plans/PlansPage';
 import { NetWorthPage } from '../features/balance-sheet/NetWorthPage';
 import { Onboarding } from '../features/onboarding/Onboarding';
 import { SettingsPage } from '../features/settings/SettingsPage';
@@ -39,12 +45,23 @@ export function App() {
   const pack = getPack(data?.household.localeCode);
   const today = todayISO();
   const overview = useMemo(() => (data ? computeOverview(data, pack, today) : null), [data, pack, today]);
+  const assumptions = useMemo(() => resolveAssumptions(loaded?.assumptions, pack), [loaded?.assumptions, pack]);
 
   if (!data || !overview || !loaded) {
     return <div className="loading">{t('common.loading')}</div>;
   }
 
-  const state: AppState = { repo, pack, data, snapshots: loaded.snapshots, overview, today };
+  const state: AppState = {
+    repo,
+    pack,
+    data,
+    snapshots: loaded.snapshots,
+    overview,
+    today,
+    goals: loaded.goals,
+    assumptions,
+    storedAssumptions: loaded.assumptions,
+  };
 
   return (
     <AppContext.Provider value={state}>
@@ -62,9 +79,21 @@ export function App() {
                     </Suspense>
                   }
                 />
+                <Route path="/cashflow" element={<CashflowPage />} />
+                <Route path="/health" element={<HealthPage />} />
+                <Route path="/plans" element={<PlansPage />} />
+                <Route path="/plans/new" element={<GoalEditor />} />
+                <Route path="/plans/:id" element={<GoalEditor />} />
                 <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/:kind/new" element={<ItemEditor />} />
-                <Route path="/:kind/:id" element={<ItemEditor />} />
+                <Route path="/asset/new" element={<ItemEditor kind="asset" />} />
+                <Route path="/asset/:id" element={<ItemEditor kind="asset" />} />
+                <Route path="/liability/new" element={<ItemEditor kind="liability" />} />
+                <Route path="/liability/:id" element={<ItemEditor kind="liability" />} />
+                <Route path="/income/new" element={<FlowEditor kind="income" />} />
+                <Route path="/income/:id" element={<FlowEditor kind="income" />} />
+                <Route path="/expense/new" element={<FlowEditor kind="expense" />} />
+                <Route path="/expense/:id" element={<FlowEditor kind="expense" />} />
+                <Route path="*" element={<NetWorthPage />} />
               </Routes>
             </main>
             <nav className="tab-bar" aria-label={t('nav.label')}>
@@ -72,9 +101,17 @@ export function App() {
                 <span aria-hidden="true">◎</span>
                 {t('nav.netWorth')}
               </NavLink>
-              <NavLink to="/history">
-                <span aria-hidden="true">↗</span>
-                {t('nav.history')}
+              <NavLink to="/cashflow">
+                <span aria-hidden="true">⇅</span>
+                {t('nav.cashflow')}
+              </NavLink>
+              <NavLink to="/health">
+                <span aria-hidden="true">♡</span>
+                {t('nav.health')}
+              </NavLink>
+              <NavLink to="/plans">
+                <span aria-hidden="true">⚑</span>
+                {t('nav.plans')}
               </NavLink>
               <NavLink to="/settings">
                 <span aria-hidden="true">⚙</span>

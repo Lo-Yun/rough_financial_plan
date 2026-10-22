@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { useApp } from '../../app/context';
-import { EstimateInput } from '../../components/EstimateInput';
+import { useApp, useFormat } from '../../app/context';
+import { CategoryPicker, ChipPicker, EditorShell, LabelField, MoneyField, NoteField, PercentField, Toggle } from '../../components/EditorParts';
+import { resolveDebt } from '../../core/debt';
 import { blankToUnknown } from '../../core/estimate';
-import type { Asset, AssetCategory, Liability, LiabilityCategory, Liquidity, MoneyEstimate } from '../../model/types';
+import { moneyContext } from '../../core/overview';
+import type { Asset, AssetCategory, Liability, LiabilityCategory, Liquidity } from '../../model/types';
 import { itemName } from './NetWorthPage';
 
 const LIQUIDITIES: Liquidity[] = ['liquid', 'semi_liquid', 'illiquid'];
@@ -18,9 +20,8 @@ const ASSET_BRACKETS: Partial<Record<AssetCategory, string>> = {
 };
 const LIABILITY_BRACKETS: Partial<Record<LiabilityCategory, string>> = { mortgage: 'mortgage' };
 
-export function ItemEditor() {
-  const { kind, id } = useParams();
-  if (kind !== 'asset' && kind !== 'liability') return <Navigate to="/" replace />;
+export function ItemEditor({ kind }: { kind: 'asset' | 'liability' }) {
+  const { id } = useParams();
   return kind === 'asset' ? <AssetEditor id={id} /> : <LiabilityEditor id={id} />;
 }
 
@@ -72,33 +73,23 @@ function AssetEditor({ id }: { id?: string }) {
       onSave={save}
       onDelete={existing ? archive : undefined}
     >
-      <CategoryPicker kind="asset" value={draft.category} onChange={(c) => setCategory(c as AssetCategory)} />
+      <CategoryPicker defs={pack.categories.asset} value={draft.category} onChange={setCategory} />
       <LabelField value={draft.label} onChange={(label) => setDraft((d) => ({ ...d, label }))} />
       <MoneyField
+        label={t('editor.value')}
         value={draft.value}
         onChange={(value) => setDraft((d) => ({ ...d, value }))}
         bracketsKey={ASSET_BRACKETS[draft.category] ?? 'generic_asset'}
       />
-      <fieldset className="field">
-        <legend>{t('editor.liquidity')}</legend>
-        <div className="chips">
-          {LIQUIDITIES.map((l) => (
-            <button key={l} type="button" className={draft.liquidity === l ? 'chip active' : 'chip'} onClick={() => setDraft((d) => ({ ...d, liquidity: l }))}>
-              {t(`liquidity.${l}`)}
-            </button>
-          ))}
-        </div>
-        <p className="muted small">{t(`liquidity.${draft.liquidity}Hint`)}</p>
-      </fieldset>
+      <ChipPicker
+        legend={t('editor.liquidity')}
+        options={LIQUIDITIES.map((l) => ({ key: l, label: t(`liquidity.${l}`) }))}
+        value={draft.liquidity}
+        onChange={(liquidity) => setDraft((d) => ({ ...d, liquidity }))}
+        hint={t(`liquidity.${draft.liquidity}Hint`)}
+      />
       {draft.category === 'real_estate' && (
-        <label className="toggle-row">
-          <input
-            type="checkbox"
-            checked={!!draft.isPrimaryResidence}
-            onChange={(e) => setDraft((d) => ({ ...d, isPrimaryResidence: e.target.checked }))}
-          />
-          <span>{t('editor.primaryResidence')}</span>
-        </label>
+        <Toggle checked={!!draft.isPrimaryResidence} onChange={(isPrimaryResidence) => setDraft((d) => ({ ...d, isPrimaryResidence }))} label={t('editor.primaryResidence')} />
       )}
       <NoteField value={draft.note} onChange={(note) => setDraft((d) => ({ ...d, note }))} />
       {draft.category === 'insurance_cash_value' && <p className="muted small">{t('editor.insuranceHint')}</p>}
@@ -108,7 +99,8 @@ function AssetEditor({ id }: { id?: string }) {
 }
 
 function LiabilityEditor({ id }: { id?: string }) {
-  const { data, pack, repo, navigate, t, hid } = useCommon();
+  const { data, pack, repo, navigate, t, hid, today } = useCommon();
+  const fmt = useFormat(pack);
   const existing = id ? data.liabilities.find((l) => l.id === id && !l.archivedAt) : undefined;
   const [draft, setDraft] = useState<Omit<Liability, 'id' | 'householdId' | 'createdAt' | 'updatedAt'>>(
     () =>
@@ -122,14 +114,24 @@ function LiabilityEditor({ id }: { id?: string }) {
   if (id && !existing) return <Navigate to="/" replace />;
 
   const activeAssets = data.assets.filter((a) => !a.archivedAt);
+  const def = pack.categories.liability.find((c) => c.key === draft.category)!;
+  const rateValue = draft.annualRate && draft.annualRate.mode !== 'unknown' && draft.annualRate.mode !== 'range' ? draft.annualRate.value : undefined;
+  const paidInFull = draft.category === 'credit_card' && !draft.isRevolving;
+
+  // 即時推算每月還款，讓使用者知道沒填時系統怎麼算
+  const preview = resolveDebt(
+    { ...draft, id: 'preview', householdId: hid, createdAt: '', updatedAt: '', balance: { ...draft.balance, estimate: blankToUnknown(draft.balance.estimate) } },
+    moneyContext(data, pack),
+    pack,
+  );
 
   const setCategory = (category: LiabilityCategory) => {
-    const def = pack.categories.liability.find((c) => c.key === category)!;
+    const next = pack.categories.liability.find((c) => c.key === category)!;
     setDraft((d) => ({
       ...d,
       category,
-      secured: def.defaultSecured,
-      securedByAssetId: def.defaultSecured ? d.securedByAssetId : undefined,
+      secured: next.defaultSecured,
+      securedByAssetId: next.defaultSecured ? d.securedByAssetId : undefined,
       isRevolving: category === 'credit_card' ? (d.isRevolving ?? true) : undefined,
     }));
   };
@@ -151,32 +153,62 @@ function LiabilityEditor({ id }: { id?: string }) {
       onSave={save}
       onDelete={existing ? archive : undefined}
     >
-      <CategoryPicker kind="liability" value={draft.category} onChange={(c) => setCategory(c as LiabilityCategory)} />
+      <CategoryPicker defs={pack.categories.liability} value={draft.category} onChange={setCategory} />
       <LabelField value={draft.label} onChange={(label) => setDraft((d) => ({ ...d, label }))} />
       <MoneyField
+        label={t('editor.balance')}
         value={draft.balance}
         onChange={(balance) => setDraft((d) => ({ ...d, balance }))}
         bracketsKey={LIABILITY_BRACKETS[draft.category] ?? 'debt'}
-        label={t('editor.balance')}
       />
-      <label className="toggle-row">
-        <input
-          type="checkbox"
-          checked={draft.secured}
-          onChange={(e) => setDraft((d) => ({ ...d, secured: e.target.checked, securedByAssetId: e.target.checked ? d.securedByAssetId : undefined }))}
+      {draft.category === 'credit_card' && (
+        <Toggle
+          checked={!!draft.isRevolving}
+          onChange={(isRevolving) => setDraft((d) => ({ ...d, isRevolving }))}
+          label={t('editor.revolving')}
+          hint={t('editor.revolvingHint')}
         />
-        <span>
-          {t('editor.secured')}
-          <small className="muted block">{t('editor.securedHint')}</small>
-        </span>
-      </label>
+      )}
+      {!paidInFull && (
+        <>
+          <PercentField
+            label={t('editor.rate')}
+            value={rateValue}
+            onChange={(v) => setDraft((d) => ({ ...d, annualRate: v === undefined ? undefined : { mode: 'exact', value: v, asOf: today } }))}
+            placeholder={String(Math.round(def.defaultAnnualRate * 1000) / 10)}
+            hint={t('editor.rateHint', { pct: Math.round(def.defaultAnnualRate * 1000) / 10 })}
+          />
+          <Toggle
+            checked={!!draft.monthlyPayment}
+            onChange={(on) =>
+              setDraft((d) => ({
+                ...d,
+                monthlyPayment: on ? { estimate: { mode: 'approx', value: Math.round(preview?.payment.mid ?? 0) }, currency: d.balance.currency } : undefined,
+              }))
+            }
+            label={t('editor.knowPayment')}
+          />
+          {draft.monthlyPayment ? (
+            <MoneyField label={t('editor.payment')} value={draft.monthlyPayment} onChange={(monthlyPayment) => setDraft((d) => ({ ...d, monthlyPayment }))} />
+          ) : (
+            preview && (
+              <p className="muted small">
+                {t('editor.derivedPayment', { amount: fmt.money(preview.payment.mid), months: def.defaultTermMonths })}
+              </p>
+            )
+          )}
+        </>
+      )}
+      <Toggle
+        checked={draft.secured}
+        onChange={(secured) => setDraft((d) => ({ ...d, secured, securedByAssetId: secured ? d.securedByAssetId : undefined }))}
+        label={t('editor.secured')}
+        hint={t('editor.securedHint')}
+      />
       {draft.secured && activeAssets.length > 0 && (
         <label className="field">
           <span>{t('editor.securedBy')}</span>
-          <select
-            value={draft.securedByAssetId ?? ''}
-            onChange={(e) => setDraft((d) => ({ ...d, securedByAssetId: e.target.value || undefined }))}
-          >
+          <select value={draft.securedByAssetId ?? ''} onChange={(e) => setDraft((d) => ({ ...d, securedByAssetId: e.target.value || undefined }))}>
             <option value="">{t('editor.securedByNone')}</option>
             {activeAssets.map((a) => (
               <option key={a.id} value={a.id}>
@@ -186,137 +218,7 @@ function LiabilityEditor({ id }: { id?: string }) {
           </select>
         </label>
       )}
-      {draft.category === 'credit_card' && (
-        <label className="toggle-row">
-          <input type="checkbox" checked={!!draft.isRevolving} onChange={(e) => setDraft((d) => ({ ...d, isRevolving: e.target.checked }))} />
-          <span>
-            {t('editor.revolving')}
-            <small className="muted block">{t('editor.revolvingHint')}</small>
-          </span>
-        </label>
-      )}
       <NoteField value={draft.note} onChange={(note) => setDraft((d) => ({ ...d, note }))} />
     </EditorShell>
-  );
-}
-
-function EditorShell({
-  title,
-  onSave,
-  onDelete,
-  children,
-}: {
-  title: string;
-  onSave: () => Promise<void>;
-  onDelete?: () => Promise<void>;
-  children: React.ReactNode;
-}) {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [busy, setBusy] = useState(false);
-  const run = (fn: () => Promise<void>) => async () => {
-    setBusy(true);
-    try {
-      await fn();
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <div className="page editor">
-      <header className="page-head">
-        <button type="button" className="btn ghost small" onClick={() => navigate(-1)}>
-          ‹ {t('common.back')}
-        </button>
-        <h1>{title}</h1>
-      </header>
-      <form
-        className="card"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void run(onSave)();
-        }}
-      >
-        {children}
-        <div className="step-nav">
-          {onDelete && (
-            <button type="button" className="btn danger ghost" disabled={busy} onClick={() => void run(onDelete)()}>
-              {t('common.delete')}
-            </button>
-          )}
-          <button type="submit" className="btn primary" disabled={busy}>
-            {t('common.save')}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-function CategoryPicker({ kind, value, onChange }: { kind: 'asset' | 'liability'; value: string; onChange: (c: string) => void }) {
-  const { t } = useTranslation();
-  const { pack } = useApp();
-  const defs = kind === 'asset' ? pack.categories.asset : pack.categories.liability;
-  return (
-    <fieldset className="field">
-      <legend>{t('editor.category')}</legend>
-      <div className="chips">
-        {defs.map((d) => (
-          <button key={d.key} type="button" className={value === d.key ? 'chip active' : 'chip'} onClick={() => onChange(d.key)}>
-            <span aria-hidden="true">{d.icon}</span> {t(d.i18nKey)}
-          </button>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
-function LabelField({ value, onChange }: { value?: string; onChange: (v: string | undefined) => void }) {
-  const { t } = useTranslation();
-  return (
-    <label className="field">
-      <span>{t('editor.label')}</span>
-      <input value={value ?? ''} placeholder={t('editor.labelPlaceholder')} onChange={(e) => onChange(e.target.value || undefined)} />
-    </label>
-  );
-}
-
-function NoteField({ value, onChange }: { value?: string; onChange: (v: string | undefined) => void }) {
-  const { t } = useTranslation();
-  return (
-    <label className="field">
-      <span>{t('editor.note')}</span>
-      <textarea rows={2} value={value ?? ''} onChange={(e) => onChange(e.target.value || undefined)} />
-    </label>
-  );
-}
-
-function MoneyField({
-  value,
-  onChange,
-  bracketsKey,
-  label,
-}: {
-  value: MoneyEstimate;
-  onChange: (m: MoneyEstimate) => void;
-  bracketsKey: string;
-  label?: string;
-}) {
-  const { t } = useTranslation();
-  const { pack, today, data } = useApp();
-  return (
-    <fieldset className="field">
-      <legend>{label ?? t('editor.value')}</legend>
-      <EstimateInput
-        value={value.estimate}
-        onChange={(estimate) => onChange({ ...value, estimate })}
-        pack={pack}
-        today={today}
-        defaultTolerance={data.settings.defaultTolerance}
-        brackets={value.currency === pack.baseCurrency ? pack.brackets[bracketsKey] : undefined}
-        currency={value.currency}
-        onCurrencyChange={(currency) => onChange({ ...value, currency })}
-      />
-    </fieldset>
   );
 }

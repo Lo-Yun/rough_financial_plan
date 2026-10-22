@@ -66,3 +66,12 @@ describe('computeBalanceSheet', () => {
     expect(bs.byAssetCategory.vehicle?.mid).toBe(4);
   });
 });
+
+describe('interval div', () => {
+  it('divides by positive ranges only', async () => {
+    const { div } = await import('../../src/core/interval');
+    expect(div({ low: 10, mid: 20, high: 30 }, { low: 2, mid: 4, high: 5 })).toEqual({ low: 2, mid: 5, high: 15 });
+    expect(div({ low: -10, mid: 0, high: 10 }, { low: 2, mid: 4, high: 5 })).toEqual({ low: -5, mid: 0, high: 5 });
+    expect(div({ low: 1, mid: 1, high: 1 }, { low: 0, mid: 1, high: 2 })).toBeNull();
+  });
+});

@@ -604,3 +604,177 @@ fieldset {
 .chart {
   width: 100%;
 }
+
+/* Phase 2 */
+:root {
+  --red: #c0392b;
+  --red-soft: #fbe9e7;
+  --yellow: #b7791f;
+  --yellow-soft: #fdf3dc;
+  --green: #2f6b4f;
+  --green-soft: #e3efe8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --red: #ff8a80;
+    --red-soft: #3a1f1c;
+    --yellow: #f2c46d;
+    --yellow-soft: #352a14;
+    --green: #6fbf95;
+    --green-soft: #1f3329;
+  }
+}
+
+.flow-summary {
+  margin: 12px 0 4px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+.flow-summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.flow-summary dt {
+  color: var(--muted);
+}
+.flow-summary dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.light-badge {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--line);
+  color: var(--muted);
+}
+.light-badge.red {
+  background: var(--red-soft);
+  color: var(--red);
+}
+.light-badge.yellow {
+  background: var(--yellow-soft);
+  color: var(--yellow);
+}
+.light-badge.green {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.metric-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.metric-head h3 {
+  margin: 0;
+  flex: 1;
+}
+.metric-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.card.metric.light-red {
+  border-left: 4px solid var(--red);
+}
+.card.metric.light-yellow {
+  border-left: 4px solid var(--yellow);
+}
+.card.metric.light-green {
+  border-left: 4px solid var(--green);
+}
+.top-issue {
+  border: none;
+}
+.top-issue.light-red {
+  background: var(--red-soft);
+}
+.top-issue.light-yellow {
+  background: var(--yellow-soft);
+}
+.top-issue.light-green {
+  background: var(--green-soft);
+}
+.top-issue .btn {
+  margin-top: 6px;
+}
+
+.link-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.link-card .chevron {
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.suffix-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.suffix-input input {
+  max-width: 140px;
+}
+
+.preview-box {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.big-line {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+.compare th,
+.compare td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.compare th:first-child {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+}
+.compare td.chosen {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.type-card {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.goal-card h2 {
+  margin: 0;
+}
+.suggest-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.page > .btn.primary {
+  width: 100%;
+}

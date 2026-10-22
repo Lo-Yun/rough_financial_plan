@@ -111,13 +111,14 @@ export async function parseExport(text: string, password?: string): Promise<Expo
   return migratePayload(payload as ExportPayload, file.schemaVersion);
 }
 
-/** 舊版備份升級到目前 schema；目前只有 v1 */
+/** 舊版備份逐版升級到目前 schema */
 export function migratePayload(p: ExportPayload, fromVersion: number): ExportPayload {
-  if (fromVersion === SCHEMA_VERSION) {
-    if (!p.household || !p.settings || !Array.isArray(p.assets) || !Array.isArray(p.liabilities)) {
-      throw new BackupError('invalid_format');
-    }
-    return p;
+  if (fromVersion < 1 || fromVersion > SCHEMA_VERSION) throw new BackupError('unsupported_version');
+  if (!p || !p.household || !p.settings || !Array.isArray(p.assets) || !Array.isArray(p.liabilities)) {
+    throw new BackupError('invalid_format');
   }
-  throw new BackupError('unsupported_version');
+  let out = p;
+  // v1 → v2：新增理財目標
+  if (fromVersion < 2) out = { ...out, goals: [] };
+  return out;
 }
