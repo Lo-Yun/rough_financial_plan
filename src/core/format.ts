@@ -26,6 +26,16 @@ export function formatCompact(n: number, units: DisplayUnit[]): string {
   return `${sign}${trimNumber(abs, 0)}`;
 }
 
+export function formatPercent(v: number): string {
+  const pct = v * 100;
+  return `${trimNumber(pct, Math.abs(pct) < 10 ? 1 : 0)}%`;
+}
+
+export function formatPercentRange(r: Range): string {
+  if (r.low === r.high) return formatPercent(r.mid);
+  return `${formatPercent(r.low)} ～ ${formatPercent(r.high)}`;
+}
+
 export function formatRange(r: Range, units: DisplayUnit[]): string {
   if (r.low === r.high) return formatCompact(r.mid, units);
   return `${formatCompact(r.low, units)} ～ ${formatCompact(r.high, units)}`;

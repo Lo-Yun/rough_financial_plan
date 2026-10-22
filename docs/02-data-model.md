@@ -265,21 +265,25 @@ type GoalType =
   | 'emergency_fund' | 'debt_payoff' | 'home_down_payment'
   | 'retirement_fi' | 'education' | 'big_purchase' | 'custom';
 
+type ReturnProfile = 'cash' | 'balanced' | 'growth';
+
 interface Goal extends BaseEntity {
   type: GoalType;
-  name: string;
-  /** 以「今天幣值」表示的目標金額；部分類型可由系統自動計算（見下） */
-  target: MoneyEstimate | { auto: true };
+  name?: string;                    // 未填時顯示類型名稱
+  /** 以「今天幣值」表示的目標金額；未填時由系統依類型自動計算（見下） */
+  target?: MoneyEstimate;
   targetDate?: ISODate;
   priority: number;                 // 1 = 最優先
   /** 已經撥給這個目標的資產（全部或部分） */
   linkedAssets?: { assetId: ID; share: number }[];  // share 0–1
-  /** 使用者承諾的每月投入金額（選填），未填時用系統建議值 */
+  /** 使用者承諾的每月投入金額（選填），未填時用目前的每月結餘；還債目標則是「每月多還」 */
   monthlyContribution?: MoneyEstimate;
+  /** 這筆錢怎麼放，決定試算的報酬率；未填時依類型預設 */
+  returnProfile?: ReturnProfile;
   /** 目標特有參數 */
   params?:
     | { kind: 'emergency_fund'; months: number }                       // 預設 6
-    | { kind: 'retirement_fi'; withdrawalRate?: number; retireAge?: number }
+    | { kind: 'retirement_fi'; withdrawalRate?: number }
     | { kind: 'home_down_payment'; homePrice: MoneyEstimate; downPaymentRatio: number; feesRatio: number }
     | { kind: 'debt_payoff'; liabilityIds: ID[]; strategy: 'avalanche' | 'snowball' };
   status: 'active' | 'achieved' | 'paused';
@@ -287,7 +291,7 @@ interface Goal extends BaseEntity {
 }
 ```
 
-`target: { auto: true }` 的計算方式：
+`target` 未填時的計算方式：
 
 - 緊急預備金 = (必要支出 + 月還款) × months
 - 財務自由 = 年支出 ÷ 安全提領率
@@ -310,17 +314,17 @@ interface Settings {
   onboardingCompletedAt?: ISODateTime;
   /** 已關閉的提示 id，避免重複打擾 */
   dismissedTips: string[];
+  /** 對帳檢查：使用者估計過去一年存款增加多少 */
+  reconciliation?: { lastYearSavingsChange: MoneyEstimate; answeredAt: ISODate };
 }
 
 interface Assumptions {
   householdId: ID;
   /** 未填的欄位使用 LocalePack.defaultAssumptions */
   inflation?: number;
-  nominalReturn?: Partial<Record<AssetClass, number>>;
-  scenarioSpread?: number;          // 保守／樂觀 = 中性 ∓ spread，預設 0.02
-  salaryGrowth?: number;
+  nominalReturn?: Partial<Record<ReturnProfile, number>>;
+  scenarioSpread?: number;          // 保守／樂觀 = 中性 ∓ spread，預設 0.02（存款類只用四分之一）
   safeWithdrawalRate?: number;
-  targetAllocation?: Partial<Record<AssetClass, number>> | { preset: string };
 }
 ```
 
@@ -390,7 +394,7 @@ interface CheckIn extends BaseEntity {
 ## 4. 地區資料包（LocalePack）
 
 隨 App 發布的唯讀資料，不存在 IndexedDB。新增國家時，只要新增一份資料包。
-P1 已實作的欄位見 `src/model/localePack.ts`；`healthThresholds`、`defaultAssumptions`、`allocationPresets`、`actionTemplates`、`rules` 於 P2 以後加入。
+已實作的欄位見 `src/model/localePack.ts`：P2 加入了 `healthThresholds`、`defaultAssumptions`、`highInterestRate`、`homeDefaults`、`forgottenExpenses`，以及負債類別的 `defaultAnnualRate`、`defaultTermMonths`。`allocationPresets`、`actionTemplates`、`rules` 於 P3 以後加入。
 
 ```ts
 interface LocalePack {
@@ -466,7 +470,8 @@ type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*'
 ## 5. IndexedDB 結構（Dexie）
 
 ```ts
-// P1 已建立的表見 src/data/db.ts；holdings、goals、userActions、checkIns 於後續版本加入
+// 實際定義見 src/data/db.ts。v1（P1）建立 goals 以外的基本表；v2（P2）新增 goals。
+// holdings、userActions、checkIns 於後續版本加入
 db.version(1).stores({
   households:   'id',
   members:      'id, householdId',
@@ -486,7 +491,8 @@ db.version(1).stores({
 ```
 
 - 所有寫入都經過 repository 層，由它負責自動更新 `updatedAt`。
-- Schema 變更時，在 `src/data/migrations/` 新增 `vN.ts`，由 Dexie 的 `upgrade()` 執行。匯入舊版備份時，套用同一套遷移函式。
+- Schema 變更時，在 `db.ts` 新增 `this.version(N)`，只列出新增或變更的表；需要轉換資料時用 Dexie 的 `upgrade()`。
+- 匯入舊版備份時，由 `backup.ts` 的 `migratePayload` 逐版升級（例如 v1 → v2 補上 `goals: []`）。
 
 ---
 

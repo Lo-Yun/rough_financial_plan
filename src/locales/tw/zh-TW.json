@@ -14,8 +14,10 @@
   "nav": {
     "label": "主要功能",
     "netWorth": "淨值",
-    "history": "歷史",
-    "settings": "設定"
+    "settings": "設定",
+    "cashflow": "收支",
+    "health": "健檢",
+    "plans": "計畫"
   },
   "unit": {
     "wan": "萬",
@@ -182,7 +184,7 @@
       "precision": "精確度 {{pct}}%。這是粗估，數字越精確，結果越可靠。",
       "surplus": "每個月大約可以存下",
       "deficit": "每月大約不夠 {{v}}",
-      "surplusRange": "範圍：{{range}}（含年終平均）",
+      "surplusRange": "範圍：{{range}}（含年終平均，已扣除貸款還款）",
       "nextTitle": "下一步",
       "nextBody": "進入後，App 會提示你先把哪一項改精確，效果最大。每個月回來記錄一次，就能看到淨值的變化。",
       "enter": "進入我的財務"
@@ -218,7 +220,8 @@
       "asset": "新增資產",
       "liability": "新增負債"
     },
-    "noFx": "缺匯率"
+    "noFx": "缺匯率",
+    "historyLink": "淨值歷史與曲線"
   },
   "ladder": {
     "title": "財富階梯",
@@ -278,7 +281,12 @@
     "revolving": "有動用循環信用",
     "revolvingHint": "沒有全額繳清、被收循環利息。每月全額繳清的話請取消勾選。",
     "note": "備註",
-    "confirmDelete": "確定要刪除這一項嗎？"
+    "confirmDelete": "確定要刪除這一項嗎？",
+    "rate": "年利率（可以不填）",
+    "rateHint": "不知道的話留空，會用常見的 {{pct}}% 計算。",
+    "knowPayment": "我知道每月要還多少",
+    "payment": "每月還款",
+    "derivedPayment": "推算每月約還 {{amount}}（依利率與 {{months}} 期估算）。知道實際金額的話，勾選上面填入會更準。"
   },
   "history": {
     "title": "淨值歷史",
@@ -346,6 +354,321 @@
       "title": "關於",
       "version": "版本 {{version}}・地區資料 {{pack}}",
       "stats": "選「不確定」時使用的統計預設值，來自行政院主計總處的公開資料，目前為概略值，正式版會再校對。"
+    },
+    "assumptions": {
+      "title": "試算假設",
+      "explain": "理財計畫用這些數字試算。不確定的話維持預設就好。",
+      "inflation": "通膨率",
+      "return": "{{profile}}的年報酬",
+      "default": "預設 {{v}}%",
+      "spread": "保守／樂觀情境的差距",
+      "spreadHint": "預設 {{v}}%：保守情境的報酬率少這麼多，樂觀情境多這麼多。",
+      "swr": "安全提領率",
+      "swrHint": "預設 {{v}}%，用於財務自由目標的計算。",
+      "reset": "全部改回預設值"
+    }
+  },
+  "duration": {
+    "months": "{{count}} 個月",
+    "months_other": "{{count}} 個月",
+    "years": "{{count}} 年",
+    "years_other": "{{count}} 年",
+    "yearsMonths": "{{y}} 年 {{m}} 個月"
+  },
+  "frequency": {
+    "weekly": "每週",
+    "monthly": "每月",
+    "quarterly": "每季",
+    "yearly": "每年"
+  },
+  "cashflow": {
+    "title": "收支",
+    "surplus": "每月大約可以存下",
+    "deficit": "支出加上還款比收入多，每個月在透支。",
+    "surplusUnknown": "還不知道收入或支出，先新增一筆吧。",
+    "income": "收入（含年終平均）",
+    "expense": "支出",
+    "debtPayments": "貸款還款",
+    "savingsRate": "儲蓄率",
+    "unresolved": "有 {{count}} 項不知道金額，暫時沒有算進去",
+    "unresolved_other": "有 {{count}} 項不知道金額，暫時沒有算進去",
+    "splitTip": "目前支出只有一筆「每月總花費」。想更精確的話，可以新增房租、飲食等細項；新增後記得把總花費調低或刪除，避免重複計算。",
+    "debtNote": "貸款還款依負債的利率與每月還款計算，請到「淨值」頁的負債項目修改。",
+    "section": {
+      "income": "收入",
+      "expense": "支出"
+    },
+    "perMonth": "每月 {{v}}",
+    "empty": {
+      "income": "還沒有收入項目。",
+      "expense": "還沒有支出項目。"
+    },
+    "add": {
+      "income": "新增收入",
+      "expense": "新增支出"
+    },
+    "nonEssential": "非必要",
+    "oneOff": "非經常性",
+    "monthlyAvg": "月平均",
+    "frequency": "多久一次",
+    "labelPlaceholder": {
+      "income": "例如：A 公司薪水",
+      "expense": "例如：房租、午餐"
+    },
+    "amountPer": {
+      "weekly": "每週大約多少",
+      "monthly": "每月大約多少",
+      "quarterly": "每季大約多少",
+      "yearly": "每年大約多少"
+    },
+    "netHint": "填實際拿到手的金額（稅後）。",
+    "recurring": "經常性收入",
+    "recurringHint": "每個月都穩定會有。年終、分紅等不固定的收入請取消勾選，計算緊急預備金時不會算進去。",
+    "housingHint": "房租、管理費都算。房貸請在負債裡填，不要重複填在這裡。",
+    "insuranceHint": "年繳的保費可以選「每年」填寫。",
+    "essential": "必要支出",
+    "essentialHint": "沒有收入時也一定要付的開銷，例如房租、伙食、保險。計算緊急預備金時只算必要支出。"
+  },
+  "reconcile": {
+    "title": "對帳檢查",
+    "why": "用實際的存款變化，檢查收支估算準不準。很多人會低估支出 2～3 成。",
+    "question": "過去一年，你的存款和投資本金大約增加了多少？",
+    "questionHint": "只算存進去的錢，不含股票漲跌。減少了可以填負數，例如 -5萬。",
+    "check": "檢查",
+    "estimated": "依收支估算一年可存",
+    "actual": "你說實際增加",
+    "result": {
+      "ok": "對得上，你的收支估算很合理！",
+      "expense_underestimated": "估算的結餘比實際多不少，可能低估了支出。",
+      "income_underestimated": "實際存下的比估算多，可能低估了收入，或有一次性的收入。"
+    },
+    "forgottenTitle": "常被忘記的支出：",
+    "cannot": "還不知道每月結餘，先填好收入與支出。",
+    "edit": "修改答案"
+  },
+  "forgotten": {
+    "insurance": "年繳的保險費",
+    "tax": "所得稅、房屋稅、地價稅、牌照稅",
+    "red_envelope": "過年紅包、婚喪喜慶",
+    "travel": "出國旅遊",
+    "car_maintenance": "汽機車保養、維修、保險",
+    "gifts": "生日、節日禮物",
+    "medical": "看診、牙齒、眼鏡",
+    "subscriptions": "各種訂閱服務、會員費"
+  },
+  "health": {
+    "title": "財務健檢",
+    "topTitle": "最該先處理的一件事",
+    "allGood": "目前沒有紅燈或黃燈，財務狀況很健康！可以到「計畫」設定下一個目標。",
+    "precisionNote": "以下指標根據你的估算計算，目前精確度 {{pct}}%。數字越精確，判斷越可靠。",
+    "none": "沒有",
+    "spans": "依你的估算範圍，可能是{{a}}到{{b}}之間。填精確一點就知道了。",
+    "goal": {
+      "higher": "≥ {{green}} 為綠燈，≥ {{yellow}} 為黃燈",
+      "lower": "≤ {{green}} 為綠燈，≤ {{yellow}} 為黃燈"
+    },
+    "light": {
+      "red": "紅燈",
+      "yellow": "黃燈",
+      "green": "綠燈",
+      "none": "無法計算"
+    },
+    "unit": {
+      "months": "{{v}} 個月",
+      "monthsRange": "{{a}} ～ {{b}} 個月",
+      "times": "{{v}} 倍",
+      "timesRange": "{{a}} ～ {{b}} 倍"
+    },
+    "missing": {
+      "no_income": "需要知道收入才能計算，請到「收支」新增。",
+      "no_expense": "需要知道支出才能計算，請到「收支」新增。",
+      "no_housing": "沒有房租或房貸，不需要計算。",
+      "no_insurance": "還沒有填保險費。到「收支」新增一筆「保險費」支出就能檢查。"
+    },
+    "fi": {
+      "title": "財務自由進度",
+      "explain": "財務自由目標 = 年支出 ÷ {{pct}}（安全提領率）。存到這個金額，理論上靠投資報酬就能支付生活開銷。",
+      "progress": "已完成 {{pct}}：目前可投資資產約 {{have}}，目標約 {{target}}。",
+      "cta": "建立財務自由計畫 ›"
+    },
+    "metric": {
+      "savings_rate": {
+        "name": "儲蓄率",
+        "explain": "每月收入中，扣掉支出與還款後能存下的比例。",
+        "excellent": "超過 20%，非常好！",
+        "action": "先檢查支出有沒有可以調整的地方，或想辦法增加收入。",
+        "cta": "查看收支"
+      },
+      "emergency_months": {
+        "name": "緊急預備金",
+        "explain": "隨時可用的現金，夠支付幾個月的支出與還款。失業或急用時的安全網，建議至少 3～6 個月。",
+        "excellent": "已經有 6 個月以上，安全網很穩。",
+        "too_high": "超過 12 個月，現金可能放太多了，可以考慮把一部分拿去投資。",
+        "action": "每月先存一筆固定金額到獨立帳戶，存到 3 個月的生活費。",
+        "cta": "建立緊急預備金計畫"
+      },
+      "debt_service_ratio": {
+        "name": "還款負擔",
+        "explain": "每月貸款還款佔經常性收入的比例。太高的話，收入一有變動就很危險。",
+        "action": "避免再增加新的貸款，優先還掉利率高的負債。",
+        "cta": "建立還債計畫"
+      },
+      "housing_cost_ratio": {
+        "name": "居住成本",
+        "explain": "房租或房貸月付加上管理費，佔經常性收入的比例。",
+        "action": "居住成本偏高，其他目標會比較吃力。換屋或續約時可以列入考量。",
+        "cta": "查看收支"
+      },
+      "high_interest_debt": {
+        "name": "高利負債",
+        "explain": "信用卡循環、利率 8% 以上的貸款。利息很容易滾到比投資報酬還高。",
+        "action": "優先還清高利負債，這是報酬率最高、也最確定的「投資」。",
+        "cta": "建立還債計畫"
+      },
+      "unsecured_debt_multiple": {
+        "name": "無擔保負債",
+        "explain": "信貸、卡債等沒有擔保品的負債，是月收入的幾倍。台灣銀行規範上限為 22 倍。",
+        "action": "無擔保負債偏高，再借款會很困難，建議先還一部分。",
+        "cta": "建立還債計畫"
+      },
+      "insurance_premium_ratio": {
+        "name": "保費負擔",
+        "explain": "保費佔收入的比例。常見的「雙十原則」：保費不超過年收入 10%。",
+        "action": "保費偏高，可以檢查保單是否有重複，或儲蓄險佔比太高。",
+        "cta": "查看收支"
+      }
+    }
+  },
+  "plans": {
+    "title": "理財計畫",
+    "empty": "還沒有任何計畫。從這幾個開始最好：",
+    "sharedSurplus": "有 {{count}} 個計畫都用同一筆每月結餘（約 {{v}}）試算，實際上要分配。可以在各計畫設定每月要投入多少。",
+    "card": {
+      "eta": "照目前速度，約 {{duration}} 後達成"
+    },
+    "add": "新增計畫",
+    "disclaimer": "試算以今天的幣值、扣除通膨後的報酬率計算，僅供參考，不保證未來報酬。",
+    "preview": "試算結果",
+    "confirmDelete": "確定要刪除這個計畫嗎？",
+    "type": {
+      "emergency_fund": {
+        "name": "緊急預備金",
+        "desc": "存下 3～6 個月的必要開銷與還款，應付失業或意外。目標金額會依你的支出自動計算。"
+      },
+      "debt_payoff": {
+        "name": "還清負債",
+        "desc": "比較「雪崩法」與「雪球法」，看多久能還清、要付多少利息。"
+      },
+      "home_down_payment": {
+        "name": "買房頭期款",
+        "desc": "依房價估算頭期款與雜費，並檢查之後的房貸月付負擔。"
+      },
+      "retirement_fi": {
+        "name": "財務自由",
+        "desc": "存到「年支出 ÷ 安全提領率」的金額，靠投資收益支付生活開銷。"
+      },
+      "education": {
+        "name": "子女教育金",
+        "desc": "為孩子的學費預先準備。"
+      },
+      "big_purchase": {
+        "name": "大筆消費",
+        "desc": "換車、旅遊、婚禮等一次性的大筆支出。"
+      },
+      "custom": {
+        "name": "自訂目標",
+        "desc": "任何你想存錢達成的目標。"
+      }
+    },
+    "strategy": {
+      "avalanche": "雪崩法",
+      "snowball": "雪球法",
+      "avalancheHint": "先還利率最高的，總利息最少。",
+      "snowballHint": "先還餘額最小的，比較快看到成果、容易堅持。"
+    },
+    "profile": {
+      "cash": {
+        "name": "存款",
+        "desc": "放在存款或貨幣基金，穩定但報酬低。適合 3 年內要用的錢。"
+      },
+      "balanced": {
+        "name": "股債平衡",
+        "desc": "一半股票、一半債券，有波動。適合 3～10 年的目標。"
+      },
+      "growth": {
+        "name": "積極成長",
+        "desc": "以股票為主，短期波動大，長期報酬較高。適合 10 年以上的目標。"
+      }
+    },
+    "field": {
+      "months": "要存幾個月",
+      "monthsHint": "收入不穩定或有家人要照顧，建議 6 個月以上。",
+      "swr": "安全提領率",
+      "swrHint": "每年從資產中提領的比例。越低越保守，需要存的錢也越多。",
+      "homePrice": "房屋總價",
+      "downPayment": "自備款比例",
+      "downPaymentHint": "另外會加上約 {{fees}}% 的稅費、仲介費等雜費。",
+      "debts": "要還清哪些負債",
+      "noDebts": "目前沒有可以計算的負債。請先到「淨值」頁新增負債。",
+      "debtInfo": "年利率約 {{rate}}%",
+      "strategy": "還款策略",
+      "target": "目標金額",
+      "date": "希望什麼時候達成（可以不填）",
+      "dateHint": "填了會算出每月需要存多少。",
+      "extraToggle": "每月可以多還一些",
+      "extraHint": "除了原本的每月還款，再多還的金額。",
+      "contributionToggle": "自己設定每月投入金額",
+      "contributionHint": "沒設定的話，用目前的每月結餘試算。",
+      "contribution": "每月投入",
+      "profile": "這筆錢怎麼放",
+      "linked": "已經為這個目標準備的資產",
+      "linkedHint": {
+        "emergency_fund": "沒有勾選時，自動使用所有「隨時可用」的資產。",
+        "retirement_fi": "沒有勾選時，自動使用現金、投資、加密資產與退休帳戶。",
+        "other": "勾選已經專門存給這個目標的帳戶。"
+      }
+    },
+    "proj": {
+      "pickDebts": "請選擇要還清的負債。",
+      "noTarget": "還不知道目標金額。請填寫目標金額，或到「收支」補上支出。",
+      "when": "約 {{duration}} 後（{{y}} 年 {{m}} 月）達成",
+      "debtTotal": "負債合計",
+      "minPayments": "目前每月還款",
+      "extra": "每月多還",
+      "noExtra": "沒有",
+      "payoffTime": "還清時間",
+      "totalInterest": "總利息",
+      "never": "照目前的速度達不到",
+      "order": "還清順序：{{order}}",
+      "avalancheSaves": "雪崩法可以少付約 {{v}} 的利息。",
+      "neverHint": "每月還款不夠支付利息，餘額不會減少。請增加每月還款。",
+      "extraHint": "每月多還一點，可以大幅縮短還款時間。",
+      "target": "目標",
+      "current": "目前已有",
+      "progress": "目標進度",
+      "reached": "已經達成！🎉",
+      "contribution": {
+        "user": "每月投入 {{v}}（你設定的）。",
+        "surplus": "每月投入 {{v}}（以目前的每月結餘試算）。",
+        "none": ""
+      },
+      "noContribution": "目前每月沒有結餘，無法試算達成時間。可以設定每月投入金額。",
+      "etaRange": "依報酬與估算範圍，最快 {{a}}、最慢 {{b}}。",
+      "latestNever": "保守情況下可能達不到，建議增加每月投入。",
+      "required": "要在 {{months}} 內達成，每月需要存約 {{v}}（{{range}}）。",
+      "behind": "目前的投入不夠。",
+      "ahead": "目前的投入足夠！",
+      "datePassed": "目標日期已經過了。",
+      "assumption": "以「{{profile}}」的實質年報酬 {{rate}} 計算（已扣除通膨；保守 {{low}}、樂觀 {{high}}）。"
+    },
+    "home": {
+      "title": "房貸負擔檢查",
+      "loan": "貸款約 {{loan}}，以 {{years}} 年攤還，每月約還 {{pay}}。",
+      "ratio": {
+        "green": "約佔經常性收入 {{pct}}，負擔合理。",
+        "yellow": "約佔經常性收入 {{pct}}，有點吃緊。",
+        "red": "約佔經常性收入 {{pct}}，負擔太重，建議降低房價或提高自備款。"
+      }
     }
   }
 }

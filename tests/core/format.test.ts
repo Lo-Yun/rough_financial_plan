@@ -43,3 +43,13 @@ describe('parseAmount', () => {
     expect(parseAmount('5 3萬', aliases)).toBe(530_000);
   });
 });
+
+describe('formatPercent', () => {
+  it('uses one decimal below 10%', async () => {
+    const { formatPercent, formatPercentRange } = await import('../../src/core/format');
+    expect(formatPercent(0.153)).toBe('15%');
+    expect(formatPercent(0.052)).toBe('5.2%');
+    expect(formatPercent(-0.02)).toBe('-2%');
+    expect(formatPercentRange({ low: 0.1, mid: 0.15, high: 0.2 })).toBe('10% ～ 20%');
+  });
+});

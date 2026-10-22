@@ -15,6 +15,8 @@ import type {
 import { computeBalanceSheet, type BalanceSheet, type ResolvedItem } from './balanceSheet';
 import { monthlyExpense, monthlyIncome, type MonthlyTotal } from './cashflow';
 import type { MoneyContext } from './currency';
+import { resolveDebts, type ResolvedDebt } from './debt';
+import { sub, sum } from './interval';
 import { ladderPosition, type LadderPosition } from './ladder';
 import { estimateWeight, isStale, precisionScore, type PrecisionResult } from './precision';
 
@@ -39,7 +41,16 @@ export interface Overview {
   precision: PrecisionResult;
   ladder: LadderPosition;
   income: MonthlyTotal;
+  /** 只含經常性收入（不含年終等一次性收入） */
+  recurringIncome: MonthlyTotal;
   expense: MonthlyTotal;
+  /** 只含必要支出 */
+  essentialExpense: MonthlyTotal;
+  debts: ResolvedDebt[];
+  /** 每月貸款還款合計 */
+  debtPayments: Range;
+  /** 每月結餘 = 收入 − 支出 − 還款；收入或支出未知時為 null */
+  surplus: Range | null;
   /** 最值得改精確的一項，沒有就是 null */
   nextRefinement: RefinementTarget | null;
 }
@@ -98,12 +109,24 @@ export function computeOverview(data: FinancialData, pack: LocalePack, today: IS
     candidates(bs).map((c) => ({ estimate: c.estimate, magnitude: c.range ? Math.abs(c.range.mid) : null })),
     opts,
   );
+  const income = monthlyIncome(data.incomes, ctx);
+  const expense = monthlyExpense(data.expenses, ctx);
+  const debts = resolveDebts(data.liabilities, ctx, pack);
+  const debtPayments = sum(debts.map((d) => d.payment));
   return {
     balanceSheet: bs,
     precision,
     ladder: ladderPosition(bs.netWorth, pack.wealthLadder),
-    income: monthlyIncome(data.incomes, ctx),
-    expense: monthlyExpense(data.expenses, ctx),
+    income,
+    recurringIncome: monthlyIncome(data.incomes, ctx, { recurringOnly: true }),
+    expense,
+    essentialExpense: monthlyExpense(
+      data.expenses.filter((e) => e.essential),
+      ctx,
+    ),
+    debts,
+    debtPayments,
+    surplus: income.total && expense.total ? sub(sub(income.total, expense.total), debtPayments) : null,
     nextRefinement: findNextRefinement(bs, opts),
   };
 }

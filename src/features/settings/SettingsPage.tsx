@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../app/context';
+import { PercentField } from '../../components/EditorParts';
 import { isIOS, isStandalone, useInstallPrompt } from '../../app/pwa';
 import { BackupError, buildExport, inspectExport, parseExport } from '../../data/backup';
 import type { FxRate } from '../../model/types';
@@ -46,6 +47,8 @@ export function SettingsPage() {
           </div>
         </fieldset>
       </section>
+
+      <AssumptionsSection />
 
       <BackupSection />
 
@@ -217,6 +220,69 @@ function InstallSection() {
         </button>
       ) : (
         <p className="small">{isIOS() ? t('pwa.iosInstall') : t('pwa.manual')}</p>
+      )}
+    </section>
+  );
+}
+
+function AssumptionsSection() {
+  const { t } = useTranslation();
+  const { pack, repo, data, storedAssumptions } = useApp();
+  const d = pack.defaultAssumptions;
+  const s = storedAssumptions;
+  const hid = data.household.id;
+  const pctHint = (v: number) => t('settings.assumptions.default', { v: Math.round(v * 1000) / 10 });
+  const customized = !!s && (s.inflation !== undefined || s.safeWithdrawalRate !== undefined || s.scenarioSpread !== undefined || !!s.nominalReturn);
+
+  return (
+    <section className="card">
+      <h2>{t('settings.assumptions.title')}</h2>
+      <p className="muted small">{t('settings.assumptions.explain')}</p>
+      <PercentField
+        label={t('settings.assumptions.inflation')}
+        value={s?.inflation}
+        placeholder={String(d.inflation * 100)}
+        hint={pctHint(d.inflation)}
+        onChange={(inflation) => void repo.saveAssumptions(hid, { inflation })}
+      />
+      {(['cash', 'balanced', 'growth'] as const).map((p) => (
+        <PercentField
+          key={p}
+          label={t('settings.assumptions.return', { profile: t(`plans.profile.${p}.name`) })}
+          value={s?.nominalReturn?.[p]}
+          placeholder={String(Math.round(d.nominalReturn[p] * 1000) / 10)}
+          hint={pctHint(d.nominalReturn[p])}
+          onChange={(v) => {
+            const next = { ...s?.nominalReturn, [p]: v };
+            if (v === undefined) delete next[p];
+            void repo.saveAssumptions(hid, { nominalReturn: Object.keys(next).length ? next : undefined });
+          }}
+        />
+      ))}
+      <PercentField
+        label={t('settings.assumptions.spread')}
+        value={s?.scenarioSpread}
+        placeholder={String(d.scenarioSpread * 100)}
+        hint={t('settings.assumptions.spreadHint', { v: d.scenarioSpread * 100 })}
+        onChange={(scenarioSpread) => void repo.saveAssumptions(hid, { scenarioSpread })}
+      />
+      <PercentField
+        label={t('settings.assumptions.swr')}
+        value={s?.safeWithdrawalRate}
+        placeholder={String(d.safeWithdrawalRate * 100)}
+        hint={t('settings.assumptions.swrHint', { v: d.safeWithdrawalRate * 100 })}
+        onChange={(safeWithdrawalRate) => void repo.saveAssumptions(hid, { safeWithdrawalRate })}
+      />
+      {customized && (
+        <button
+          type="button"
+          className="btn ghost small"
+          onClick={() =>
+            void repo.saveAssumptions(hid, { inflation: undefined, nominalReturn: undefined, scenarioSpread: undefined, safeWithdrawalRate: undefined })
+          }
+        >
+          {t('settings.assumptions.reset')}
+        </button>
       )}
     </section>
   );

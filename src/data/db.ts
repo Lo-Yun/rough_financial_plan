@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import type {
   Asset,
   ExpenseItem,
+  Goal,
   Household,
   ID,
   IncomeItem,
@@ -12,7 +13,7 @@ import type {
   Assumptions,
 } from '../model/types';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export interface MetaRow {
   key: string;
@@ -27,14 +28,15 @@ export class AppDB extends Dexie {
   assets!: Table<Asset, ID>;
   liabilities!: Table<Liability, ID>;
   snapshots!: Table<Snapshot, ID>;
+  goals!: Table<Goal, ID>;
   settings!: Table<Settings, ID>;
   assumptions!: Table<Assumptions, ID>;
   meta!: Table<MetaRow, string>;
 
   constructor(name = 'rough-financial-plan') {
     super(name);
-    // 見 docs/02-data-model.md 第 5 節；holdings、goals、userActions、checkIns 於後續版本加入
-    this.version(SCHEMA_VERSION).stores({
+    // 見 docs/02-data-model.md 第 5 節；holdings、userActions、checkIns 於後續版本加入
+    this.version(1).stores({
       households: 'id',
       members: 'id, householdId',
       incomeItems: 'id, householdId, category, archivedAt',
@@ -45,6 +47,10 @@ export class AppDB extends Dexie {
       settings: 'householdId',
       assumptions: 'householdId',
       meta: 'key',
+    });
+    // v2（第二期）：理財目標
+    this.version(2).stores({
+      goals: 'id, householdId, status, priority',
     });
   }
 }

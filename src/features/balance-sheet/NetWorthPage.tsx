@@ -92,6 +92,11 @@ export function NetWorthPage() {
 
       <LadderSummary />
 
+      <Link to="/history" className="card link-card">
+        <span>{t('netWorth.historyLink')}</span>
+        <span className="chevron" aria-hidden="true">›</span>
+      </Link>
+
       <div className="actions">
         <button
           type="button"
