@@ -113,7 +113,7 @@ describe('schema v2', () => {
   it('imports v1 backups by adding empty goals', async () => {
     const h = await repo.ensureHousehold(twPack);
     const p = await repo.exportAll();
-    const { goals: _goals, assumptions: _a, holdings: _h, ...v1 } = p;
+    const { goals: _goals, assumptions: _a, holdings: _h, userActions: _u, checkIns: _c, ...v1 } = p;
     const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 1, exportedAt: '', appVersion: 'old', encrypted: false, payload: v1 });
     const migrated = await parseExport(text);
     expect(migrated.goals).toEqual([]);
@@ -149,7 +149,8 @@ describe('IndexedDB upgrade', () => {
     const upgraded = new Repo(new AppDB(name));
     expect(await upgraded.db.assets.get('a1')).toMatchObject({ category: 'cash' });
     expect(await upgraded.db.goals.count()).toBe(0);
-    expect(upgraded.db.verno).toBe(3);
+    expect(upgraded.db.verno).toBe(4);
+    expect(await upgraded.db.userActions.count()).toBe(0);
     expect(await upgraded.db.holdings.count()).toBe(0);
   });
 });
@@ -168,7 +169,7 @@ describe('schema v3', () => {
 
   it('migrates v2 backups by adding empty holdings', async () => {
     await repo.ensureHousehold(twPack);
-    const { holdings: _h, ...v2 } = await repo.exportAll();
+    const { holdings: _h, userActions: _u, checkIns: _c, ...v2 } = await repo.exportAll();
     const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 2, exportedAt: '', appVersion: 'old', encrypted: false, payload: v2 });
     expect((await parseExport(text)).holdings).toEqual([]);
   });
@@ -188,5 +189,29 @@ describe('syncAssetFromHoldings', () => {
     await repo.saveAsset(h.id, { ...cash, id: a.id, category: 'investment', liquidity: 'semi_liquid', valueFromHoldings: true });
     await syncAssetFromHoldings(repo, twPack, h.id, a.id);
     expect((await repo.db.assets.get(a.id))!.value.estimate).toEqual({ mode: 'exact', value: 25_000, asOf: '2026-10-01', source: 'manual' });
+  });
+});
+
+describe('schema v4', () => {
+  it('saves actions and check-ins and round-trips them', async () => {
+    const h = await repo.ensureHousehold(twPack);
+    await repo.saveUserAction(h.id, { templateId: 'fix_deficit', status: 'active', acceptedAt: '2026-10-22T00:00:00Z' });
+    await repo.saveCheckIn(h.id, { date: '2026-10-22', hadMajorChange: false, updatedItemIds: [], completedActionIds: [] });
+    const p = await repo.exportAll();
+    expect(p.userActions).toHaveLength(1);
+    expect(p.checkIns).toHaveLength(1);
+    const other = new Repo(new AppDB(`test-${++n}`));
+    await other.importAll(await parseExport(await buildExport(p, { appVersion: 't' })));
+    expect(await other.db.userActions.count()).toBe(1);
+    expect(await other.db.checkIns.count()).toBe(1);
+  });
+
+  it('migrates v3 backups by adding empty actions and check-ins', async () => {
+    await repo.ensureHousehold(twPack);
+    const { userActions: _u, checkIns: _c, ...v3 } = await repo.exportAll();
+    const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 3, exportedAt: '', appVersion: 'old', encrypted: false, payload: v3 });
+    const migrated = await parseExport(text);
+    expect(migrated.userActions).toEqual([]);
+    expect(migrated.checkIns).toEqual([]);
   });
 });

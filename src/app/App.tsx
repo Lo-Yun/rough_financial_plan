@@ -8,23 +8,26 @@ import { resolveAssumptions } from '../core/planning';
 import { AppDB } from '../data/db';
 import { Repo } from '../data/repo';
 import { ItemEditor } from '../features/balance-sheet/ItemEditor';
-import { CashflowPage } from '../features/cashflow/CashflowPage';
-import { FlowEditor } from '../features/cashflow/FlowEditor';
-import { HealthPage } from '../features/health/HealthPage';
-import { GoalEditor } from '../features/plans/GoalEditor';
-import { PlansPage } from '../features/plans/PlansPage';
-import { HoldingEditor } from '../features/portfolio/HoldingEditor';
-import { HoldingsPage } from '../features/portfolio/HoldingsPage';
-import { PortfolioPage } from '../features/portfolio/PortfolioPage';
 import { NetWorthPage } from '../features/balance-sheet/NetWorthPage';
 import { Onboarding } from '../features/onboarding/Onboarding';
-import { SettingsPage } from '../features/settings/SettingsPage';
 import { defaultPack, getPack } from '../locales';
 import { AppContext, type AppState } from './context';
 import { loadFinancialData } from './load';
 
-// 圖表套件較大，歷史頁面延遲載入
+// 淨值頁與資產編輯以外的頁面都延遲載入，縮小首次載入的程式大小
 const HistoryPage = lazy(() => import('../features/history/HistoryPage').then((m) => ({ default: m.HistoryPage })));
+const CashflowPage = lazy(() => import('../features/cashflow/CashflowPage').then((m) => ({ default: m.CashflowPage })));
+const FlowEditor = lazy(() => import('../features/cashflow/FlowEditor').then((m) => ({ default: m.FlowEditor })));
+const HealthPage = lazy(() => import('../features/health/HealthPage').then((m) => ({ default: m.HealthPage })));
+const PlansPage = lazy(() => import('../features/plans/PlansPage').then((m) => ({ default: m.PlansPage })));
+const GoalEditor = lazy(() => import('../features/plans/GoalEditor').then((m) => ({ default: m.GoalEditor })));
+const PortfolioPage = lazy(() => import('../features/portfolio/PortfolioPage').then((m) => ({ default: m.PortfolioPage })));
+const HoldingsPage = lazy(() => import('../features/portfolio/HoldingsPage').then((m) => ({ default: m.HoldingsPage })));
+const HoldingEditor = lazy(() => import('../features/portfolio/HoldingEditor').then((m) => ({ default: m.HoldingEditor })));
+const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const ActionsPage = lazy(() => import('../features/actions/ActionsPage').then((m) => ({ default: m.ActionsPage })));
+const LadderPage = lazy(() => import('../features/ladder/LadderPage').then((m) => ({ default: m.LadderPage })));
+const CheckInPage = lazy(() => import('../features/checkin/CheckInPage').then((m) => ({ default: m.CheckInPage })));
 
 const repo = new Repo(new AppDB());
 
@@ -66,6 +69,8 @@ export function App() {
     storedAssumptions: loaded.assumptions,
     holdings: loaded.holdings,
     primaryMember: loaded.primaryMember,
+    userActions: loaded.userActions,
+    checkIns: loaded.checkIns,
   };
 
   return (
@@ -74,16 +79,13 @@ export function App() {
         <HashRouter>
           <div className="app-shell">
             <main className="app-main">
+              <Suspense fallback={<div className="loading">{t('common.loading')}</div>}>
               <Routes>
                 <Route path="/" element={<NetWorthPage />} />
-                <Route
-                  path="/history"
-                  element={
-                    <Suspense fallback={<div className="loading">{t('common.loading')}</div>}>
-                      <HistoryPage />
-                    </Suspense>
-                  }
-                />
+                <Route path="/history" element={<HistoryPage />} />
+                <Route path="/actions" element={<ActionsPage />} />
+                <Route path="/ladder" element={<LadderPage />} />
+                <Route path="/checkin" element={<CheckInPage />} />
                 <Route path="/cashflow" element={<CashflowPage />} />
                 <Route path="/health" element={<HealthPage />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
@@ -104,6 +106,7 @@ export function App() {
                 <Route path="/expense/:id" element={<FlowEditor kind="expense" />} />
                 <Route path="*" element={<NetWorthPage />} />
               </Routes>
+              </Suspense>
             </main>
             <nav className="tab-bar" aria-label={t('nav.label')}>
               <NavLink to="/" end>

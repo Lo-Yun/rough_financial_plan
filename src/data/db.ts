@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import type {
   Asset,
+  CheckIn,
   ExpenseItem,
   Goal,
   Holding,
@@ -12,9 +13,10 @@ import type {
   Settings,
   Snapshot,
   Assumptions,
+  UserAction,
 } from '../model/types';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export interface MetaRow {
   key: string;
@@ -31,13 +33,15 @@ export class AppDB extends Dexie {
   snapshots!: Table<Snapshot, ID>;
   goals!: Table<Goal, ID>;
   holdings!: Table<Holding, ID>;
+  userActions!: Table<UserAction, ID>;
+  checkIns!: Table<CheckIn, ID>;
   settings!: Table<Settings, ID>;
   assumptions!: Table<Assumptions, ID>;
   meta!: Table<MetaRow, string>;
 
   constructor(name = 'rough-financial-plan') {
     super(name);
-    // 見 docs/02-data-model.md 第 5 節；userActions、checkIns 於後續版本加入
+    // 見 docs/02-data-model.md 第 5 節
     this.version(1).stores({
       households: 'id',
       members: 'id, householdId',
@@ -57,6 +61,11 @@ export class AppDB extends Dexie {
     // v3（第三期）：持股明細
     this.version(3).stores({
       holdings: 'id, householdId, assetId',
+    });
+    // v4（第四期）：行動追蹤、定期回顧
+    this.version(4).stores({
+      userActions: 'id, householdId, status, templateId',
+      checkIns: 'id, householdId, date',
     });
   }
 }

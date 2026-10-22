@@ -5,7 +5,8 @@ import { moneyContext, type FinancialData, type Overview } from '../core/overvie
 import type { PlanningContext, ResolvedAssumptions } from '../core/planning';
 import type { Repo } from '../data/repo';
 import type { LocalePack } from '../model/localePack';
-import type { Assumptions, Goal, Holding, ISODate, Member, Range, Snapshot } from '../model/types';
+import type { Assumptions, CheckIn, Goal, Holding, ISODate, Member, Range, Snapshot, UserAction } from '../model/types';
+import { computeAdvice, type Advice } from '../core/advice';
 
 export interface AppState {
   repo: Repo;
@@ -22,6 +23,9 @@ export interface AppState {
   storedAssumptions?: Assumptions;
   holdings: Holding[];
   primaryMember?: Member;
+  userActions: UserAction[];
+  /** 依日期排序 */
+  checkIns: CheckIn[];
 }
 
 /** 依主要成員的出生年估算年齡；沒填時為 null */
@@ -68,4 +72,35 @@ export function usePlanningContext(): PlanningContext {
     () => ({ overview, money: moneyContext(data, pack), assumptions, pack, today }),
     [overview, data, pack, assumptions, today],
   );
+}
+
+/** 行動建議與進行中的行動（P4） */
+export function useAdvice(): Advice {
+  const app = useApp();
+  const { data, overview, pack, goals, holdings, assumptions, storedAssumptions, primaryMember, snapshots, userActions, today } = app;
+  return useMemo(
+    () =>
+      computeAdvice({
+        data,
+        overview,
+        pack,
+        goals,
+        holdings,
+        assumptions,
+        storedAssumptions,
+        age: ageOf(primaryMember, today),
+        snapshotCount: snapshots.length,
+        actions: userActions,
+        today,
+      }),
+    [data, overview, pack, goals, holdings, assumptions, storedAssumptions, primaryMember, snapshots.length, userActions, today],
+  );
+}
+
+/** 行動參數都是金額，先格式化再交給 i18n 插值 */
+export function useActionParams() {
+  const { pack } = useApp();
+  const fmt = useFormat(pack);
+  return (params: Record<string, number> | undefined) =>
+    Object.fromEntries(Object.entries(params ?? {}).map(([k, v]) => [k, fmt.money(v)]));
 }

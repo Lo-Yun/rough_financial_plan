@@ -902,3 +902,117 @@ fieldset {
 .item-list .row a.name {
   flex: 1;
 }
+
+/* Phase 4：行動、財富階梯、每月回顧 */
+.action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.action-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.action-list li:last-child {
+  border-bottom: none;
+}
+.active-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.active-action .toggle-row {
+  margin: 0;
+  flex: 1;
+}
+.active-action > a {
+  flex: none;
+  margin-top: 2px;
+}
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.suggestion {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+.suggestion.cat-debt {
+  border-left-color: var(--red);
+}
+.suggestion.cat-saving {
+  border-left-color: var(--yellow);
+}
+.suggestion.cat-data_quality {
+  border-left-color: var(--muted);
+}
+.suggestion-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.suggestion .button-row {
+  margin-top: 8px;
+}
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.custom-action {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.custom-action input {
+  flex: 1;
+}
+.checkin-due {
+  background: var(--yellow-soft);
+}
+.checkin-due .chevron {
+  color: var(--yellow);
+}
+.ladder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ladder-list li {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.ladder-list li.current {
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+.ladder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ladder-row .muted {
+  margin-left: auto;
+}
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.review-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.review-row .button-row {
+  margin-top: 6px;
+}
