@@ -5,7 +5,7 @@ import { moneyContext, type FinancialData, type Overview } from '../core/overvie
 import type { PlanningContext, ResolvedAssumptions } from '../core/planning';
 import type { Repo } from '../data/repo';
 import type { LocalePack } from '../model/localePack';
-import type { Assumptions, Goal, ISODate, Range, Snapshot } from '../model/types';
+import type { Assumptions, Goal, Holding, ISODate, Member, Range, Snapshot } from '../model/types';
 
 export interface AppState {
   repo: Repo;
@@ -20,6 +20,16 @@ export interface AppState {
   assumptions: ResolvedAssumptions;
   /** 使用者自訂的假設（未自訂的欄位為 undefined） */
   storedAssumptions?: Assumptions;
+  holdings: Holding[];
+  primaryMember?: Member;
+}
+
+/** 依主要成員的出生年估算年齡；沒填時為 null */
+export function ageOf(member: Member | undefined, today: ISODate): number | null {
+  const by = member?.birthYear;
+  if (!by || by.mode === 'unknown') return null;
+  const year = by.mode === 'range' ? (by.low + by.high) / 2 : by.value;
+  return Number(today.slice(0, 4)) - Math.round(year);
 }
 
 export const AppContext = createContext<AppState | null>(null);

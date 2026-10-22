@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useApp, useFormat } from '../../app/context';
 import { CategoryPicker, ChipPicker, EditorShell, LabelField, MoneyField, NoteField, PercentField, Toggle } from '../../components/EditorParts';
 import { resolveDebt } from '../../core/debt';
 import { blankToUnknown } from '../../core/estimate';
 import { moneyContext } from '../../core/overview';
-import type { Asset, AssetCategory, Liability, LiabilityCategory, Liquidity } from '../../model/types';
+import { ASSET_CLASSES, normalizeAllocation } from '../../core/portfolio';
+import type { Asset, AssetCategory, AssetClass, Liability, LiabilityCategory, Liquidity } from '../../model/types';
 import { itemName } from './NetWorthPage';
 
 const LIQUIDITIES: Liquidity[] = ['liquid', 'semi_liquid', 'illiquid'];
@@ -33,7 +34,7 @@ function useCommon() {
 }
 
 function AssetEditor({ id }: { id?: string }) {
-  const { data, pack, repo, navigate, t, hid } = useCommon();
+  const { data, pack, repo, navigate, t, hid, holdings } = useCommon();
   const existing = id ? data.assets.find((a) => a.id === id && !a.archivedAt) : undefined;
   const [draft, setDraft] = useState<Omit<Asset, 'id' | 'householdId' | 'createdAt' | 'updatedAt'>>(
     () =>
@@ -80,6 +81,7 @@ function AssetEditor({ id }: { id?: string }) {
         value={draft.value}
         onChange={(value) => setDraft((d) => ({ ...d, value }))}
         bracketsKey={ASSET_BRACKETS[draft.category] ?? 'generic_asset'}
+        hint={draft.valueFromHoldings ? t('allocation.valueFromHoldingsHint') : undefined}
       />
       <ChipPicker
         legend={t('editor.liquidity')}
@@ -90,6 +92,15 @@ function AssetEditor({ id }: { id?: string }) {
       />
       {draft.category === 'real_estate' && (
         <Toggle checked={!!draft.isPrimaryResidence} onChange={(isPrimaryResidence) => setDraft((d) => ({ ...d, isPrimaryResidence }))} label={t('editor.primaryResidence')} />
+      )}
+      {(draft.category === 'cash' || pack.categories.asset.find((c) => c.key === draft.category)?.inPortfolio) && (
+        <AllocationEditor
+          value={draft.allocation}
+          defaultAllocation={pack.categories.asset.find((c) => c.key === draft.category)!.defaultAllocation}
+          onChange={(allocation) => setDraft((d) => ({ ...d, allocation }))}
+          holdingsCount={existing ? holdings.filter((h) => h.assetId === existing.id).length : 0}
+          holdingsLink={existing ? `/asset/${existing.id}/holdings` : undefined}
+        />
       )}
       <NoteField value={draft.note} onChange={(note) => setDraft((d) => ({ ...d, note }))} />
       {draft.category === 'insurance_cash_value' && <p className="muted small">{t('editor.insuranceHint')}</p>}
@@ -220,5 +231,87 @@ function LiabilityEditor({ id }: { id?: string }) {
       )}
       <NoteField value={draft.note} onChange={(note) => setDraft((d) => ({ ...d, note }))} />
     </EditorShell>
+  );
+}
+
+/** 資產類別配置：單一類別，或「混合」時輸入各類別百分比 */
+function AllocationEditor({
+  value,
+  defaultAllocation,
+  onChange,
+  holdingsCount,
+  holdingsLink,
+}: {
+  value: Asset['allocation'];
+  defaultAllocation: Asset['allocation'];
+  onChange: (a: Asset['allocation']) => void;
+  holdingsCount: number;
+  holdingsLink?: string;
+}) {
+  const { t } = useTranslation();
+  const effective = normalizeAllocation(value) ?? normalizeAllocation(defaultAllocation) ?? { other: 1 };
+  const keys = Object.keys(effective) as AssetClass[];
+  const [mixed, setMixed] = useState(keys.length > 1);
+  const single = keys.length === 1 ? keys[0] : undefined;
+  const total = Object.values(value ?? {}).reduce((s, v) => s + (v ?? 0), 0);
+
+  return (
+    <fieldset className="field">
+      <legend>{t('allocation.title')}</legend>
+      {holdingsCount > 0 ? (
+        <p className="muted small">{t('allocation.fromHoldings', { count: holdingsCount })}</p>
+      ) : (
+        <>
+          <div className="chips">
+            {ASSET_CLASSES.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={!mixed && single === c ? 'chip active' : 'chip'}
+                onClick={() => {
+                  setMixed(false);
+                  onChange({ [c]: 1 });
+                }}
+              >
+                {t(`portfolio.class.${c}`)}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={mixed ? 'chip active' : 'chip'}
+              onClick={() => {
+                setMixed(true);
+                onChange(effective);
+              }}
+            >
+              {t('allocation.mixed')}
+            </button>
+          </div>
+          {!value && <p className="muted small">{t('allocation.usingDefault')}</p>}
+          {mixed && (
+            <>
+              {ASSET_CLASSES.map((c) => (
+                <PercentField
+                  key={c}
+                  label={t(`portfolio.class.${c}`)}
+                  value={value?.[c]}
+                  onChange={(v) => {
+                    const next = { ...value, [c]: v };
+                    if (!v) delete next[c];
+                    onChange(Object.keys(next).length ? next : undefined);
+                  }}
+                />
+              ))}
+              <p className={Math.abs(total - 1) > 0.001 ? 'warn small' : 'muted small'}>{t('allocation.sum', { pct: Math.round(total * 100) })}</p>
+            </>
+          )}
+        </>
+      )}
+      {holdingsLink && (
+        <Link to={holdingsLink} className="small">
+          {t('allocation.holdingsLink', { count: holdingsCount })} ›
+        </Link>
+      )}
+    </fieldset>
   );
 }

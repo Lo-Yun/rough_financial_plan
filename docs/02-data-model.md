@@ -220,7 +220,9 @@ interface Asset extends BaseEntity {
   note?: string;
 }
 
-/** P3：選用的持股明細，存在時 Asset.value 可由持股自動加總 */
+// Asset 另有 valueFromHoldings?: boolean：設為 true 時，帳戶價值由持股加總自動更新
+
+/** P3：選用的持股明細 */
 interface Holding extends BaseEntity {
   assetId: ID;
   symbol?: string;              // '0050'、'VT'
@@ -316,6 +318,8 @@ interface Settings {
   dismissedTips: string[];
   /** 對帳檢查：使用者估計過去一年存款增加多少 */
   reconciliation?: { lastYearSavingsChange: MoneyEstimate; answeredAt: ISODate };
+  /** P3：投資組合是否包含現金與存款 */
+  portfolioIncludeCash?: boolean;
 }
 
 interface Assumptions {
@@ -325,6 +329,8 @@ interface Assumptions {
   nominalReturn?: Partial<Record<ReturnProfile, number>>;
   scenarioSpread?: number;          // 保守／樂觀 = 中性 ∓ spread，預設 0.02（存款類只用四分之一）
   safeWithdrawalRate?: number;
+  /** P3：投資組合目標配置，範本 id 或自訂四大類比例 */
+  targetAllocation?: { preset: string } | { custom: Record<'equity' | 'bond' | 'cash' | 'alternative', number> };
 }
 ```
 
@@ -394,7 +400,7 @@ interface CheckIn extends BaseEntity {
 ## 4. 地區資料包（LocalePack）
 
 隨 App 發布的唯讀資料，不存在 IndexedDB。新增國家時，只要新增一份資料包。
-已實作的欄位見 `src/model/localePack.ts`：P2 加入了 `healthThresholds`、`defaultAssumptions`、`highInterestRate`、`homeDefaults`、`forgottenExpenses`，以及負債類別的 `defaultAnnualRate`、`defaultTermMonths`。`allocationPresets`、`actionTemplates`、`rules` 於 P3 以後加入。
+已實作的欄位見 `src/model/localePack.ts`：P2 加入了 `healthThresholds`、`defaultAssumptions`、`highInterestRate`、`homeDefaults`、`forgottenExpenses`，以及負債類別的 `defaultAnnualRate`、`defaultTermMonths`。P3 加入了 `allocationPresets`、`concentrationLimit`、`rebalanceBand`，以及資產類別的 `defaultAllocation`、`inPortfolio`。`actionTemplates`、`rules` 於 P4 加入。
 
 ```ts
 interface LocalePack {
@@ -470,8 +476,8 @@ type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*'
 ## 5. IndexedDB 結構（Dexie）
 
 ```ts
-// 實際定義見 src/data/db.ts。v1（P1）建立 goals 以外的基本表；v2（P2）新增 goals。
-// holdings、userActions、checkIns 於後續版本加入
+// 實際定義見 src/data/db.ts。v1（P1）基本表；v2（P2）新增 goals；v3（P3）新增 holdings。
+// userActions、checkIns 於後續版本加入
 db.version(1).stores({
   households:   'id',
   members:      'id, householdId',
@@ -492,7 +498,7 @@ db.version(1).stores({
 
 - 所有寫入都經過 repository 層，由它負責自動更新 `updatedAt`。
 - Schema 變更時，在 `db.ts` 新增 `this.version(N)`，只列出新增或變更的表；需要轉換資料時用 Dexie 的 `upgrade()`。
-- 匯入舊版備份時，由 `backup.ts` 的 `migratePayload` 逐版升級（例如 v1 → v2 補上 `goals: []`）。
+- 匯入舊版備份時，由 `backup.ts` 的 `migratePayload` 逐版升級（v1 → v2 補上 `goals: []`，v2 → v3 補上 `holdings: []`）。
 
 ---
 

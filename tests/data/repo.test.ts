@@ -113,10 +113,11 @@ describe('schema v2', () => {
   it('imports v1 backups by adding empty goals', async () => {
     const h = await repo.ensureHousehold(twPack);
     const p = await repo.exportAll();
-    const { goals: _goals, assumptions: _a, ...v1 } = p;
+    const { goals: _goals, assumptions: _a, holdings: _h, ...v1 } = p;
     const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 1, exportedAt: '', appVersion: 'old', encrypted: false, payload: v1 });
     const migrated = await parseExport(text);
     expect(migrated.goals).toEqual([]);
+    expect(migrated.holdings).toEqual([]);
     expect(migrated.household.id).toBe(h.id);
   });
 
@@ -148,6 +149,44 @@ describe('IndexedDB upgrade', () => {
     const upgraded = new Repo(new AppDB(name));
     expect(await upgraded.db.assets.get('a1')).toMatchObject({ category: 'cash' });
     expect(await upgraded.db.goals.count()).toBe(0);
-    expect(upgraded.db.verno).toBe(2);
+    expect(upgraded.db.verno).toBe(3);
+    expect(await upgraded.db.holdings.count()).toBe(0);
+  });
+});
+
+describe('schema v3', () => {
+  it('saves holdings and round-trips them through a backup', async () => {
+    const h = await repo.ensureHousehold(twPack);
+    const a = await repo.saveAsset(h.id, { ...cash, category: 'investment', liquidity: 'semi_liquid' });
+    await repo.saveHolding(h.id, { assetId: a.id, name: '0050', assetClass: 'equity_domestic', quantity: 100, price: { value: 150, currency: 'TWD', asOf: '2026-10-01' } });
+    const p = await repo.exportAll();
+    expect(p.holdings).toHaveLength(1);
+    const other = new Repo(new AppDB(`test-${++n}`));
+    await other.importAll(await parseExport(await buildExport(p, { appVersion: 't' })));
+    expect(await other.db.holdings.count()).toBe(1);
+  });
+
+  it('migrates v2 backups by adding empty holdings', async () => {
+    await repo.ensureHousehold(twPack);
+    const { holdings: _h, ...v2 } = await repo.exportAll();
+    const text = JSON.stringify({ format: 'rough-financial-plan-export', schemaVersion: 2, exportedAt: '', appVersion: 'old', encrypted: false, payload: v2 });
+    expect((await parseExport(text)).holdings).toEqual([]);
+  });
+});
+
+describe('syncAssetFromHoldings', () => {
+  it('updates the account value from its holdings only when enabled', async () => {
+    const { syncAssetFromHoldings } = await import('../../src/app/actions');
+    const h = await repo.ensureHousehold(twPack);
+    const a = await repo.saveAsset(h.id, { ...cash, category: 'investment', liquidity: 'semi_liquid' });
+    await repo.saveHolding(h.id, { assetId: a.id, name: 'A', assetClass: 'equity_domestic', quantity: 100, price: { value: 150, currency: 'TWD', asOf: '2026-10-01' } });
+    await repo.saveHolding(h.id, { assetId: a.id, name: 'B', assetClass: 'bond', quantity: 10, price: { value: 1000, currency: 'TWD', asOf: '2026-10-05' } });
+
+    await syncAssetFromHoldings(repo, twPack, h.id, a.id);
+    expect((await repo.db.assets.get(a.id))!.value.estimate).toEqual({ mode: 'approx', value: 100_000 });
+
+    await repo.saveAsset(h.id, { ...cash, id: a.id, category: 'investment', liquidity: 'semi_liquid', valueFromHoldings: true });
+    await syncAssetFromHoldings(repo, twPack, h.id, a.id);
+    expect((await repo.db.assets.get(a.id))!.value.estimate).toEqual({ mode: 'exact', value: 25_000, asOf: '2026-10-01', source: 'manual' });
   });
 });

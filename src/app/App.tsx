@@ -13,6 +13,9 @@ import { FlowEditor } from '../features/cashflow/FlowEditor';
 import { HealthPage } from '../features/health/HealthPage';
 import { GoalEditor } from '../features/plans/GoalEditor';
 import { PlansPage } from '../features/plans/PlansPage';
+import { HoldingEditor } from '../features/portfolio/HoldingEditor';
+import { HoldingsPage } from '../features/portfolio/HoldingsPage';
+import { PortfolioPage } from '../features/portfolio/PortfolioPage';
 import { NetWorthPage } from '../features/balance-sheet/NetWorthPage';
 import { Onboarding } from '../features/onboarding/Onboarding';
 import { SettingsPage } from '../features/settings/SettingsPage';
@@ -61,6 +64,8 @@ export function App() {
     goals: loaded.goals,
     assumptions,
     storedAssumptions: loaded.assumptions,
+    holdings: loaded.holdings,
+    primaryMember: loaded.primaryMember,
   };
 
   return (
@@ -81,6 +86,10 @@ export function App() {
                 />
                 <Route path="/cashflow" element={<CashflowPage />} />
                 <Route path="/health" element={<HealthPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/asset/:id/holdings" element={<HoldingsPage />} />
+                <Route path="/asset/:id/holdings/new" element={<HoldingEditor />} />
+                <Route path="/asset/:id/holdings/:holdingId" element={<HoldingEditor />} />
                 <Route path="/plans" element={<PlansPage />} />
                 <Route path="/plans/new" element={<GoalEditor />} />
                 <Route path="/plans/:id" element={<GoalEditor />} />
@@ -104,6 +113,10 @@ export function App() {
               <NavLink to="/cashflow">
                 <span aria-hidden="true">⇅</span>
                 {t('nav.cashflow')}
+              </NavLink>
+              <NavLink to="/portfolio">
+                <span aria-hidden="true">▣</span>
+                {t('nav.portfolio')}
               </NavLink>
               <NavLink to="/health">
                 <span aria-hidden="true">♡</span>

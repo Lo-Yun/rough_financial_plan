@@ -1,5 +1,7 @@
 import type {
+  AllocationGroup,
   AssetCategory,
+  AssetClass,
   ReturnProfile,
   CurrencyCode,
   ExpenseCategory,
@@ -26,7 +28,13 @@ export interface LocalePack {
   categories: {
     income: CategoryDef<IncomeCategory>[];
     expense: CategoryDef<ExpenseCategory>[];
-    asset: (CategoryDef<AssetCategory> & { defaultLiquidity: Liquidity })[];
+    asset: (CategoryDef<AssetCategory> & {
+      defaultLiquidity: Liquidity;
+      /** 未指定配置時的預設資產類別比例 */
+      defaultAllocation: Partial<Record<AssetClass, number>>;
+      /** 是否列入投資組合（cash 另由使用者決定） */
+      inPortfolio: boolean;
+    })[];
     liability: (CategoryDef<LiabilityCategory> & {
       defaultSecured: boolean;
       /** 使用者沒填利率時的預設年利率 */
@@ -57,7 +65,19 @@ export interface LocalePack {
   homeDefaults: { downPaymentRatio: number; feesRatio: number; mortgageTermMonths: number };
   /** 對帳檢查時提醒「常被忘記的支出」，值為 i18n key */
   forgottenExpenses: string[];
+
+  /** 投資組合的目標配置範本 */
+  allocationPresets: AllocationPreset[];
+  /** 單一持股超過此比例就提示集中風險 */
+  concentrationLimit: number;
+  /** 任一大類偏離目標超過此百分點就提示再平衡 */
+  rebalanceBand: number;
 }
+
+export type AllocationPreset =
+  | { id: string; i18nKey: string; allocation: Record<AllocationGroup, number> }
+  /** 股票比例 = (base − 年齡)%，其餘為債券 */
+  | { id: string; i18nKey: string; ageRule: { base: number; cash: number } };
 
 export type HealthMetricKey =
   | 'savings_rate'

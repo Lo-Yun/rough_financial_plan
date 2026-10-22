@@ -69,6 +69,12 @@ describe('zh-TW translations', () => {
       ...['user', 'surplus'].map((x) => `plans.proj.contribution.${x}`),
       ...['green', 'yellow', 'red'].map((x) => `plans.home.ratio.${x}`),
       ...twPack.forgottenExpenses,
+      ...['equity', 'bond', 'cash', 'alternative'].map((g) => `portfolio.groupName.${g}`),
+      ...['equity_domestic', 'equity_global', 'bond', 'cash', 'real_estate', 'crypto', 'insurance', 'other'].map((c) => `portfolio.class.${c}`),
+      ...[1, 2, 3, 4, 5].map((l) => `portfolio.risk.level${l}`),
+      ...twPack.allocationPresets.flatMap((p) => [p.i18nKey, `portfolio.presetDesc.${p.id}`]),
+      ...['holdings', 'user', 'default', 'guessed'].map((x) => `portfolio.source.${x}`),
+      ...['priced', 'value'].map((x) => `holdings.mode.${x}`),
     ];
     expect(dynamic.filter((k) => !has(k))).toEqual([]);
   });
