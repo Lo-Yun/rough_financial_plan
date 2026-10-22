@@ -18,8 +18,8 @@
 | 2026-10-22 | 文件 | 新增專案地圖與這份路線圖 | [#5](https://github.com/Lo-Yun/rough_financial_plan/pull/5) |
 | 2026-10-22 | **P4 財富階梯行動與追蹤** | 行動建議引擎（19 個範本與規則）、行動清單、財富階梯完整頁（到下一層的時間、0.01% 法則）、每月回顧；資料庫 v4；頁面延遲載入與框架分包；瀏覽器測試納入 CI | [#6](https://github.com/Lo-Yun/rough_financial_plan/pull/6) |
 | 2026-10-22 | 調整 | 歡迎頁文案改為「用差不多的數字，看懂你的財務」，並同步網頁描述 | [#7](https://github.com/Lo-Yun/rough_financial_plan/pull/7) |
-| 2026-10-23 | **P5 內容校對（第一部分）** | 財富階梯各層說明依 Maggiulli 的分層策略改寫、0.01% 法則用語修正、加上作者引用的美國家庭分布；薪資與各家庭型態每月花費的預設值改依 113 年官方統計換算；統計值標示品質並在設定頁公開來源 | [#8](https://github.com/Lo-Yun/rough_financial_plan/pull/8) |
-| 2026-10-23 | **P5 示範資料模式** | 歡迎頁與設定頁可進入示範：虛構的雙薪有小孩家庭（淨值約 640 萬、財富階梯第 3 層），含一年的歷史、持股、目標與行動；使用另一個資料庫，真實資料不受影響 | [#9](https://github.com/Lo-Yun/rough_financial_plan/pull/9) |
+| 2026-10-22 | **P5 內容校對（第一部分）** | 財富階梯各層說明依 Maggiulli 的分層策略改寫、0.01% 法則用語修正、加上作者引用的美國家庭分布；薪資與各家庭型態每月花費的預設值改依 113 年官方統計換算；統計值標示品質並在設定頁公開來源 | [#8](https://github.com/Lo-Yun/rough_financial_plan/pull/8) |
+| 2026-10-22 | **P5 示範資料模式** | 歡迎頁與設定頁可進入示範：虛構的雙薪有小孩家庭（淨值約 640 萬、財富階梯第 3 層），含一年的歷史、持股、目標與行動；使用另一個資料庫，真實資料不受影響 | [#9](https://github.com/Lo-Yun/rough_financial_plan/pull/9) |
 
 網站：<https://lo-yun.github.io/rough_financial_plan/>（合併到 `main` 後自動部署）
 
