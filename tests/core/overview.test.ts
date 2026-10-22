@@ -48,7 +48,7 @@ describe('computeOverview', () => {
       today,
     );
     expect(o.income.total?.mid).toBe(60000);
-    expect(o.expense.total?.mid).toBe(25000);
+    expect(o.expense.total?.mid).toBe(twPack.statistics['expense.monthly_total.single']!.p50);
   });
 
   it('builds snapshot data', () => {

@@ -188,7 +188,7 @@
 |---|---|---|
 | `categories` | 收入／支出／資產／負債分類；資產的預設流動性、預設配置、是否列入投資組合；負債的預設利率與期數 | 編輯頁、計算核心 |
 | `brackets` | 「範圍」模式的級距按鈕 | `EstimateInput` |
-| `statistics` | 選「不確定」時代入的統計值（**目前為概略值，待校對**） | `resolveEstimate` |
+| `statistics` | 選「不確定」時代入的統計值（依 113 年官方統計換算，品質標示與來源見設定頁） | `resolveEstimate` |
 | `wealthLadder` | 財富階梯門檻（方案 A：30 萬／300 萬／3,000 萬／3 億／30 億） | `ladderPosition` |
 | `highInterestRate` | 高利負債門檻（8%） | `resolveDebt` |
 | `healthThresholds` | 7 個健檢指標的紅黃綠門檻 | `computeHealth` |
