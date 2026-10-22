@@ -1,6 +1,6 @@
 # 系統規格書 v0.1（草案）
 
-> App 名稱：隨便理財（專案代號 Rough Financial Plan）
+> App 名稱：順便理財（專案代號 Rough Financial Plan）
 > 狀態：討論用草案，標示 **【待決】** 的項目需要再確認
 > 相關文件：[資料模型](./02-data-model.md)
 
