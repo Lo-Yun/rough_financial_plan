@@ -1,7 +1,7 @@
 import type { Table } from 'dexie';
 import type { FinancialData } from '../core/overview';
 import type { Repo } from '../data/repo';
-import type { Assumptions, Goal, Holding, ID, Member, Snapshot } from '../model/types';
+import type { Assumptions, CheckIn, Goal, Holding, ID, Member, Snapshot, UserAction } from '../model/types';
 
 export interface LoadedState {
   data: FinancialData | null;
@@ -10,6 +10,9 @@ export interface LoadedState {
   goals: Goal[];
   /** 未封存的持股明細 */
   holdings: Holding[];
+  userActions: UserAction[];
+  /** 依日期排序 */
+  checkIns: CheckIn[];
   assumptions?: Assumptions;
   primaryMember?: Member;
 }
@@ -18,9 +21,9 @@ export interface LoadedState {
 export async function loadFinancialData(repo: Repo, householdId: ID): Promise<LoadedState> {
   const db = repo.db;
   const [household, settings] = await Promise.all([db.households.get(householdId), db.settings.get(householdId)]);
-  if (!household || !settings) return { data: null, snapshots: [], goals: [], holdings: [] };
+  if (!household || !settings) return { data: null, snapshots: [], goals: [], holdings: [], userActions: [], checkIns: [] };
   const by = <T extends { householdId: ID }>(t: Table<T, ID>) => t.where('householdId').equals(householdId).toArray();
-  const [assets, liabilities, incomes, expenses, snapshots, goals, holdings, members, assumptions] = await Promise.all([
+  const [assets, liabilities, incomes, expenses, snapshots, goals, holdings, members, userActions, checkIns, assumptions] = await Promise.all([
     by(db.assets),
     by(db.liabilities),
     by(db.incomeItems),
@@ -29,6 +32,8 @@ export async function loadFinancialData(repo: Repo, householdId: ID): Promise<Lo
     by(db.goals),
     by(db.holdings),
     by(db.members),
+    by(db.userActions),
+    by(db.checkIns),
     db.assumptions.get(householdId),
   ]);
   snapshots.sort((a, b) => a.date.localeCompare(b.date));
@@ -38,6 +43,8 @@ export async function loadFinancialData(repo: Repo, householdId: ID): Promise<Lo
     snapshots,
     goals: activeGoals,
     holdings: holdings.filter((h) => !h.archivedAt),
+    userActions: userActions.filter((a) => !a.archivedAt),
+    checkIns: checkIns.filter((c) => !c.archivedAt).sort((a, b) => a.date.localeCompare(b.date)),
     assumptions,
     primaryMember: members.find((m) => m.isPrimary),
   };

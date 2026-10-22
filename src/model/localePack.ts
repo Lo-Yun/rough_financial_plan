@@ -72,6 +72,41 @@ export interface LocalePack {
   concentrationLimit: number;
   /** 任一大類偏離目標超過此百分點就提示再平衡 */
   rebalanceBand: number;
+
+  /** 行動建議（P4）：範本與觸發規則 */
+  actionTemplates: ActionTemplate[];
+  actionRules: ActionRule[];
+}
+
+export type ActionCategory = 'debt' | 'saving' | 'income' | 'investing' | 'protection' | 'data_quality' | 'habit';
+
+export interface ActionTemplate {
+  id: string;
+  /** 文字放在 i18n 的 `${i18nKey}.title`、`.why`、`.how` */
+  i18nKey: string;
+  category: ActionCategory;
+  /** 數字越小越優先 */
+  priority: number;
+  /** 點「去處理」時前往的畫面 */
+  link?: string;
+}
+
+/** 宣告式條件，由 core/rules.ts 解析；資料包內不放可執行程式碼 */
+export type Condition =
+  | { all: Condition[] }
+  | { any: Condition[] }
+  | { not: Condition }
+  /** 指標無法計算（例如沒填收入）時成立 */
+  | { missing: string }
+  | { metric: string; op: '<' | '<=' | '>' | '>=' | '==' | '!='; value: number | boolean };
+
+export type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*' | '/' | 'max' | 'min' | 'round'; args: Expression[] };
+
+export interface ActionRule {
+  templateId: string;
+  when: Condition;
+  /** 範本文字中用到的參數，例如建議每月存款金額 */
+  params?: Record<string, Expression>;
 }
 
 export type AllocationPreset =

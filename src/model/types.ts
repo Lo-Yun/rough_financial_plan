@@ -316,3 +316,34 @@ export interface Snapshot extends BaseEntity {
   fxRates: FxRate[];
   localePackVersion: string;
 }
+
+/**
+ * 使用者對行動建議的處理紀錄（P4）。
+ * 「建議」本身由規則即時計算，不儲存；只有使用者接受、略過、完成或自訂時才建立紀錄。
+ */
+export interface UserAction extends BaseEntity {
+  /** 系統建議時為範本 id；自訂行動時不填 */
+  templateId?: string;
+  /** 自訂行動的標題；範本行動的文字由 i18n 提供 */
+  title?: string;
+  /** 範本參數（例如建議金額），接受當下的值 */
+  params?: Record<string, number>;
+  status: 'active' | 'done' | 'dismissed';
+  dismissReason?: 'not_relevant' | 'later' | 'already_done';
+  acceptedAt?: ISODateTime;
+  completedAt?: ISODateTime;
+  dismissedAt?: ISODateTime;
+}
+
+/** 定期回顧紀錄（P4） */
+export interface CheckIn extends BaseEntity {
+  date: ISODate;
+  hadMajorChange: boolean;
+  /** 這次回顧中更新過的資產／負債 id */
+  updatedItemIds: ID[];
+  completedActionIds: ID[];
+  snapshotId?: ID;
+  /** 對財務狀況的感受（選填） */
+  mood?: 1 | 2 | 3 | 4 | 5;
+  note?: string;
+}

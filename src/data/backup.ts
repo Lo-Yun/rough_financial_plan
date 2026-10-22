@@ -122,5 +122,7 @@ export function migratePayload(p: ExportPayload, fromVersion: number): ExportPay
   if (fromVersion < 2) out = { ...out, goals: [] };
   // v2 → v3：新增持股明細
   if (fromVersion < 3) out = { ...out, holdings: [] };
+  // v3 → v4：新增行動追蹤與定期回顧
+  if (fromVersion < 4) out = { ...out, userActions: [], checkIns: [] };
   return out;
 }

@@ -75,6 +75,13 @@ describe('zh-TW translations', () => {
       ...twPack.allocationPresets.flatMap((p) => [p.i18nKey, `portfolio.presetDesc.${p.id}`]),
       ...['holdings', 'user', 'default', 'guessed'].map((x) => `portfolio.source.${x}`),
       ...['priced', 'value'].map((x) => `holdings.mode.${x}`),
+      ...twPack.actionTemplates.flatMap((tpl) => ['title', 'why', 'how'].map((f) => `${tpl.i18nKey}.${f}`)),
+      ...['not_relevant', 'later', 'already_done'].map((r) => `actions.reason.${r}`),
+      ...['largest', 'stale', 'unknown'].map((r) => `checkin.review.reason.${r}`),
+      ...['same', 'updated'].map((x) => `checkin.review.${x}`),
+      ...[1, 2, 3, 4, 5].map((m) => `checkin.feel.mood${m}`),
+      ...['monthly', 'quarterly', 'off'].map((f) => `settings.checkin.${f}`),
+      ...[1, 2, 3, 4, 5, 6].flatMap((l) => [`ladder.level${l}.name`, `ladder.level${l}.desc`]),
     ];
     expect(dynamic.filter((k) => !has(k))).toEqual([]);
   });

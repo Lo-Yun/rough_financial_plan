@@ -59,6 +59,19 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // 主程式約 180 KB（gzip），大部分是 React 與路由套件本身，無法再延遲載入。
+    // 框架另外打包成 vendor，之後 App 更新時使用者不必重新下載它。
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) =>
+          /node_modules\/(react|react-dom|react-router|react-router-dom|scheduler|dexie|dexie-react-hooks|i18next|react-i18next)\//.test(id)
+            ? 'vendor'
+            : undefined,
+      },
+    },
+  },
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],

@@ -366,41 +366,42 @@ interface Snapshot extends BaseEntity {
 
 ### 3.8 行動與回顧（P4）
 
+「建議」本身由規則即時計算、**不儲存**；只有使用者接受、略過、完成或自訂行動時，才建立 `UserAction` 紀錄。
+
 ```ts
 interface UserAction extends BaseEntity {
-  /** 系統建議時為範本 id；使用者自訂時不填 */
-  templateId?: string;
-  title?: string;                   // 自訂行動用；範本行動的文字由 i18n 提供
-  /** 範本參數，例如 { amount: 5000 }，用於文字插值 */
-  params?: Record<string, number | string>;
-  status: 'suggested' | 'active' | 'done' | 'dismissed';
-  dismissReason?: 'not_relevant' | 'later' | 'already_done' | 'other';
-  priority: number;
-  dueDate?: ISODate;
+  templateId?: string;              // 系統建議時為範本 id；自訂行動不填
+  title?: string;                   // 自訂行動的標題；範本行動的文字由 i18n 提供
+  params?: Record<string, number>;  // 接受當下的範本參數（例如建議金額）
+  status: 'active' | 'done' | 'dismissed';
+  dismissReason?: 'not_relevant' | 'later' | 'already_done';
   acceptedAt?: ISODateTime;
   completedAt?: ISODateTime;
-  /** 產生建議時的觸發條件快照，用來解釋「為什麼建議這個」 */
-  triggerContext?: Record<string, number | string | boolean>;
-  relatedGoalId?: ID;
+  dismissedAt?: ISODateTime;
 }
 
 interface CheckIn extends BaseEntity {
   date: ISODate;
   hadMajorChange: boolean;
-  updatedItemIds: ID[];
+  updatedItemIds: ID[];             // 這次回顧中更新過的資產／負債
   completedActionIds: ID[];
-  snapshotId: ID;
+  snapshotId?: ID;
   mood?: 1 | 2 | 3 | 4 | 5;         // 選填：對財務狀況的感受
   note?: string;
 }
 ```
+
+建議與紀錄的合併規則（`core/rules.ts` 的 `buildActionBoard`）：
+- 進行中的範本不再出現在建議中；同時進行中最多 3 項。
+- 完成後 90 天內不再建議；「之後再說」30 天後再提醒；「不適用」不再建議（可在行動清單恢復）。
+- 進行中的範本行動若條件已不成立，標示「看起來已經做到了」。
 
 ---
 
 ## 4. 地區資料包（LocalePack）
 
 隨 App 發布的唯讀資料，不存在 IndexedDB。新增國家時，只要新增一份資料包。
-已實作的欄位見 `src/model/localePack.ts`：P2 加入了 `healthThresholds`、`defaultAssumptions`、`highInterestRate`、`homeDefaults`、`forgottenExpenses`，以及負債類別的 `defaultAnnualRate`、`defaultTermMonths`。P3 加入了 `allocationPresets`、`concentrationLimit`、`rebalanceBand`，以及資產類別的 `defaultAllocation`、`inPortfolio`。`actionTemplates`、`rules` 於 P4 加入。
+已實作的欄位見 `src/model/localePack.ts`：P2 加入了 `healthThresholds`、`defaultAssumptions`、`highInterestRate`、`homeDefaults`、`forgottenExpenses`，以及負債類別的 `defaultAnnualRate`、`defaultTermMonths`。P3 加入了 `allocationPresets`、`concentrationLimit`、`rebalanceBand`，以及資產類別的 `defaultAllocation`、`inPortfolio`。P4 加入了 `actionTemplates`、`actionRules`。
 
 ```ts
 interface LocalePack {
@@ -435,7 +436,7 @@ interface LocalePack {
   allocationPresets: { id: string; i18nKey: string; allocation: Partial<Record<AssetClass, number>> | { rule: 'age_based'; base: number } }[];
 
   actionTemplates: ActionTemplate[];
-  rules: ActionRule[];
+  actionRules: ActionRule[];
 }
 
 interface CategoryDef { key: string; i18nKey: string; icon?: string }
@@ -445,16 +446,15 @@ type HealthMetricKey =
   | 'high_interest_debt' | 'unsecured_debt_multiple' | 'insurance_premium_ratio' | 'fi_progress';
 
 interface ActionTemplate {
-  id: string;                       // 'tw.pay_off_credit_card'
-  i18nKey: string;
-  learnMoreUrl?: string;
+  id: string;                       // 'pay_off_revolving'
+  i18nKey: string;                  // 文字在 `${i18nKey}.title`、`.why`、`.how`
   category: 'debt' | 'saving' | 'income' | 'investing' | 'protection' | 'data_quality' | 'habit';
-  defaultPriority: number;
+  priority: number;                 // 越小越優先
+  link?: string;                    // 「去處理」前往的畫面
 }
 
 /** 規則：條件成立時建議某個行動範本 */
 interface ActionRule {
-  id: string;
   templateId: string;
   /** 宣告式條件，由 core/rules.ts 解析；避免在資料包內放可執行程式碼 */
   when: Condition;
@@ -464,20 +464,21 @@ interface ActionRule {
 
 type Condition =
   | { all: Condition[] } | { any: Condition[] } | { not: Condition }
-  | { metric: string; op: '<' | '<=' | '>' | '>=' | '==' | '!='; value: number | string | boolean };
+  | { missing: string }             // 指標無法計算時成立
+  | { metric: string; op: '<' | '<=' | '>' | '>=' | '==' | '!='; value: number | boolean };
 
-type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*' | '/' | 'max' | 'min'; args: Expression[] };
+// 'round' 取整到千元
+type Expression = { metric: string } | { const: number } | { op: '+' | '-' | '*' | '/' | 'max' | 'min' | 'round'; args: Expression[] };
 ```
 
-條件中可以使用的 `metric` 由計算核心提供，例如 `health.emergency_months`、`ladder.level`、`precision.overall`、`liability.credit_card_revolving.total`、`goal.emergency_fund.exists`。
+條件中可以使用的指標由 `core/metrics.ts` 的 `computeMetrics` 提供，完整清單見 [專案地圖](./04-project-map.md) 第 4 節。
 
 ---
 
 ## 5. IndexedDB 結構（Dexie）
 
 ```ts
-// 實際定義見 src/data/db.ts。v1（P1）基本表；v2（P2）新增 goals；v3（P3）新增 holdings。
-// userActions、checkIns 於後續版本加入
+// 實際定義見 src/data/db.ts。v1（P1）基本表；v2（P2）goals；v3（P3）holdings；v4（P4）userActions、checkIns
 db.version(1).stores({
   households:   'id',
   members:      'id, householdId',
@@ -498,7 +499,7 @@ db.version(1).stores({
 
 - 所有寫入都經過 repository 層，由它負責自動更新 `updatedAt`。
 - Schema 變更時，在 `db.ts` 新增 `this.version(N)`，只列出新增或變更的表；需要轉換資料時用 Dexie 的 `upgrade()`。
-- 匯入舊版備份時，由 `backup.ts` 的 `migratePayload` 逐版升級（v1 → v2 補上 `goals: []`，v2 → v3 補上 `holdings: []`）。
+- 匯入舊版備份時，由 `backup.ts` 的 `migratePayload` 逐版升級（v1 → v2 補上 `goals: []`，v2 → v3 補上 `holdings: []`，v3 → v4 補上 `userActions: []`、`checkIns: []`）。
 
 ---
 

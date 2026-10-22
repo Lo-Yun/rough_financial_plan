@@ -4,6 +4,7 @@ import type {
   Asset,
   Assumptions,
   BaseEntity,
+  CheckIn,
   ExpenseItem,
   Goal,
   Holding,
@@ -15,6 +16,7 @@ import type {
   Member,
   Settings,
   Snapshot,
+  UserAction,
 } from '../model/types';
 import type { LocalePack } from '../model/localePack';
 import { AppDB, SCHEMA_VERSION } from './db';
@@ -32,6 +34,8 @@ export interface ExportPayload {
   snapshots: Snapshot[];
   goals: Goal[];
   holdings: Holding[];
+  userActions: UserAction[];
+  checkIns: CheckIn[];
   settings: Settings;
   assumptions?: Assumptions;
 }
@@ -156,6 +160,15 @@ export class Repo {
   archiveHolding(id: ID) {
     return this.archive(this.db.holdings, id);
   }
+  saveUserAction(householdId: ID, d: Draft<UserAction>) {
+    return this.save(this.db.userActions, householdId, d);
+  }
+  archiveUserAction(id: ID) {
+    return this.archive(this.db.userActions, id);
+  }
+  saveCheckIn(householdId: ID, d: Draft<CheckIn>) {
+    return this.save(this.db.checkIns, householdId, d);
+  }
 
   /** 儲存使用者自訂的計算假設；欄位值為 undefined 代表改回預設 */
   async saveAssumptions(householdId: ID, patch: Partial<Omit<Assumptions, 'householdId'>>): Promise<void> {
@@ -191,7 +204,7 @@ export class Repo {
 
   /** 清除收支與資產負債（快速估算重新開始時使用），保留家庭與設定 */
   async clearFinancialItems(householdId: ID): Promise<void> {
-    const tables = [this.db.incomeItems, this.db.expenseItems, this.db.assets, this.db.liabilities, this.db.snapshots, this.db.goals, this.db.holdings];
+    const tables = [this.db.incomeItems, this.db.expenseItems, this.db.assets, this.db.liabilities, this.db.snapshots, this.db.goals, this.db.holdings, this.db.userActions, this.db.checkIns];
     await this.db.transaction('rw', tables, async () => {
       for (const t of tables) await t.where('householdId').equals(householdId).delete();
     });
@@ -213,6 +226,8 @@ export class Repo {
       snapshots: await by(this.db.snapshots),
       goals: await by(this.db.goals),
       holdings: await by(this.db.holdings),
+      userActions: await by(this.db.userActions),
+      checkIns: await by(this.db.checkIns),
       settings,
       assumptions: await this.db.assumptions.get(household.id),
     };
@@ -231,6 +246,8 @@ export class Repo {
       await this.db.snapshots.bulkAdd(p.snapshots);
       await this.db.goals.bulkAdd(p.goals);
       await this.db.holdings.bulkAdd(p.holdings);
+      await this.db.userActions.bulkAdd(p.userActions);
+      await this.db.checkIns.bulkAdd(p.checkIns);
       await this.db.settings.add(p.settings);
       if (p.assumptions) await this.db.assumptions.add(p.assumptions);
     });
@@ -252,7 +269,7 @@ export class Repo {
 
   private allTables() {
     const d = this.db;
-    return [d.households, d.members, d.incomeItems, d.expenseItems, d.assets, d.liabilities, d.snapshots, d.goals, d.holdings, d.settings, d.assumptions];
+    return [d.households, d.members, d.incomeItems, d.expenseItems, d.assets, d.liabilities, d.snapshots, d.goals, d.holdings, d.userActions, d.checkIns, d.settings, d.assumptions];
   }
 
   private async clearAllInTransaction() {

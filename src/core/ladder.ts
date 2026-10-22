@@ -1,5 +1,6 @@
 import type { LadderLevelDef } from '../model/localePack';
 import type { Range } from '../model/types';
+import { monthlyRate, monthsToTarget } from './planning';
 
 export interface LadderPosition {
   /** 依淨值中間值判定的層級 */
@@ -51,4 +52,24 @@ export function ladderPosition(netWorth: Range, ladder: LadderLevelDef[]): Ladde
     nextLevelMin: next?.minNetWorth ?? null,
     isNegative: x < 0,
   };
+}
+
+/**
+ * 照目前每月結餘與實質報酬，大約幾個月到下一層；已在最高層或照目前速度到不了時為 null。
+ * 淨值為負時不計報酬（避免把負債當成會「成長」）。
+ */
+export function monthsToNextLevel(
+  position: LadderPosition,
+  netWorth: number,
+  monthlySurplus: number | null,
+  realAnnualReturn: number,
+): number | null {
+  if (position.nextLevelMin === null) return null;
+  const i = netWorth > 0 ? monthlyRate(realAnnualReturn) : 0;
+  return monthsToTarget(position.nextLevelMin, netWorth, Math.max(0, monthlySurplus ?? 0), i);
+}
+
+/** Maggiulli 的 0.01% 法則：低於淨值 × 0.01% 的日常花費，對財富幾乎沒有影響 */
+export function worryFreeSpending(netWorth: number): number {
+  return Math.max(0, netWorth * 0.0001);
 }

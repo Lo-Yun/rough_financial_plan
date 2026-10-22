@@ -1,7 +1,7 @@
 # 專案地圖
 
 > 用途：之後要修改功能或回報問題時，用這份文件的**功能代號**和**檔案路徑**溝通，就能快速對到程式碼。
-> 最後更新：2026-10-22（第三期完成、改名「順便理財」之後）
+> 最後更新：2026-10-22（第四期完成之後）
 > 相關文件：[系統規格書](./01-system-spec.md)・[資料模型](./02-data-model.md)・[部署說明](./03-deploy-github-pages.md)・[開發歷程與路線圖](./05-roadmap.md)
 
 ---
@@ -84,6 +84,9 @@
 | `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
 | `F-BAK` | 備份匯出／還原 | 設定頁 | `SettingsPage.tsx` 的 `BackupSection` | — | 全部 | `backup.*` |
 | `F-PWA` | 安裝、離線、持久化儲存 | — | `app/pwa.ts`、`vite.config.ts` | — | — | `pwa.*` |
+| `F-ACT` | 行動建議與行動清單 | 淨值頁「下一步行動」卡片、`#/actions` | `features/actions/ActionsCard.tsx`、`ActionsPage.tsx`、`ActionParts.tsx` | `computeAdvice`、`computeMetrics`、`evaluateRules`、`buildActionBoard` | userActions | `actions.*`、`action.*` |
+| `F-LADP` | 財富階梯完整頁 | `#/ladder` | `features/ladder/LadderPage.tsx` | `ladderPosition`、`monthsToNextLevel`、`worryFreeSpending` | — | `ladder.*` |
+| `F-CHK` | 每月回顧 | `#/checkin`（淨值頁到期提醒） | `features/checkin/CheckInPage.tsx` | `isCheckInDue`、`pickReviewItems`、`compareSnapshots`、`nextCheckInDate` | checkIns、snapshots、settings | `checkin.*` |
 | `F-EST` | 估算輸入元件（全 App 共用） | — | `components/EstimateInput.tsx`、`AmountField.tsx` | `convertEstimate`、`parseAmount` | — | `estimate.*`、`amount.*` |
 
 下方分頁列（`App.tsx`）：淨值 `#/`・收支 `#/cashflow`・投資 `#/portfolio`・健檢 `#/health`・計畫 `#/plans`・設定 `#/settings`。
@@ -103,14 +106,33 @@
 | `cashflow.ts` | 收支換算成每月 | `toMonthly`、`monthlyIncome`、`monthlyExpense` | overview、health |
 | `debt.ts` | 負債利率與每月還款、還債模擬 | `resolveDebt`、`resolveDebts`、`amortizedPayment`、`simulatePayoff` | overview、planning、ItemEditor |
 | `precision.ts` | 依金額加權的精確度、過期判斷 | `precisionScore`、`isStale`、`estimateWeight` | overview、ModeBadge |
-| `ladder.ts` | 財富階梯層級與進度 | `ladderPosition`、`levelFor` | overview |
+| `ladder.ts` | 財富階梯層級、進度、到下一層的時間、0.01% 法則 | `ladderPosition`、`levelFor`、`monthsToNextLevel`、`worryFreeSpending` | overview、LadderPage |
 | `overview.ts` | **總整理**：把以上全部算一次 | `computeOverview`、`moneyContext`、`findNextRefinement`、`buildSnapshotData` | App.tsx、actions.ts |
 | `health.ts` | 財務健檢 7 個指標、最該處理的一件事、財務自由進度 | `computeHealth`、`lightFor`、`METRIC_PRIORITY` | HealthPage |
 | `planning.ts` | 目標試算（實質報酬、三種情境）、買房與還債 | `projectGoal`、`resolveAssumptions`、`requiredMonthly`、`monthsToTarget`、`scenarioRates` | PlansPage、GoalEditor |
 | `portfolio.ts` | 投資配置、目標、偏離、集中度、風險 | `analyzePortfolio`、`resolveTarget`、`deviations`、`holdingValue`、`holdingsTotal` | PortfolioPage、HoldingsPage、actions |
 | `reconcile.ts` | 對帳檢查 | `reconcile` | CashflowPage |
+| `metrics.ts` | 把各項結果整理成規則可用的指標（見下表） | `computeMetrics` | advice |
+| `rules.ts` | 規則引擎、建議與使用者紀錄的合併 | `evalCondition`、`evalExpression`、`evaluateRules`、`buildActionBoard`、`MAX_ACTIVE` | advice、ActionParts |
+| `advice.ts` | **行動建議總整理**：健檢＋投資組合＋指標＋規則 | `computeAdvice` | context.tsx 的 `useAdvice` |
+| `checkin.ts` | 回顧到期、要確認的項目、快照比較 | `isCheckInDue`、`nextCheckInDate`、`pickReviewItems`、`compareSnapshots`、`addMonthsISO` | CheckInPage、ActionsCard |
 | `format.ts` | 萬／億格式化、百分比、金額解析 | `formatCompact`、`formatRange`、`formatPercent`、`parseAmount` | context.tsx 的 `useFormat` |
 | `date.ts` | 日期工具 | `todayISO`、`daysBetween` | 多處 |
+
+**規則可用的指標**（`computeMetrics`；值為 `null` 代表無法計算）
+
+| 指標 | 意義 |
+|---|---|
+| `health.<指標>`、`health.fi_progress` | 7 個健檢指標的中間值、財務自由進度 |
+| `ladder.level`、`ladder.negative` | 財富階梯層級、是否負淨值 |
+| `precision.overall`、`precision.unresolved_count`、`precision.stale_count` | 精確度、不知道金額的項目數、過期項目數 |
+| `cashflow.income`、`cashflow.expense`、`cashflow.surplus`、`cashflow.monthly_outflow` | 每月收入、支出、結餘、支出＋還款 |
+| `debt.count`、`debt.revolving_total`、`debt.high_interest_total` | 負債筆數、卡債循環餘額、高利負債餘額 |
+| `expense.item_count`、`expense.has_insurance` | 支出項目數、是否有保險費 |
+| `reconcile.done` | 是否做過對帳檢查 |
+| `portfolio.invested`、`portfolio.guessed_count`、`portfolio.target_set`、`portfolio.needs_rebalance` | 投資組合總值、未確認類別的帳戶數、是否設定目標、是否需要再平衡 |
+| `goal.<類型>.exists`、`goal.count` | 是否有某類型的進行中目標、目標數 |
+| `snapshot.count` | 快照數 |
 
 **`Overview` 包含什麼**（`computeOverview` 的輸出，所有頁面都從這裡取數字）：
 `balanceSheet`、`precision`、`ladder`、`income`、`recurringIncome`、`expense`、`essentialExpense`、`debts`、`debtPayments`、`surplus`、`nextRefinement`。
@@ -121,8 +143,8 @@
 
 | 檔案 | 內容 |
 |---|---|
-| `db.ts` | IndexedDB 結構（Dexie），`SCHEMA_VERSION = 3` |
-| `repo.ts` | `Repo` 類別：`saveXxx` / `archiveXxx` / `updateSettings` / `saveAssumptions` / `saveSnapshot` / `exportAll` / `importAll` / `deleteAll` |
+| `db.ts` | IndexedDB 結構（Dexie），`SCHEMA_VERSION = 4` |
+| `repo.ts` | `Repo` 類別：`saveXxx` / `archiveXxx`（含 `saveUserAction`、`saveCheckIn`）/ `updateSettings` / `saveAssumptions` / `saveSnapshot` / `exportAll` / `importAll` / `deleteAll` |
 | `backup.ts` | 匯出檔格式、AES-GCM 加密、`migratePayload` 舊版備份升級 |
 
 **資料表與版本**
@@ -135,6 +157,7 @@
 | snapshots | v1 | 淨值快照（每天最多一筆） |
 | goals | v2（第二期） | 理財目標 |
 | holdings | v3（第三期） | 持股明細 |
+| userActions、checkIns | v4（第四期） | 行動紀錄、回顧紀錄（「建議」本身不儲存，即時計算） |
 
 **慣例**
 
@@ -147,13 +170,13 @@
 
 | 檔案 | 內容 |
 |---|---|
-| `App.tsx` | 路由、分頁列、讀取資料、計算 Overview、決定顯示引導或主畫面 |
-| `context.tsx` | `AppState`（`useApp()` 取得）、`useFormat()`、`usePlanningContext()`、`ageOf()` |
+| `App.tsx` | 路由、分頁列、讀取資料、計算 Overview、決定顯示引導或主畫面。淨值頁與資產編輯以外的頁面都延遲載入 |
+| `context.tsx` | `AppState`（`useApp()` 取得）、`useFormat()`、`usePlanningContext()`、`useAdvice()`、`useActionParams()`、`ageOf()` |
 | `load.ts` | `loadFinancialData()`：一次讀出所有表 |
 | `actions.ts` | 跨多表的動作：`recordSnapshot()`、`syncAssetFromHoldings()` |
 | `pwa.ts` | 是否已安裝、iOS 判斷、持久化儲存、安裝提示 |
 
-`useApp()` 可取得：`repo`、`pack`、`data`（household、settings、assets、liabilities、incomes、expenses）、`overview`、`snapshots`、`goals`、`holdings`、`assumptions`（已套預設值）、`storedAssumptions`、`primaryMember`、`today`。
+`useApp()` 可取得：`repo`、`pack`、`data`（household、settings、assets、liabilities、incomes、expenses）、`overview`、`snapshots`、`goals`、`holdings`、`assumptions`（已套預設值）、`storedAssumptions`、`primaryMember`、`userActions`、`checkIns`、`today`。
 
 ---
 
@@ -173,6 +196,7 @@
 | `homeDefaults` | 自備款、雜費、房貸年限 | `projectGoal` |
 | `forgottenExpenses` | 對帳時提醒的常忘支出 | `ReconcileCard` |
 | `allocationPresets`、`concentrationLimit`、`rebalanceBand` | 投資組合範本、集中度 20%、再平衡 ±5 個百分點 | `portfolio.ts` |
+| `actionTemplates`、`actionRules` | 19 個行動範本與觸發規則（宣告式條件） | `rules.ts` |
 | `numberUnits`、`inputUnitAliases` | 萬／億顯示與輸入 | `format.ts` |
 
 文字在 `zh-TW.json`，依功能代號表的「文字 key 前綴」分區。
@@ -183,9 +207,10 @@
 
 | 指令 | 內容 |
 |---|---|
-| `npm test` | 單元測試（Vitest），目前 98 個 |
+| `npm test` | 單元測試（Vitest），目前 118 個 |
 | `npm run typecheck` | TypeScript 型別檢查 |
 | `npm run build` | 建置到 `dist/` |
+| `npm run test:e2e` | 瀏覽器端對端測試（Playwright，手機尺寸 Chromium）；需先 `npm run build` |
 
 | 測試檔 | 涵蓋 |
 |---|---|
@@ -193,10 +218,10 @@
 | `tests/data/repo.test.ts` | Repo 讀寫、快照、備份加密、v1→v2→v3 資料庫升級與備份遷移、持股同步 |
 | `tests/i18n.test.ts` | 程式中用到的文字 key 都存在於 `zh-TW.json` |
 | `tests/helpers.ts` | 測試用的資產、負債、設定工廠函式 |
+| `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧 |
+| `tests/e2e/helpers.ts` | 共用步驟：`completeOnboarding`、`tap`、`tab`、`watchErrors`（任何主控台錯誤都會讓測試失敗） |
 
-**持續整合**：`.github/workflows/ci.yml` 在 PR 與 `main` 上跑型別檢查、測試、建置；`deploy.yml` 在 `main` 更新時部署到 GitHub Pages。
-
-> 瀏覽器實測（Playwright）目前是開發時臨時執行的腳本，**尚未納入專案與 CI**（見路線圖的技術債）。
+**持續整合**：`.github/workflows/ci.yml` 在 PR 與 `main` 上跑型別檢查、單元測試、建置、瀏覽器測試（失敗時會上傳 Playwright 報告）；`deploy.yml` 在 `main` 更新時部署到 GitHub Pages。
 
 ---
 
@@ -210,6 +235,8 @@
 | 外幣沒算進去 | `currency.ts`；設定頁是否填了匯率（淨值頁會顯示「缺少匯率」） |
 | 每月還款或利率不對 | `debt.ts` 的 `resolveDebt`；`pack.ts` 負債類別的 `defaultAnnualRate`、`defaultTermMonths` |
 | 健檢燈號不對 | `health.ts`；門檻在 `pack.ts` 的 `healthThresholds` |
+| 建議了不該出現的行動，或該出現的沒出現 | 先看 `computeMetrics` 的指標值，再看 `pack.ts` 的 `actionRules` 條件；已處理過的紀錄會影響顯示（`buildActionBoard`） |
+| 回顧提醒太早或沒出現 | `checkin.ts` 的 `isCheckInDue`；設定頁的回顧頻率與 `settings.nextCheckInDate` |
 | 計畫達成時間不對 | `planning.ts` 的 `projectGoal`；試算假設（設定頁）；報酬類型 `DEFAULT_RETURN_PROFILE` |
 | 投資配置比例不對 | `portfolio.ts` 的 `analyzePortfolio`；優先順序：持股 → 自訂比例 → 預設 |
 | 修改後畫面沒更新 | 寫入是否經過 `repo`；`load.ts` 是否有讀那張表；`App.tsx` 的 `useLiveQuery` |
@@ -237,7 +264,14 @@
 2. 需要新的資料表或索引時：在 `db.ts` 新增 `this.version(N)`、`SCHEMA_VERSION` 加一；`repo.ts` 的 `ExportPayload`、`exportAll`、`importAll`、`allTables` 加上新表；`backup.ts` 的 `migratePayload` 補上舊版的預設值；在 `tests/data/repo.test.ts` 加升級測試。
 3. 更新 `docs/02-data-model.md`。
 
+**新增一個行動建議**
+1. 在 `pack.ts` 的 `actionTemplates` 加範本（id、priority、link），在 `actionRules` 加條件。
+2. 需要新的指標時，在 `core/metrics.ts` 新增，並更新本文件的指標表。
+3. 在 `zh-TW.json` 的 `action.<id>` 下加 `title`、`why`、`how`（`i18n.test.ts` 會自動檢查）。
+4. 在 `tests/core/rules.test.ts` 加一個情境測試。
+
 **新增一個功能頁**
 1. 計算放 `src/core/`（附測試），畫面放 `src/features/<名稱>/`。
-2. 在 `App.tsx` 加路由（需要時加分頁）。
+2. 在 `App.tsx` 加延遲載入的路由（需要時加分頁）。
+3. 在 `tests/e2e/` 加一段瀏覽器流程。
 3. 在這份地圖的功能代號表加一列。

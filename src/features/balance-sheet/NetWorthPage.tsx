@@ -8,6 +8,7 @@ import { daysBetween } from '../../core/date';
 import type { ResolvedItem } from '../../core/balanceSheet';
 import { ModeBadge, PrecisionRing, RangeValue } from '../../components/Display';
 import type { Asset, Liability } from '../../model/types';
+import { ActionsCard } from '../actions/ActionsCard';
 import { LadderSummary } from './LadderSummary';
 
 const BACKUP_REMIND_DAYS = 30;
@@ -62,6 +63,8 @@ export function NetWorthPage() {
         )}
       </section>
 
+      <ActionsCard />
+
       {target && targetItem && (
         <Link to={`/${target.kind}/${target.id}`} className="card next-step">
           <p className="eyebrow">{t('netWorth.nextStep')}</p>
@@ -90,7 +93,7 @@ export function NetWorthPage() {
       <ItemSection kind="asset" items={bs.assets} />
       <ItemSection kind="liability" items={bs.liabilities} />
 
-      <LadderSummary />
+      <LadderSummary showLink />
 
       <Link to="/history" className="card link-card">
         <span>{t('netWorth.historyLink')}</span>

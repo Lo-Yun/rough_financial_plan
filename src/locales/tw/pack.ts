@@ -150,6 +150,97 @@ export const twPack: LocalePack = {
   concentrationLimit: 0.2,
   rebalanceBand: 0.05,
 
+  // 行動建議（P4，見規格 4.9）。條件是宣告式資料，由 core/rules.ts 解析。
+  // priority 越小越優先：先止血（高利債、透支），再建立安全網，再談投資與長期規劃。
+  actionTemplates: [
+    { id: 'pay_off_revolving', i18nKey: 'action.pay_off_revolving', category: 'debt', priority: 10, link: '/plans/new?type=debt_payoff' },
+    { id: 'fix_deficit', i18nKey: 'action.fix_deficit', category: 'saving', priority: 15, link: '/cashflow' },
+    { id: 'starter_emergency_fund', i18nKey: 'action.starter_emergency_fund', category: 'saving', priority: 20, link: '/plans/new?type=emergency_fund' },
+    { id: 'pay_high_interest', i18nKey: 'action.pay_high_interest', category: 'debt', priority: 25, link: '/plans/new?type=debt_payoff' },
+    { id: 'fill_unknown', i18nKey: 'action.fill_unknown', category: 'data_quality', priority: 30, link: '/' },
+    { id: 'add_income', i18nKey: 'action.add_income', category: 'data_quality', priority: 32, link: '/cashflow' },
+    { id: 'full_emergency_fund', i18nKey: 'action.full_emergency_fund', category: 'saving', priority: 40, link: '/plans/new?type=emergency_fund' },
+    { id: 'reconcile_spending', i18nKey: 'action.reconcile_spending', category: 'data_quality', priority: 45, link: '/cashflow' },
+    { id: 'raise_savings_rate', i18nKey: 'action.raise_savings_rate', category: 'saving', priority: 50, link: '/cashflow' },
+    { id: 'grow_income', i18nKey: 'action.grow_income', category: 'income', priority: 55 },
+    { id: 'learn_index_investing', i18nKey: 'action.learn_index_investing', category: 'investing', priority: 60, link: '/portfolio' },
+    { id: 'set_retirement_goal', i18nKey: 'action.set_retirement_goal', category: 'investing', priority: 65, link: '/plans/new?type=retirement_fi' },
+    { id: 'confirm_allocation', i18nKey: 'action.confirm_allocation', category: 'data_quality', priority: 68, link: '/portfolio' },
+    { id: 'set_target_allocation', i18nKey: 'action.set_target_allocation', category: 'investing', priority: 70, link: '/portfolio' },
+    { id: 'rebalance', i18nKey: 'action.rebalance', category: 'investing', priority: 72, link: '/portfolio' },
+    { id: 'check_insurance', i18nKey: 'action.check_insurance', category: 'protection', priority: 75, link: '/cashflow' },
+    { id: 'avoid_lifestyle_creep', i18nKey: 'action.avoid_lifestyle_creep', category: 'habit', priority: 80 },
+    { id: 'update_stale', i18nKey: 'action.update_stale', category: 'data_quality', priority: 85, link: '/' },
+    { id: 'protect_wealth', i18nKey: 'action.protect_wealth', category: 'protection', priority: 90 },
+  ],
+  actionRules: [
+    {
+      templateId: 'pay_off_revolving',
+      when: { metric: 'debt.revolving_total', op: '>', value: 0 },
+      params: { amount: { metric: 'debt.revolving_total' } },
+    },
+    { templateId: 'fix_deficit', when: { metric: 'cashflow.surplus', op: '<', value: 0 } },
+    {
+      templateId: 'starter_emergency_fund',
+      when: { metric: 'health.emergency_months', op: '<', value: 1 },
+      params: { target: { op: 'round', args: [{ metric: 'cashflow.monthly_outflow' }] } },
+    },
+    {
+      templateId: 'pay_high_interest',
+      when: { all: [{ metric: 'debt.high_interest_total', op: '>', value: 0 }, { metric: 'debt.revolving_total', op: '==', value: 0 }] },
+      params: { amount: { metric: 'debt.high_interest_total' } },
+    },
+    { templateId: 'fill_unknown', when: { metric: 'precision.unresolved_count', op: '>', value: 0 } },
+    { templateId: 'add_income', when: { missing: 'cashflow.income' } },
+    {
+      templateId: 'full_emergency_fund',
+      when: { all: [{ metric: 'health.emergency_months', op: '>=', value: 1 }, { metric: 'health.emergency_months', op: '<', value: 3 }] },
+      params: { target: { op: 'round', args: [{ op: '*', args: [{ metric: 'cashflow.monthly_outflow' }, { const: 3 }] }] } },
+    },
+    {
+      templateId: 'reconcile_spending',
+      when: { all: [{ metric: 'reconcile.done', op: '==', value: false }, { metric: 'cashflow.surplus', op: '>=', value: 0 }] },
+    },
+    {
+      templateId: 'raise_savings_rate',
+      when: { all: [{ metric: 'health.savings_rate', op: '>=', value: 0 }, { metric: 'health.savings_rate', op: '<', value: 0.1 }] },
+    },
+    // Maggiulli：L1～L2 的財富主要來自收入，提升收入比省小錢有效
+    {
+      templateId: 'grow_income',
+      when: { all: [{ metric: 'ladder.level', op: '<=', value: 2 }, { metric: 'health.emergency_months', op: '>=', value: 1 }] },
+    },
+    {
+      templateId: 'learn_index_investing',
+      when: {
+        all: [
+          { metric: 'ladder.level', op: '>=', value: 2 },
+          { metric: 'health.emergency_months', op: '>=', value: 3 },
+          { metric: 'health.savings_rate', op: '>=', value: 0.1 },
+          { metric: 'portfolio.invested', op: '==', value: 0 },
+          { metric: 'debt.high_interest_total', op: '==', value: 0 },
+        ],
+      },
+    },
+    {
+      templateId: 'set_retirement_goal',
+      when: { all: [{ metric: 'health.emergency_months', op: '>=', value: 3 }, { metric: 'goal.retirement_fi.exists', op: '==', value: false }] },
+    },
+    { templateId: 'confirm_allocation', when: { metric: 'portfolio.guessed_count', op: '>', value: 0 } },
+    {
+      templateId: 'set_target_allocation',
+      when: { all: [{ metric: 'portfolio.invested', op: '>', value: 0 }, { metric: 'portfolio.target_set', op: '==', value: false }] },
+    },
+    { templateId: 'rebalance', when: { metric: 'portfolio.needs_rebalance', op: '==', value: true } },
+    {
+      templateId: 'check_insurance',
+      when: { all: [{ metric: 'expense.has_insurance', op: '==', value: false }, { metric: 'health.emergency_months', op: '>=', value: 1 }] },
+    },
+    { templateId: 'avoid_lifestyle_creep', when: { metric: 'ladder.level', op: '==', value: 3 } },
+    { templateId: 'update_stale', when: { metric: 'precision.stale_count', op: '>', value: 0 } },
+    { templateId: 'protect_wealth', when: { metric: 'ladder.level', op: '>=', value: 4 } },
+  ],
+
   forgottenExpenses: [
     'forgotten.insurance',
     'forgotten.tax',

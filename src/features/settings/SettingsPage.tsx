@@ -48,6 +48,23 @@ export function SettingsPage() {
         </fieldset>
       </section>
 
+      <section className="card">
+        <h2>{t('settings.checkin.title')}</h2>
+        <div className="chips">
+          {(['monthly', 'quarterly', 'off'] as const).map((f) => (
+            <button
+              key={f}
+              type="button"
+              className={s.checkInFrequency === f ? 'chip active' : 'chip'}
+              onClick={() => void update({ checkInFrequency: f, nextCheckInDate: undefined })}
+            >
+              {t(`settings.checkin.${f}`)}
+            </button>
+          ))}
+        </div>
+        <p className="muted small">{t('settings.checkin.hint')}</p>
+      </section>
+
       <AssumptionsSection />
 
       <BackupSection />
