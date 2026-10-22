@@ -153,8 +153,15 @@ export interface StatEntry {
   p75: number;
   source: string;
   year: number;
-  /** 數值是否已對照原始資料校對 */
-  verified: boolean;
+  /**
+   * official：直接取自官方統計；derived：由官方統計換算（換算方式見 note）；
+   * placeholder：概略值，尚未取得對應的官方數字
+   */
+  quality: 'official' | 'derived' | 'placeholder';
+  /** 換算方式或待辦說明 */
+  note?: string;
+  /** 設定頁顯示用的名稱 */
+  labelKey: string;
 }
 
 export interface LadderLevelDef {

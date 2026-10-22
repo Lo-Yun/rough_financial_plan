@@ -424,7 +424,13 @@ interface LocalePack {
   brackets: Record<string, { id: string; low: number; high: number }[]>;
 
   /** 「不知道」時代入的統計值；key 例如 'expense.monthly_total.couple' */
-  statistics: Record<string, { p25: number; p50: number; p75: number; source: string; year: number; verified: boolean }>;
+  statistics: Record<string, {
+    p25: number; p50: number; p75: number;
+    source: string; year: number;
+    quality: 'official' | 'derived' | 'placeholder';   // 官方／由官方換算／概略值
+    note?: string;                                       // 換算方式或待辦
+    labelKey: string;                                    // 設定頁顯示的名稱
+  }>;
 
   /** 健檢指標的門檻 */
   healthThresholds: Record<HealthMetricKey, { red?: [number, number]; yellow?: [number, number]; green?: [number, number]; higherIsBetter: boolean }>;

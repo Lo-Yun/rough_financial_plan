@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApp } from '../../app/context';
+import { useApp, useFormat } from '../../app/context';
 import { PercentField } from '../../components/EditorParts';
 import { isIOS, isStandalone, useInstallPrompt } from '../../app/pwa';
 import { BackupError, buildExport, inspectExport, parseExport } from '../../data/backup';
@@ -90,7 +90,11 @@ export function SettingsPage() {
       <section className="card about">
         <h2>{t('settings.about.title')}</h2>
         <p className="muted small">{t('settings.about.version', { version: __APP_VERSION__, pack: pack.version })}</p>
-        <p className="muted small">{t('settings.about.stats')}</p>
+        <details className="small">
+          <summary>{t('stats.title')}</summary>
+          <p className="muted">{t('settings.about.stats')}</p>
+          <StatsSources />
+        </details>
         <p className="disclaimer">{t('common.disclaimer')}</p>
       </section>
     </div>
@@ -302,5 +306,26 @@ function AssumptionsSection() {
         </button>
       )}
     </section>
+  );
+}
+
+/** 「不確定」時代入的統計值與來源（內容校對 T1） */
+function StatsSources() {
+  const { t } = useTranslation();
+  const { pack } = useApp();
+  const fmt = useFormat(pack);
+  return (
+    <ul className="stats-sources">
+      {Object.entries(pack.statistics).map(([key, s]) => (
+        <li key={key}>
+          <strong>{t(s.labelKey)}</strong>
+          <span className={`quality-badge q-${s.quality}`}>{t(`stats.quality.${s.quality}`)}</span>
+          <span className="block">{t('stats.value', { p25: fmt.money(s.p25), p50: fmt.money(s.p50), p75: fmt.money(s.p75) })}</span>
+          <span className="muted block">
+            {s.source}（{s.year}）{s.note ? `：${s.note}` : ''}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

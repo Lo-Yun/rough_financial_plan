@@ -1,4 +1,4 @@
-import type { Bracket, LocalePack } from '../../model/localePack';
+import type { Bracket, LocalePack, StatEntry } from '../../model/localePack';
 
 const WAN = 10_000;
 const YI = 100_000_000;
@@ -14,9 +14,24 @@ function wanBrackets(prefix: string, edges: number[]): Bracket[] {
   return out;
 }
 
-// 主計總處家庭收支調查、受僱員工薪資調查的概略值。
-// verified: false 表示尚未對照原始資料校對，上線前必須更新。
-const STAT_SOURCE = '行政院主計總處 家庭收支調查（概略值，待校對）';
+// 「不確定」時代入的統計值。來源與換算方式見 docs/05-roadmap.md 的 T1。
+const FIES = '行政院主計總處 113 年家庭收支調查';
+const FIES_TABLE = `${FIES}報告第 5 表（家庭組織型態別）`;
+
+/** 家庭收支調查的每月花費：中間值已扣除自用住宅設算租金，範圍為 ±25% */
+function fies(mid: number, group: string, yearlyWan: number, imputedRentWan: number, labelKey: string): StatEntry {
+  return {
+    p25: Math.round((mid * 0.75) / 500) * 500,
+    p50: mid,
+    p75: Math.round((mid * 1.25) / 500) * 500,
+    source: FIES_TABLE,
+    year: 2024,
+    quality: 'derived',
+    note: `${group}每年消費支出 ${yearlyWan} 萬元，扣除自用住宅設算租金 ${imputedRentWan} 萬元後 ÷ 12；範圍為中間值 ±25% 的估計`,
+    labelKey,
+  };
+}
+const EARNINGS = '行政院主計總處 113 年受僱員工經常性薪資及全年總薪資統計';
 
 export const twPack: LocalePack = {
   code: 'TW',
@@ -92,18 +107,27 @@ export const twPack: LocalePack = {
   },
 
   statistics: {
-    'expense.monthly_total.single': { p25: 18_000, p50: 25_000, p75: 35_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.couple': { p25: 35_000, p50: 50_000, p75: 65_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.couple_with_children': { p25: 55_000, p50: 75_000, p75: 95_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.single_parent': { p25: 32_000, p50: 45_000, p75: 60_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.other': { p25: 40_000, p50: 55_000, p75: 75_000, source: STAT_SOURCE, year: 2024, verified: false },
+    // 113 年家庭收支調查第 5 表（家庭組織型態別）：每戶每年消費支出扣除「自用住宅設算租金」後 ÷ 12。
+    // 設算租金是住自己房子「假想要付的房租」，不是實際花出去的錢，扣掉才接近使用者感受到的每月花費。
+    // 報告沒有提供四分位數，P25／P75 暫以中間值 ±25% 估計。
+    //   單人 443,148 − 53,924；夫婦 717,998 − 79,692；核心家庭 1,145,751 − 95,319；
+    //   單親 737,457 − 65,398；全體平均 888,699 − 79,968（「其他」包含三代同堂、祖孫等，用全體平均）
+    'expense.monthly_total.single': fies(32_500, '單人家庭', 44.3, 5.4, 'stats.label.expense_single'),
+    'expense.monthly_total.couple': fies(53_000, '夫婦家庭', 71.8, 8.0, 'stats.label.expense_couple'),
+    'expense.monthly_total.couple_with_children': fies(87_500, '核心家庭（夫婦與未婚子女）', 114.6, 9.5, 'stats.label.expense_couple_with_children'),
+    'expense.monthly_total.single_parent': fies(56_000, '單親家庭', 73.7, 6.5, 'stats.label.expense_single_parent'),
+    'expense.monthly_total.other': fies(67_500, '全體家庭平均', 88.9, 8.0, 'stats.label.expense_other'),
+    // 經常性薪資中位數 37,274 元（稅前）；P25、P75 依全年總薪資的四分位比例（40.6／54.6、84.2／54.6）換算；
+    // 再扣除約 5% 的勞健保自付額，換成「實際拿到手」的金額
     'income.monthly_salary.per_earner': {
-      p25: 33_000,
-      p50: 43_000,
-      p75: 60_000,
-      source: '行政院主計總處 受僱員工薪資調查（概略值，待校對）',
+      p25: 26_000,
+      p50: 35_000,
+      p75: 55_000,
+      source: EARNINGS,
       year: 2024,
-      verified: false,
+      quality: 'derived',
+      note: '經常性薪資中位數 37,274 元 × 0.95（勞健保自付）；P25／P75 依全年總薪資四分位數與中位數的比例換算',
+      labelKey: 'stats.label.income_salary',
     },
   },
 
