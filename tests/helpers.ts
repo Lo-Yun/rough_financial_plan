@@ -55,7 +55,7 @@ export const settings: Settings = {
 
 export const ctx = {
   statistics: {
-    'expense.monthly_total.single': { p25: 18000, p50: 25000, p75: 35000, source: 't', year: 2024, verified: false },
+    'expense.monthly_total.single': { p25: 18000, p50: 25000, p75: 35000, source: 't', year: 2024, quality: 'placeholder' as const, labelKey: 'x' },
   },
   defaultTolerance: 0.15,
   baseCurrency: 'TWD',

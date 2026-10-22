@@ -82,6 +82,8 @@ describe('zh-TW translations', () => {
       ...[1, 2, 3, 4, 5].map((m) => `checkin.feel.mood${m}`),
       ...['monthly', 'quarterly', 'off'].map((f) => `settings.checkin.${f}`),
       ...[1, 2, 3, 4, 5, 6].flatMap((l) => [`ladder.level${l}.name`, `ladder.level${l}.desc`]),
+      ...Object.values(twPack.statistics).map((st) => st.labelKey),
+      ...['official', 'derived', 'placeholder'].map((q) => `stats.quality.${q}`),
     ];
     expect(dynamic.filter((k) => !has(k))).toEqual([]);
   });

@@ -1021,3 +1021,34 @@ fieldset {
 .pre-line {
   white-space: pre-line;
 }
+
+/* 統計來源 */
+.stats-sources {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.stats-sources li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.quality-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  background: var(--line);
+}
+.quality-badge.q-official {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.quality-badge.q-derived {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.quality-badge.q-placeholder {
+  background: var(--yellow-soft);
+  color: var(--yellow);
+}

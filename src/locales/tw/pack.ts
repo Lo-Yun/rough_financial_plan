@@ -14,9 +14,10 @@ function wanBrackets(prefix: string, edges: number[]): Bracket[] {
   return out;
 }
 
-// 主計總處家庭收支調查、受僱員工薪資調查的概略值。
-// verified: false 表示尚未對照原始資料校對，上線前必須更新。
-const STAT_SOURCE = '行政院主計總處 家庭收支調查（概略值，待校對）';
+// 「不確定」時代入的統計值。來源與換算方式見 docs/05-roadmap.md 的 T1。
+const FIES = '行政院主計總處 113 年家庭收支調查';
+const FIES_TODO = '待取得 113 年家庭收支調查報告第 5 表（平均每戶家庭收支按家庭組織型態別分）';
+const EARNINGS = '行政院主計總處 113 年受僱員工經常性薪資及全年總薪資統計';
 
 export const twPack: LocalePack = {
   code: 'TW',
@@ -92,18 +93,33 @@ export const twPack: LocalePack = {
   },
 
   statistics: {
-    'expense.monthly_total.single': { p25: 18_000, p50: 25_000, p75: 35_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.couple': { p25: 35_000, p50: 50_000, p75: 65_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.couple_with_children': { p25: 55_000, p50: 75_000, p75: 95_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.single_parent': { p25: 32_000, p50: 45_000, p75: 60_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'expense.monthly_total.other': { p25: 40_000, p50: 55_000, p75: 75_000, source: STAT_SOURCE, year: 2024, verified: false },
-    'income.monthly_salary.per_earner': {
-      p25: 33_000,
-      p50: 43_000,
-      p75: 60_000,
-      source: '行政院主計總處 受僱員工薪資調查（概略值，待校對）',
+    // 家庭型態別的消費支出尚未取得官方表格，暫用概略值；全國平均 113 年為每戶每年 88.9 萬元（每月約 7.4 萬）
+    'expense.monthly_total.single': { p25: 18_000, p50: 25_000, p75: 35_000, source: FIES, year: 2024, quality: 'placeholder', note: FIES_TODO, labelKey: 'stats.label.expense_single' },
+    'expense.monthly_total.couple': { p25: 35_000, p50: 50_000, p75: 65_000, source: FIES, year: 2024, quality: 'placeholder', note: FIES_TODO, labelKey: 'stats.label.expense_couple' },
+    'expense.monthly_total.couple_with_children': { p25: 55_000, p50: 75_000, p75: 95_000, source: FIES, year: 2024, quality: 'placeholder', note: FIES_TODO, labelKey: 'stats.label.expense_couple_with_children' },
+    'expense.monthly_total.single_parent': { p25: 32_000, p50: 45_000, p75: 60_000, source: FIES, year: 2024, quality: 'placeholder', note: FIES_TODO, labelKey: 'stats.label.expense_single_parent' },
+    // 全國平均每戶消費支出 88.9 萬元 ÷ 12 ≈ 74,000；前後範圍暫以 ±25% 估計
+    'expense.monthly_total.other': {
+      p25: 56_000,
+      p50: 74_000,
+      p75: 93_000,
+      source: FIES,
       year: 2024,
-      verified: false,
+      quality: 'derived',
+      note: '中間值＝全國平均每戶消費支出 88.9 萬元 ÷ 12；範圍為中間值 ±25% 的估計',
+      labelKey: 'stats.label.expense_other',
+    },
+    // 經常性薪資中位數 37,274 元（稅前）；P25、P75 依全年總薪資的四分位比例（40.6／54.6、84.2／54.6）換算；
+    // 再扣除約 5% 的勞健保自付額，換成「實際拿到手」的金額
+    'income.monthly_salary.per_earner': {
+      p25: 26_000,
+      p50: 35_000,
+      p75: 55_000,
+      source: EARNINGS,
+      year: 2024,
+      quality: 'derived',
+      note: '經常性薪資中位數 37,274 元 × 0.95（勞健保自付）；P25／P75 依全年總薪資四分位數與中位數的比例換算',
+      labelKey: 'stats.label.income_salary',
     },
   },
 
