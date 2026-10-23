@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { tab, tap, watchErrors } from './helpers';
+import { openWelcome, tab, tap, watchErrors } from './helpers';
 
 test('視覺規範：分頁列與列表用 SVG 圖示，每月回顧卡用注意色', async ({ page }) => {
   const errors = watchErrors(page);
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto('./');
+  await openWelcome(page);
   await tap(page, '先看看填好的樣子（示範資料）');
   await expect(page.locator('.tab-bar a svg')).toHaveCount(6);
   await expect(page.locator('.item-list .icon-badge svg').first()).toBeVisible();

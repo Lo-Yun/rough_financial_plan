@@ -10,6 +10,14 @@ export async function amount(page: Page, value: string, nth = 0) {
   await page.getByPlaceholder('例如 35000 或 600萬').nth(nth).fill(value);
 }
 
+/** 打開歡迎頁並按過品牌頁，停在「開始估算」（同一個分頁已按過時不會再出現品牌頁） */
+export async function openWelcome(page: Page) {
+  await page.goto('./');
+  const ok = page.getByRole('button', { name: 'OK，順便做吧!' });
+  await expect(ok.or(page.getByRole('button', { name: '開始估算' }))).toBeVisible();
+  if (await ok.isVisible()) await ok.click();
+}
+
 export async function tab(page: Page, name: string) {
   await page.locator('.tab-bar a', { hasText: name }).click();
 }
@@ -34,7 +42,7 @@ export interface OnboardingOptions {
 
 /** 走完快速估算：單身、月收入 5～8 萬、年終 2 個月、月花費約 4 萬、存款 30～100 萬 */
 export async function completeOnboarding(page: Page, opts: OnboardingOptions = {}) {
-  await page.goto('./');
+  await openWelcome(page);
   await tap(page, '開始估算');
   await tap(page, '單身');
   await tap(page, '下一步');

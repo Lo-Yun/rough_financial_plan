@@ -40,7 +40,7 @@ export default defineConfig({
     cspMeta,
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png'],
+      includeAssets: ['icons/favicon.svg', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/icon-512.png'],
       manifest: {
         name: '順便理財',
         short_name: '順便理財',
