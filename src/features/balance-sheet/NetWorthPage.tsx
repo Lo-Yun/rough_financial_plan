@@ -7,6 +7,7 @@ import { isIOS, isStandalone } from '../../app/pwa';
 import { daysBetween } from '../../core/date';
 import type { ResolvedItem } from '../../core/balanceSheet';
 import { ModeBadge, PrecisionRing, RangeValue } from '../../components/Display';
+import { IconBadge } from '../../components/Icon';
 import type { Asset, Liability } from '../../model/types';
 import { ActionsCard } from '../actions/ActionsCard';
 import { LadderSummary } from './LadderSummary';
@@ -85,7 +86,7 @@ export function NetWorthPage() {
       )}
 
       {showBackup && bs.assets.length + bs.liabilities.length > 0 && (
-        <Link to="/settings" className="card tip">
+        <Link to="/settings" className="card attention">
           <p>{lastBackupDays === null ? t('backup.remindNever') : t('backup.remindDays', { days: lastBackupDays })}</p>
         </Link>
       )}
@@ -156,7 +157,7 @@ function ItemSection({ kind, items }: { kind: 'asset' | 'liability'; items: Reso
           return (
             <li key={item.id}>
               <Link to={`/${kind}/${item.id}`}>
-                <span className="icon" aria-hidden="true">{icon}</span>
+                <IconBadge name={icon} />
                 <span className="name">
                   {itemName(item, kind, t)}
                   <ModeBadge estimate={estimate} today={today} staleAfterDays={data.settings.staleAfterDays} />

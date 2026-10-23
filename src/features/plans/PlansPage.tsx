@@ -3,8 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useApp, useFormat, usePlanningContext } from '../../app/context';
 import { ProgressBar } from '../../components/Display';
+import { IconBadge, type IconName } from '../../components/Icon';
 import { projectGoal } from '../../core/planning';
 import type { GoalType } from '../../model/types';
+
+export const GOAL_ICONS: Record<GoalType, IconName> = {
+  emergency_fund: 'lifebuoy',
+  debt_payoff: 'creditCard',
+  home_down_payment: 'home',
+  retirement_fi: 'sunrise',
+  education: 'school',
+  big_purchase: 'shopping',
+  custom: 'target',
+};
 
 export function goalName(g: { name?: string; type: GoalType }, t: (k: string) => string): string {
   return g.name || t(`plans.type.${g.type}.name`);
@@ -61,6 +72,7 @@ export function PlansPage() {
       {projections.map(({ goal, p }) => (
         <Link key={goal.id} to={`/plans/${goal.id}`} className="card goal-card">
           <header className="section-head">
+            <IconBadge name={GOAL_ICONS[goal.type]} />
             <h2>{goalName(goal, t)}</h2>
             <span className="total">{p.target ? fmt.money(p.target.mid) : '—'}</span>
           </header>

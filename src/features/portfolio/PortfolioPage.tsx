@@ -88,8 +88,16 @@ export function PortfolioPage() {
                         <span className={`swatch g-${g}`} aria-hidden="true" />
                         {t(`portfolio.groupName.${g}`)}
                       </th>
-                      <td>{fmt.pct(a.groupShare[g])}</td>
-                      {d && <td className={d.outOfBand ? 'warn' : ''}>{fmt.pct(d.target)}</td>}
+                      <td>
+                        {fmt.pct(a.groupShare[g])}
+                        {d?.outOfBand && (
+                          <span className="warn" aria-label={t(d.diff > 0 ? 'portfolio.overTarget' : 'portfolio.underTarget')}>
+                            {' '}
+                            {d.diff > 0 ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </td>
+                      {d && <td>{fmt.pct(d.target)}</td>}
                     </tr>
                   );
                 })}
@@ -107,7 +115,7 @@ export function PortfolioPage() {
           />
 
           {dev && (
-            <section className={dev.needsRebalance ? 'card tip' : 'card'}>
+            <section className={dev.needsRebalance ? 'card attention' : 'card'}>
               <h2>{t('portfolio.rebalance.title')}</h2>
               {dev.needsRebalance ? (
                 <>
@@ -133,7 +141,7 @@ export function PortfolioPage() {
           )}
 
           {a.concentration.length > 0 && (
-            <section className="card tip">
+            <section className="card attention">
               <h2>{t('portfolio.concentration.title')}</h2>
               <ul className="bullets small">
                 {a.concentration.map((c) => (

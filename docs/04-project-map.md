@@ -260,6 +260,10 @@
 1. 在 `zh-TW.json` 對應前綴下新增 key。
 2. 程式中用 `t('key')`。動態組合的 key（例如 `` t(`health.metric.${key}.name`) ``）要加到 `tests/i18n.test.ts` 的清單。
 
+**改畫面樣式或加圖示**
+1. 先讀 `docs/06-visual-design.md`，只用其中的字級、圓角、顏色變數（定義在 `styles.css` 開頭）。
+2. 圖示在 `components/Icon.tsx` 的 `ICONS` 加語意名稱，元件用 `<Icon>` 或 `<IconBadge>`。
+
 **新增或修改台灣的數值（門檻、利率、級距）**
 1. 只改 `src/locales/tw/pack.ts`。
 2. 跑 `npm test`，確認相關測試的預期值。

@@ -5,6 +5,7 @@ import { recordSnapshot } from '../../app/actions';
 import { useAdvice, useApp, useFormat } from '../../app/context';
 import { ProgressBar } from '../../components/Display';
 import { EstimateInput } from '../../components/EstimateInput';
+import { Icon } from '../../components/Icon';
 import { compareSnapshots, nextCheckInDate, pickReviewItems, type ReviewItem, type SnapshotDiff } from '../../core/checkin';
 import { blankToUnknown } from '../../core/estimate';
 import type { Asset, CheckIn, Estimate, ID, Liability } from '../../model/types';
@@ -234,7 +235,7 @@ function ActionsStep({ completed, onComplete }: { completed: { id: ID; title: st
       <ul className="action-list">
         {completed.map((c) => (
           <li key={c.id} className="ok">
-            ✓ {c.title}
+            <Icon name="check" size={16} /> {c.title}
           </li>
         ))}
         {board.active.map((a) => (

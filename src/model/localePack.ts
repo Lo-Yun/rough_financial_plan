@@ -138,6 +138,7 @@ export interface Threshold {
 export interface CategoryDef<K extends string = string> {
   key: K;
   i18nKey: string;
+  /** 圖示名稱，對應 components/Icon.tsx 的 IconName */
   icon?: string;
 }
 

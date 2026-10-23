@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useApp, useFormat } from '../../app/context';
 import { ProgressBar } from '../../components/Display';
+import { IconBadge, type IconName } from '../../components/Icon';
 import { computeHealth, type HealthMetric, type Light } from '../../core/health';
 import { moneyContext } from '../../core/overview';
 import type { HealthMetricKey } from '../../model/localePack';
@@ -17,6 +18,16 @@ const ACTION_LINK: Record<HealthMetricKey, string> = {
   unsecured_debt_multiple: '/plans/new?type=debt_payoff',
   housing_cost_ratio: '/cashflow',
   insurance_premium_ratio: '/cashflow',
+};
+
+const METRIC_ICONS: Record<HealthMetricKey, IconName> = {
+  high_interest_debt: 'creditCard',
+  emergency_months: 'lifebuoy',
+  savings_rate: 'piggyBank',
+  debt_service_ratio: 'percent',
+  unsecured_debt_multiple: 'scale',
+  housing_cost_ratio: 'home',
+  insurance_premium_ratio: 'umbrella',
 };
 
 export function HealthPage() {
@@ -125,13 +136,14 @@ function MetricCard({ m }: { m: HealthMetric }) {
   return (
     <section className={`card metric light-${m.light ?? 'none'}`}>
       <header className="metric-head">
-        <LightBadge light={m.light} />
+        <IconBadge name={METRIC_ICONS[m.key]} />
         <h3>{t(`health.metric.${m.key}.name`)}</h3>
         <span className="metric-value">
           {shown ? (shown.range ? `${t('range.about')}${shown.main}` : shown.main) : '—'}
           {shown?.range && <small className="muted block">{shown.range}</small>}
         </span>
       </header>
+      <LightBadge light={m.light} />
       <p className="small">{t(`health.metric.${m.key}.explain`)}</p>
       {m.missing && !m.value && <p className="muted small">{t(`health.missing.${m.missing}`)}</p>}
       {m.value && m.key !== 'high_interest_debt' && (

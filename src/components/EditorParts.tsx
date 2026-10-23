@@ -5,6 +5,7 @@ import { useApp } from '../app/context';
 import type { CategoryDef } from '../model/localePack';
 import type { MoneyEstimate } from '../model/types';
 import { EstimateInput } from './EstimateInput';
+import { Icon, isIconName } from './Icon';
 
 // 各種編輯頁共用的表單元件
 
@@ -83,7 +84,7 @@ export function ChipPicker<K extends string>({
       <div className="chips">
         {options.map((o) => (
           <button key={o.key} type="button" aria-pressed={value === o.key} className={value === o.key ? 'chip active' : 'chip'} onClick={() => onChange(o.key)}>
-            {o.icon && <span aria-hidden="true">{o.icon} </span>}
+            {isIconName(o.icon) && <Icon name={o.icon} size={16} />}
             {o.label}
           </button>
         ))}
