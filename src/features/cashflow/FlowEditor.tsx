@@ -38,7 +38,7 @@ function IncomeEditor({ id }: { id?: string }) {
       existing ?? {
         ownerId: 'joint',
         category: 'salary',
-        amount: { estimate: { mode: 'range', low: 0, high: 0 }, currency: pack.baseCurrency },
+        amount: { estimate: { mode: 'approx', value: 0 }, currency: pack.baseCurrency },
         frequency: 'monthly',
         isRecurring: true,
         basis: 'net',
@@ -96,7 +96,7 @@ function ExpenseEditor({ id }: { id?: string }) {
       existing ?? {
         ownerId: 'joint',
         category: 'food',
-        amount: { estimate: { mode: 'range', low: 0, high: 0 }, currency: pack.baseCurrency },
+        amount: { estimate: { mode: 'approx', value: 0 }, currency: pack.baseCurrency },
         frequency: 'monthly',
         essential: true,
       },

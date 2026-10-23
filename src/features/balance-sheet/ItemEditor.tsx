@@ -41,7 +41,7 @@ function AssetEditor({ id }: { id?: string }) {
       existing ?? {
         ownerId: 'joint',
         category: 'cash',
-        value: { estimate: { mode: 'range', low: 0, high: 0 }, currency: pack.baseCurrency },
+        value: { estimate: { mode: 'approx', value: 0 }, currency: pack.baseCurrency },
         liquidity: 'liquid',
       },
   );
@@ -118,7 +118,7 @@ function LiabilityEditor({ id }: { id?: string }) {
       existing ?? {
         ownerId: 'joint',
         category: 'personal_loan',
-        balance: { estimate: { mode: 'range', low: 0, high: 0 }, currency: pack.baseCurrency },
+        balance: { estimate: { mode: 'approx', value: 0 }, currency: pack.baseCurrency },
         secured: false,
       },
   );

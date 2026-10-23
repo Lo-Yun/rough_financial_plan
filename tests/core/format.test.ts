@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatCompact, formatRange, parseAmount } from '../../src/core/format';
+import { formatCompact, formatRange, groupDigits, parseAmount } from '../../src/core/format';
 import { twPack } from '../../src/locales/tw/pack';
 
 const units = [
@@ -51,5 +51,20 @@ describe('formatPercent', () => {
     expect(formatPercent(0.052)).toBe('5.2%');
     expect(formatPercent(-0.02)).toBe('-2%');
     expect(formatPercentRange({ low: 0.1, mid: 0.15, high: 0.2 })).toBe('10% ～ 20%');
+  });
+});
+
+describe('groupDigits', () => {
+  it('adds thousands separators to plain numbers', () => {
+    expect(groupDigits('1234567')).toBe('1,234,567');
+    expect(groupDigits('1,23,4567')).toBe('1,234,567');
+    expect(groupDigits('-50000')).toBe('-50,000');
+    expect(groupDigits('1234.5')).toBe('1,234.5');
+    expect(groupDigits('1234.')).toBe('1,234.');
+    expect(groupDigits('999')).toBe('999');
+  });
+
+  it('leaves other text as typed', () => {
+    for (const s of ['45萬', '35k', '1萬2000', '', '-', '12,000元', 'abc']) expect(groupDigits(s)).toBe(s);
   });
 });

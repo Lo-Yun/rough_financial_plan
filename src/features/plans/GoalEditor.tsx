@@ -61,7 +61,7 @@ function defaultParams(type: GoalType, ctx: { pack: ReturnType<typeof useApp>['p
     case 'home_down_payment':
       return {
         kind: 'home_down_payment',
-        homePrice: { estimate: { mode: 'range', low: 0, high: 0 }, currency: ctx.pack.baseCurrency },
+        homePrice: { estimate: { mode: 'approx', value: 0 }, currency: ctx.pack.baseCurrency },
         downPaymentRatio: ctx.pack.homeDefaults.downPaymentRatio,
         feesRatio: ctx.pack.homeDefaults.feesRatio,
       };
@@ -90,7 +90,7 @@ function GoalForm({ type, existing }: { type: GoalType; existing?: Goal }) {
         priority: (goals.at(-1)?.priority ?? 0) + 1,
         status: 'active',
         params: defaultParams(type, { pack, highInterestIds, allDebtIds: debtIds }),
-        target: needsTarget ? { estimate: { mode: 'range', low: 0, high: 0 }, currency: pack.baseCurrency } : undefined,
+        target: needsTarget ? { estimate: { mode: 'approx', value: 0 }, currency: pack.baseCurrency } : undefined,
       },
   );
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
