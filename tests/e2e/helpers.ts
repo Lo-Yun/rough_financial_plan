@@ -38,6 +38,7 @@ export async function completeOnboarding(page: Page, opts: OnboardingOptions = {
   await tap(page, '開始估算');
   await tap(page, '單身');
   await tap(page, '下一步');
+  await tap(page, '範圍');
   await tap(page, '5 萬 ～ 8 萬');
   await tap(page, '下一步');
   await tap(page, '2 個月');
@@ -45,6 +46,7 @@ export async function completeOnboarding(page: Page, opts: OnboardingOptions = {
   await tap(page, '大約');
   await amount(page, '4萬');
   await tap(page, '下一步');
+  await tap(page, '範圍');
   await tap(page, '30 萬 ～ 100 萬');
   await tap(page, '下一步');
   if (opts.investment) {

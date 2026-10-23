@@ -46,7 +46,7 @@ interface Answers {
   debts: Partial<Record<DebtType, Estimate>>;
 }
 
-const EMPTY_RANGE: Estimate = { mode: 'range', low: 0, high: 0 };
+const EMPTY_ESTIMATE: Estimate = { mode: 'approx', value: 0 };
 
 export function Onboarding() {
   const { t } = useTranslation();
@@ -58,10 +58,10 @@ export function Onboarding() {
   const [a, setA] = useState<Answers>({
     householdType: data.household.householdType,
     hasIncome: true,
-    income: EMPTY_RANGE,
+    income: EMPTY_ESTIMATE,
     bonusMonths: null,
-    expense: EMPTY_RANGE,
-    cash: EMPTY_RANGE,
+    expense: EMPTY_ESTIMATE,
+    cash: EMPTY_ESTIMATE,
     investment: null,
     home: null,
     vehicle: null,
@@ -313,7 +313,7 @@ export function Onboarding() {
                 onClick={() => {
                   const debts = { ...a.debts };
                   if (debts[k]) delete debts[k];
-                  else debts[k] = EMPTY_RANGE;
+                  else debts[k] = EMPTY_ESTIMATE;
                   set({ debts });
                 }}
               >
@@ -398,7 +398,7 @@ function OptionalEstimate(props: {
     <Question title={props.title} hint={props.hint}>
       <YesNo
         value={props.value !== null}
-        onChange={(v) => props.onChange(v ? (props.value ?? EMPTY_RANGE) : null)}
+        onChange={(v) => props.onChange(v ? (props.value ?? EMPTY_ESTIMATE) : null)}
         yes={t('common.yes')}
         no={t('common.no')}
       />

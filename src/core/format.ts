@@ -45,6 +45,17 @@ export function formatRange(r: Range, units: DisplayUnit[]): string {
  * 解析使用者輸入的金額，支援千分位與單位，例如 '600萬'、'1.2億'、'35k'、'1億2000萬'。
  * 無法解析時回傳 null。
  */
+/**
+ * 金額輸入框的顯示文字：純數字（可含負號、小數）時加上千分位，
+ * 其他寫法（例如「45萬」「35k」）照原樣保留
+ */
+export function groupDigits(text: string): string {
+  const raw = text.replace(/[,\s，]/g, '');
+  const m = /^(-?)(\d+)(\.\d*)?$/.exec(raw);
+  if (!m) return text;
+  return m[1]! + m[2]!.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[3] ?? '');
+}
+
 export function parseAmount(input: string, aliases: Record<string, number>): number | null {
   const s = input.replace(/[,\s，_]/g, '').toLowerCase();
   if (!s) return null;
