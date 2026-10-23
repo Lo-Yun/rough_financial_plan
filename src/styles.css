@@ -210,7 +210,6 @@ a {
 .splash-brand img,
 .brand img {
   box-shadow: var(--brand-shadow);
-  image-rendering: pixelated;
 }
 .splash-brand img {
   width: 160px;

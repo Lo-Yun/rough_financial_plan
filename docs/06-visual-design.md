@@ -77,9 +77,8 @@
 
 ## 6. 品牌 logo
 
-- logo 是像素風的鶺鴒（pixel wagtail），檔案在 `public/icons/`：`icon.svg`、`icon-192.png`、`icon-512.png`、`icon-maskable-512.png`（PWA）、`apple-touch-icon.png`、`favicon.svg`、`favicon-32.png`。
-- **logo 只用在品牌位置**：App 圖示、favicon、歡迎頁。介面裡的圖示一律用 Lucide（第 5 節），不要把 logo 或像素風帶進 UI 圖示。
-- 顯示 logo 時加 `image-rendering: pixelated`，避免放大後模糊。
+- logo 是白鶺鴒（向右看，綠白配色，向量圖），檔案在 `public/icons/`：`icon.svg`、`icon-192.png`、`icon-512.png`、`icon-maskable-512.png`（PWA）、`apple-touch-icon.png`、`favicon.svg`、`favicon-32.png`。
+- **logo 只用在品牌位置**：App 圖示、favicon、歡迎頁。介面裡的圖示一律用 Lucide（第 5 節），不要把 logo 帶進 UI 圖示。
 - 品牌專用變數（只用在歡迎頁的 logo 與名稱）：`--fs-brand` 28px（品牌頁的「順便理財」）、`--r-brand-lg` 36px（160px 的 logo）、`--r-brand-md` 24px（112px 的 logo）、`--brand-shadow`。名稱字距 0.08em。
 - 歡迎頁分兩頁：第 1 頁是品牌頁（logo、名稱、「OK，順便做吧！」按鈕，整組垂直置中），只在同一個分頁第一次打開時出現；第 2 頁是 112px logo＋名稱，下面接原本的說明卡與「開始估算」。
 
