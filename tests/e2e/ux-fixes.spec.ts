@@ -13,9 +13,6 @@ test('買房提示、範圍留白、選項按鈕有選取狀態、對帳預設�
 
   await tab(page, '淨值');
   await page.getByRole('link', { name: /新增資產/ }).first().click();
-  await expect(page.getByLabel('最少')).toHaveValue('');
-  await expect(page.getByLabel('最多')).toHaveValue('');
-  await expect(page.getByText('可以直接寫「萬」，例如 600萬')).toHaveCount(1);
   const chip = page.locator('.chips button.chip').first();
   await chip.click();
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
@@ -24,5 +21,39 @@ test('買房提示、範圍留白、選項按鈕有選取狀態、對帳預設�
   await expect(page.getByText('過去一年，你的存款和投資本金大約增加了多少？')).toHaveCount(0);
   await tap(page, '檢查我的收支準不準 ›');
   await expect(page.getByText('過去一年，你的存款和投資本金大約增加了多少？')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('範圍模式：選金額選項不顯示輸入框，按「自訂金額範圍」才出現，已存的自訂範圍重新打開時直接顯示', async ({ page }) => {
+  const errors = watchErrors(page);
+  await completeOnboarding(page);
+  await page.getByRole('link', { name: /新增資產/ }).first().click();
+
+  const custom = page.getByRole('button', { name: '自訂金額範圍' });
+  await expect(page.getByLabel('最少')).toHaveCount(0);
+  await expect(custom).toHaveAttribute('aria-pressed', 'false');
+
+  await custom.click();
+  await expect(custom).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('最少')).toHaveValue('');
+  await expect(page.getByLabel('最少')).toBeFocused();
+  await expect(page.getByLabel('最多')).toHaveValue('');
+  await expect(page.getByText('可以直接寫「萬」，例如 600萬')).toHaveCount(1);
+
+  await tap(page, '10 萬 以下');
+  await expect(page.getByLabel('最少')).toHaveCount(0);
+  await expect(custom).toHaveAttribute('aria-pressed', 'false');
+
+  await custom.click();
+  await expect(page.getByLabel('最少')).toHaveValue('');
+  await page.getByLabel('最少').fill('45萬');
+  await page.getByLabel('最多').fill('80萬');
+  await page.getByLabel('名稱（可以不填）').fill('自訂範圍測試');
+  await tap(page, '儲存');
+
+  await page.getByRole('link', { name: /自訂範圍測試/ }).click();
+  await expect(custom).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('最少')).toHaveValue('450000');
+  await expect(page.getByLabel('最多')).toHaveValue('800000');
   expect(errors).toEqual([]);
 });

@@ -39,6 +39,7 @@
       "exact": "精確"
     },
     "below": "{{v}} 以下",
+    "customRange": "自訂金額範圍",
     "low": "最少",
     "high": "最多",
     "approxNote": "我們會當作上下差 {{pct}}% 左右來計算",
