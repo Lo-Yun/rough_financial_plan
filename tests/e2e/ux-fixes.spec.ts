@@ -86,3 +86,22 @@ test('新增項目預設「大約」；金額輸入框純數字時顯示千分�
   await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
   expect(errors).toEqual([]);
 });
+
+test('快速估算與對帳檢查預設「大約」；對帳可以填負數', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('./');
+  await tap(page, '開始估算');
+  await tap(page, '單身');
+  await tap(page, '下一步');
+  await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
+
+  await completeOnboarding(page);
+  await tab(page, '收支');
+  await tap(page, '檢查我的收支準不準 ›');
+  await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
+  await page.getByPlaceholder('例如 35000 或 600萬').fill('-5萬');
+  await tap(page, '檢查');
+  await expect(page.getByText('你說實際增加')).toBeVisible();
+  await expect(page.getByText('還不知道每月結餘')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

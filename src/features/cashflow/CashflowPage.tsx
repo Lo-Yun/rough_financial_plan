@@ -6,7 +6,6 @@ import { ModeBadge, RangeValue } from '../../components/Display';
 import { EstimateInput } from '../../components/EstimateInput';
 import { toMonthly } from '../../core/cashflow';
 import { resolveMoney } from '../../core/currency';
-import { blankToUnknown } from '../../core/estimate';
 import { add, div, point, sub } from '../../core/interval';
 import { moneyContext } from '../../core/overview';
 import { reconcile } from '../../core/reconcile';
@@ -142,6 +141,13 @@ function FlowSection({ kind, items }: { kind: 'income' | 'expense'; items: (Inco
   );
 }
 
+/** 對帳答案沒有填數字；存款可能減少，所以負數是有效答案，不能用 blankToUnknown */
+function isBlankAnswer(e: Estimate): boolean {
+  if (e.mode === 'range') return e.low === 0 && e.high === 0;
+  if (e.mode === 'approx' || e.mode === 'exact') return e.value === 0;
+  return false;
+}
+
 function ReconcileCard() {
   const { t } = useTranslation();
   const { pack, data, overview, repo, today } = useApp();
@@ -149,14 +155,14 @@ function ReconcileCard() {
   const saved = data.settings.reconciliation;
   // 預設收合，避免收支頁太長；點開才填
   const [editing, setEditing] = useState(false);
-  const [answer, setAnswer] = useState<Estimate>(saved?.lastYearSavingsChange.estimate ?? { mode: 'range', low: 0, high: 0 });
+  const [answer, setAnswer] = useState<Estimate>(saved?.lastYearSavingsChange.estimate ?? { mode: 'approx', value: 0 });
 
   const resolved = saved ? resolveMoney(saved.lastYearSavingsChange, moneyContext(data, pack)) : null;
   const result = resolved?.status === 'ok' && overview.surplus ? reconcile(overview.surplus, resolved.range) : null;
 
   const save = async () => {
     await repo.updateSettings(data.household.id, {
-      reconciliation: { lastYearSavingsChange: { estimate: blankToUnknown(answer), currency: pack.baseCurrency }, answeredAt: today },
+      reconciliation: { lastYearSavingsChange: { estimate: isBlankAnswer(answer) ? { mode: 'unknown' } : answer, currency: pack.baseCurrency }, answeredAt: today },
     });
     setEditing(false);
   };
