@@ -75,11 +75,19 @@
 | 健檢指標 | 儲蓄率 `piggyBank`、緊急預備金 `lifebuoy`、還款負擔 `percent`、居住成本 `home`、高利負債 `creditCard`、無擔保負債 `scale`、保費負擔 `umbrella` |
 | 動作 | 完成 `check`、刪除 `close` |
 
-## 6. 間距
+## 6. 品牌 logo
+
+- logo 是像素風的鶺鴒（pixel wagtail），檔案在 `public/icons/`：`icon.svg`、`icon-192.png`、`icon-512.png`、`icon-maskable-512.png`（PWA）、`apple-touch-icon.png`、`favicon.svg`、`favicon-32.png`。
+- **logo 只用在品牌位置**：App 圖示、favicon、歡迎頁。介面裡的圖示一律用 Lucide（第 5 節），不要把 logo 或像素風帶進 UI 圖示。
+- 顯示 logo 時加 `image-rendering: pixelated`，避免放大後模糊。
+- 品牌專用變數（只用在歡迎頁的 logo 與名稱）：`--fs-brand` 28px（品牌頁的「順便理財」）、`--r-brand-lg` 36px（160px 的 logo）、`--r-brand-md` 24px（112px 的 logo）、`--brand-shadow`。名稱字距 0.08em。
+- 歡迎頁分兩頁：第 1 頁是品牌頁（logo、名稱、「OK，順便做吧！」按鈕，整組垂直置中），只在同一個分頁第一次打開時出現；第 2 頁是 112px logo＋名稱，下面接原本的說明卡與「開始估算」。
+
+## 7. 間距
 
 用 4px 的倍數：4、8、12、16、24、32。舊程式裡的 6、10、14、18px 之後改到附近的值。
 
-## 7. 檢查清單（改 UI 時）
+## 8. 檢查清單（改 UI 時）
 
 1. 只用本文件的字級、圓角、顏色變數與圖示。
 2. 新顏色先判斷屬於哪個角色；不屬於任何角色就不要加。

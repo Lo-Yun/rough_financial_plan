@@ -1,4 +1,4 @@
-import { canUseDemo, enterDemo } from '../../app/demo';
+import { canUseDemo, enterDemo, hasSeenSplash, markSplashSeen } from '../../app/demo';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { recordSnapshot } from '../../app/actions';
@@ -54,6 +54,7 @@ export function Onboarding() {
   const { repo, pack, data, today } = app;
   const tol = data.settings.defaultTolerance;
   const [stepIndex, setStepIndex] = useState(0);
+  const [splash, setSplash] = useState(() => !hasSeenSplash());
   const [saving, setSaving] = useState(false);
   const [a, setA] = useState<Answers>({
     householdType: data.household.householdType,
@@ -175,8 +176,35 @@ export function Onboarding() {
   const estimateProps = { pack, today, defaultTolerance: tol };
   const progress = stepIndex / (STEPS.length - 1);
 
+  if (step === 'welcome' && splash) {
+    return (
+      <div className="onboarding splash">
+        <div className="splash-brand">
+          <img src="./icons/icon-512.png" alt="" width="160" height="160" />
+          <h1 className="brand-name">{t('onboarding.welcome.brandName')}</h1>
+        </div>
+        <button
+          type="button"
+          className="btn primary splash-ok"
+          onClick={() => {
+            markSplashSeen();
+            setSplash(false);
+          }}
+        >
+          {t('onboarding.welcome.splashOk')}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="onboarding">
+      {step === 'welcome' && (
+        <div className="brand">
+          <img src="./icons/icon-512.png" alt="" width="112" height="112" />
+          <p className="brand-name">{t('onboarding.welcome.brandName')}</p>
+        </div>
+      )}
       {step !== 'welcome' && step !== 'result' && (
         <ProgressBar value={progress} label={t('onboarding.progress', { n: stepIndex, total: STEPS.length - 2 })} />
       )}

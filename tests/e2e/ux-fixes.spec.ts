@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { completeOnboarding, tab, tap, watchErrors } from './helpers';
+import { completeOnboarding, openWelcome, tab, tap, watchErrors } from './helpers';
 
 test('買房提示、範圍留白、選項按鈕有選取狀態、對帳預設收合', async ({ page }) => {
   const errors = watchErrors(page);
@@ -89,7 +89,7 @@ test('新增項目預設「大約」；金額輸入框純數字時顯示千分�
 
 test('快速估算與對帳檢查預設「大約」；對帳可以填負數', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.goto('./');
+  await openWelcome(page);
   await tap(page, '開始估算');
   await tap(page, '單身');
   await tap(page, '下一步');

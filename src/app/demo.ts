@@ -42,6 +42,25 @@ function restartAt(flag: boolean) {
   window.location.reload();
 }
 
+const SPLASH_FLAG = 'rfp.splashSeen';
+
+/** 歡迎品牌頁在同一個分頁只出現一次：離開示範後重新載入，直接回到「開始估算」 */
+export function hasSeenSplash(): boolean {
+  try {
+    return storage()?.getItem(SPLASH_FLAG) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function markSplashSeen(): void {
+  try {
+    storage()?.setItem(SPLASH_FLAG, '1');
+  } catch {
+    return;
+  }
+}
+
 export function enterDemo(): void {
   restartAt(true);
 }
