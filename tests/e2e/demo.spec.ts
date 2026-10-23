@@ -44,13 +44,13 @@ test('第一次打開先看到品牌頁，按下後才到「開始估算」；�
   await page.goto('./');
   await expect(page.getByRole('heading', { name: '順便理財' })).toBeVisible();
   await expect(page.getByRole('button', { name: '開始估算' })).toHaveCount(0);
-  await tap(page, 'OK，順便做吧!');
+  await tap(page, 'OK，順便做吧！');
   await expect(page.getByRole('button', { name: '開始估算' })).toBeVisible();
   await expect(page.locator('.brand img')).toBeVisible();
 
   await tap(page, '先看看填好的樣子（示範資料）');
   await tap(page, '離開示範');
   await expect(page.getByRole('button', { name: '開始估算' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'OK，順便做吧!' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'OK，順便做吧！' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

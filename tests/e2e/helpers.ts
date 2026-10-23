@@ -13,7 +13,7 @@ export async function amount(page: Page, value: string, nth = 0) {
 /** 打開歡迎頁並按過品牌頁，停在「開始估算」（同一個分頁已按過時不會再出現品牌頁） */
 export async function openWelcome(page: Page) {
   await page.goto('./');
-  const ok = page.getByRole('button', { name: 'OK，順便做吧!' });
+  const ok = page.getByRole('button', { name: 'OK，順便做吧！' });
   await expect(ok.or(page.getByRole('button', { name: '開始估算' }))).toBeVisible();
   if (await ok.isVisible()) await ok.click();
 }
