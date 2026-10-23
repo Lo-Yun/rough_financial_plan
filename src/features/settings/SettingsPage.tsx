@@ -236,7 +236,7 @@ function BackupSection() {
           }}
         />
       </div>
-      {message && <p className={message.kind === 'error' ? 'warn small' : 'ok small'}>{message.text}</p>}
+      {message && <p className={message.kind === 'error' ? 'alert small' : 'ok small'}>{message.text}</p>}
     </section>
   );
 }

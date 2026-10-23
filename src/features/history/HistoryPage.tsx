@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApp, useFormat } from '../../app/context';
 import { RangeValue } from '../../components/Display';
+import { Icon } from '../../components/Icon';
 
 export function HistoryPage() {
   const { t } = useTranslation();
@@ -71,7 +72,7 @@ export function HistoryPage() {
                     if (confirm(t('history.confirmDelete', { date: s.date }))) void repo.deleteSnapshot(s.id);
                   }}
                 >
-                  ✕
+                  <Icon name="close" size={16} />
                 </button>
               </div>
             </li>

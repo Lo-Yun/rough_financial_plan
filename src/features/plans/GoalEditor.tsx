@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useApp, usePlanningContext } from '../../app/context';
 import { ChipPicker, EditorShell, LabelField, MoneyField, Toggle } from '../../components/EditorParts';
+import { IconBadge } from '../../components/Icon';
 import { blankToUnknown } from '../../core/estimate';
 import { AUTO_TARGET_TYPES, DEFAULT_RETURN_PROFILE, projectGoal } from '../../core/planning';
 import type { Goal, GoalParams, GoalType, MoneyEstimate, ReturnProfile } from '../../model/types';
 import { itemName } from '../balance-sheet/NetWorthPage';
-import { goalName } from './PlansPage';
+import { GOAL_ICONS, goalName } from './PlansPage';
 import { ProjectionView } from './ProjectionView';
 
 const GOAL_TYPES: GoalType[] = ['emergency_fund', 'debt_payoff', 'home_down_payment', 'retirement_fi', 'education', 'big_purchase', 'custom'];
@@ -44,8 +45,11 @@ function TypeChooser({ onPick }: { onPick: (t: GoalType) => void }) {
       </header>
       {GOAL_TYPES.map((g) => (
         <button key={g} type="button" className="card type-card" onClick={() => onPick(g)}>
-          <strong>{t(`plans.type.${g}.name`)}</strong>
-          <span className="muted small block">{t(`plans.type.${g}.desc`)}</span>
+          <IconBadge name={GOAL_ICONS[g]} />
+          <span>
+            <strong>{t(`plans.type.${g}.name`)}</strong>
+            <span className="muted small block">{t(`plans.type.${g}.desc`)}</span>
+          </span>
         </button>
       ))}
     </div>

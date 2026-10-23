@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdvice } from '../../app/context';
+import { Icon } from '../../components/Icon';
 import { MAX_ACTIVE } from '../../core/rules';
 import { ActiveActionRow, SuggestionCard, useActionCommands, useActionTitle } from './ActionParts';
 
@@ -72,7 +73,7 @@ export function ActionsPage() {
             {board.done.map((a) => (
               <li key={a.id} className="row-between">
                 <span>
-                  ✓ {title(a)}
+                  <Icon name="check" size={16} /> {title(a)}
                   <small className="muted block">{a.completedAt?.slice(0, 10)}</small>
                 </span>
               </li>

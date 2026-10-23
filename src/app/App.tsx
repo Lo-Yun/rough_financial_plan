@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { Icon } from '../components/Icon';
 import { todayISO } from '../core/date';
 import { computeOverview } from '../core/overview';
 import { resolveAssumptions } from '../core/planning';
@@ -123,27 +124,27 @@ export function App() {
             </main>
             <nav className="tab-bar" aria-label={t('nav.label')}>
               <NavLink to="/" end>
-                <span aria-hidden="true">◎</span>
+                <Icon name="netWorth" size={22} />
                 {t('nav.netWorth')}
               </NavLink>
               <NavLink to="/cashflow">
-                <span aria-hidden="true">⇅</span>
+                <Icon name="cashflow" size={22} />
                 {t('nav.cashflow')}
               </NavLink>
               <NavLink to="/portfolio">
-                <span aria-hidden="true">▣</span>
+                <Icon name="portfolio" size={22} />
                 {t('nav.portfolio')}
               </NavLink>
               <NavLink to="/health">
-                <span aria-hidden="true">♡</span>
+                <Icon name="health" size={22} />
                 {t('nav.health')}
               </NavLink>
               <NavLink to="/plans">
-                <span aria-hidden="true">⚑</span>
+                <Icon name="plans" size={22} />
                 {t('nav.plans')}
               </NavLink>
               <NavLink to="/settings">
-                <span aria-hidden="true">⚙</span>
+                <Icon name="settings" size={22} />
                 {t('nav.settings')}
               </NavLink>
             </nav>

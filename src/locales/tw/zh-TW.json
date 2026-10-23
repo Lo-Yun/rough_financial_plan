@@ -681,7 +681,7 @@
       "target": "目標",
       "current": "目前已有",
       "progress": "目標進度",
-      "reached": "已經達成！🎉",
+      "reached": "已經達成！",
       "contribution": {
         "user": "每月投入 {{v}}（你設定的）。",
         "surplus": "每月投入 {{v}}（以目前的每月結餘試算）。",
@@ -716,6 +716,8 @@
     "valueFromHoldingsHint": "這個帳戶設定為「用持股加總」，修改持股時會自動更新這裡的金額。"
   },
   "portfolio": {
+    "overTarget": "高於目標",
+    "underTarget": "低於目標",
     "title": "投資組合",
     "total": "投資組合總值",
     "includeCash": "包含現金與存款",
