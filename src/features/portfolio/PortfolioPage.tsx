@@ -279,11 +279,11 @@ function TargetSection({
       <p className="muted small">{t('portfolio.targetExplain')}</p>
       <div className="chips">
         {pack.allocationPresets.map((p) => (
-          <button key={p.id} type="button" className={current === p.id ? 'chip active' : 'chip'} onClick={() => onChange({ preset: p.id })}>
+          <button key={p.id} type="button" aria-pressed={current === p.id} className={current === p.id ? 'chip active' : 'chip'} onClick={() => onChange({ preset: p.id })}>
             {t(p.i18nKey)}
           </button>
         ))}
-        <button type="button" className={current === 'custom' ? 'chip active' : 'chip'} onClick={() => onChange({ custom })}>
+        <button type="button" aria-pressed={current === 'custom'} className={current === 'custom' ? 'chip active' : 'chip'} onClick={() => onChange({ custom })}>
           {t('portfolio.preset.custom')}
         </button>
         {stored && (

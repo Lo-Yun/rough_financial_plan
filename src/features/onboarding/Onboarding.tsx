@@ -199,7 +199,7 @@ export function Onboarding() {
         <Question title={t('onboarding.household.title')}>
           <div className="chips">
             {HOUSEHOLD_TYPES.map((h) => (
-              <button key={h} type="button" className={a.householdType === h ? 'chip active' : 'chip'} onClick={() => set({ householdType: h })}>
+              <button key={h} type="button" aria-pressed={a.householdType === h} className={a.householdType === h ? 'chip active' : 'chip'} onClick={() => set({ householdType: h })}>
                 {t(`householdType.${h}`)}
               </button>
             ))}
@@ -239,11 +239,11 @@ export function Onboarding() {
         <Question title={t('onboarding.bonus.title')} hint={t('onboarding.bonus.hint')}>
           <div className="chips">
             {BONUS_CHOICES.map((m) => (
-              <button key={m} type="button" className={a.bonusMonths === m ? 'chip active' : 'chip'} onClick={() => set({ bonusMonths: m })}>
+              <button key={m} type="button" aria-pressed={a.bonusMonths === m} className={a.bonusMonths === m ? 'chip active' : 'chip'} onClick={() => set({ bonusMonths: m })}>
                 {m === 0 ? t('onboarding.bonus.none') : t('onboarding.bonus.months', { count: m })}
               </button>
             ))}
-            <button type="button" className={a.bonusMonths === null ? 'chip active' : 'chip'} onClick={() => set({ bonusMonths: null })}>
+            <button type="button" aria-pressed={a.bonusMonths === null} className={a.bonusMonths === null ? 'chip active' : 'chip'} onClick={() => set({ bonusMonths: null })}>
               {t('estimate.mode.unknown')}
             </button>
           </div>
@@ -375,10 +375,10 @@ function Question({ title, hint, children }: { title: string; hint?: string; chi
 function YesNo({ value, onChange, yes, no }: { value: boolean; onChange: (v: boolean) => void; yes: string; no: string }) {
   return (
     <div className="chips">
-      <button type="button" className={value ? 'chip active' : 'chip'} onClick={() => onChange(true)}>
+      <button type="button" aria-pressed={value} className={value ? 'chip active' : 'chip'} onClick={() => onChange(true)}>
         {yes}
       </button>
-      <button type="button" className={!value ? 'chip active' : 'chip'} onClick={() => onChange(false)}>
+      <button type="button" aria-pressed={!value} className={!value ? 'chip active' : 'chip'} onClick={() => onChange(false)}>
         {no}
       </button>
     </div>

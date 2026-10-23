@@ -31,7 +31,7 @@ export function SettingsPage() {
           <legend>{t('settings.estimates.tolerance')}</legend>
           <div className="chips">
             {TOLERANCES.map((v) => (
-              <button key={v} type="button" className={s.defaultTolerance === v ? 'chip active' : 'chip'} onClick={() => void update({ defaultTolerance: v })}>
+              <button key={v} type="button" aria-pressed={s.defaultTolerance === v} className={s.defaultTolerance === v ? 'chip active' : 'chip'} onClick={() => void update({ defaultTolerance: v })}>
                 ±{Math.round(v * 100)}%
               </button>
             ))}
@@ -41,7 +41,7 @@ export function SettingsPage() {
           <legend>{t('settings.estimates.stale')}</legend>
           <div className="chips">
             {STALE_DAYS.map((v) => (
-              <button key={v} type="button" className={s.staleAfterDays === v ? 'chip active' : 'chip'} onClick={() => void update({ staleAfterDays: v })}>
+              <button key={v} type="button" aria-pressed={s.staleAfterDays === v} className={s.staleAfterDays === v ? 'chip active' : 'chip'} onClick={() => void update({ staleAfterDays: v })}>
                 {t('settings.estimates.days', { count: v })}
               </button>
             ))}
@@ -56,7 +56,7 @@ export function SettingsPage() {
             <button
               key={f}
               type="button"
-              className={s.checkInFrequency === f ? 'chip active' : 'chip'}
+              aria-pressed={s.checkInFrequency === f} className={s.checkInFrequency === f ? 'chip active' : 'chip'}
               onClick={() => void update({ checkInFrequency: f, nextCheckInDate: undefined })}
             >
               {t(`settings.checkin.${f}`)}

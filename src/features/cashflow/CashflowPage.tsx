@@ -147,7 +147,8 @@ function ReconcileCard() {
   const { pack, data, overview, repo, today } = useApp();
   const fmt = useFormat(pack);
   const saved = data.settings.reconciliation;
-  const [editing, setEditing] = useState(!saved);
+  // 預設收合，避免收支頁太長；點開才填
+  const [editing, setEditing] = useState(false);
   const [answer, setAnswer] = useState<Estimate>(saved?.lastYearSavingsChange.estimate ?? { mode: 'range', low: 0, high: 0 });
 
   const resolved = saved ? resolveMoney(saved.lastYearSavingsChange, moneyContext(data, pack)) : null;
@@ -169,12 +170,19 @@ function ReconcileCard() {
           <p>{t('reconcile.question')}</p>
           <p className="muted small">{t('reconcile.questionHint')}</p>
           <EstimateInput value={answer} onChange={setAnswer} pack={pack} today={today} defaultTolerance={data.settings.defaultTolerance} brackets={pack.brackets.cash} />
-          <div className="button-row">
+          <div className="step-nav">
+            <button type="button" className="btn ghost" onClick={() => setEditing(false)}>
+              {t('reconcile.cancel')}
+            </button>
             <button type="button" className="btn primary" onClick={() => void save()}>
               {t('reconcile.check')}
             </button>
           </div>
         </>
+      ) : !saved ? (
+        <button type="button" className="btn ghost add" onClick={() => setEditing(true)}>
+          {t('reconcile.start')} ›
+        </button>
       ) : (
         <>
           {result ? (

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { convertEstimate, resolveEstimate, withStatKey } from '../core/estimate';
 import type { Bracket, LocalePack } from '../model/localePack';
@@ -26,6 +27,13 @@ export function EstimateInput(props: Props) {
   const { t } = useTranslation();
   const fmt = useFormat(pack);
   const ctx = { statistics: pack.statistics, defaultTolerance };
+
+  // 還沒填的範圍（0 ~ 0）留白，讓 placeholder 顯示
+  const blank = value.mode === 'range' && value.low === 0 && value.high === 0;
+  // 有金額選項時，按下「自訂金額範圍」才顯示輸入框；已存的自訂範圍（例如舊資料、從其他模式轉來）自動展開
+  const [customOpen, setCustomOpen] = useState(false);
+  const storedCustom = value.mode === 'range' && !value.bracketId && !blank;
+  const showFields = !brackets || customOpen || storedCustom;
 
   const switchMode = (m: EstimateMode) => onChange(withStatKey(convertEstimate(value, m, ctx, today), statKey));
 
@@ -57,28 +65,60 @@ export function EstimateInput(props: Props) {
                   <button
                     key={b.id}
                     type="button"
+                    aria-pressed={value.bracketId === b.id}
                     className={value.bracketId === b.id ? 'chip active' : 'chip'}
-                    onClick={() => onChange({ mode: 'range', low: b.low, high: b.high, bracketId: b.id })}
+                    onClick={() => {
+                      setCustomOpen(false);
+                      onChange({ mode: 'range', low: b.low, high: b.high, bracketId: b.id });
+                    }}
                   >
                     {b.low === 0 ? t('estimate.below', { v: fmt.money(b.high) }) : fmt.range({ low: b.low, mid: 0, high: b.high })}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  aria-pressed={showFields}
+                  className={showFields ? 'chip active' : 'chip'}
+                  onClick={() => {
+                    if (showFields) return;
+                    setCustomOpen(true);
+                    onChange({ mode: 'range', low: 0, high: 0 });
+                  }}
+                >
+                  {t('estimate.customRange')}
+                </button>
               </div>
             )}
-            <div className="range-fields">
-              <AmountField
-                pack={pack}
-                label={t('estimate.low')}
-                value={value.low}
-                onChange={(v) => onChange({ mode: 'range', low: v ?? 0, high: value.high })}
-              />
-              <AmountField
-                pack={pack}
-                label={t('estimate.high')}
-                value={value.high}
-                onChange={(v) => onChange({ mode: 'range', low: value.low, high: v ?? 0 })}
-              />
-            </div>
+            {showFields && (
+              <>
+                <div className="range-fields">
+                  <AmountField
+                    pack={pack}
+                    label={t('estimate.low')}
+                    value={blank ? undefined : value.low}
+                    autoFocus={customOpen}
+                    showHint={false}
+                    placeholder={t('amount.placeholderShort')}
+                    onChange={(v) => {
+                      setCustomOpen(true);
+                      onChange({ mode: 'range', low: v ?? 0, high: value.high });
+                    }}
+                  />
+                  <AmountField
+                    pack={pack}
+                    label={t('estimate.high')}
+                    value={value.high || undefined}
+                    showHint={false}
+                    placeholder={t('amount.placeholderShort')}
+                    onChange={(v) => {
+                      setCustomOpen(true);
+                      onChange({ mode: 'range', low: value.low, high: v ?? 0 });
+                    }}
+                  />
+                </div>
+                <p className="muted small">{t('amount.hint')}</p>
+              </>
+            )}
           </>
         )}
 

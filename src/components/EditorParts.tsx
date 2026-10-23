@@ -82,7 +82,7 @@ export function ChipPicker<K extends string>({
       <legend>{legend}</legend>
       <div className="chips">
         {options.map((o) => (
-          <button key={o.key} type="button" className={value === o.key ? 'chip active' : 'chip'} onClick={() => onChange(o.key)}>
+          <button key={o.key} type="button" aria-pressed={value === o.key} className={value === o.key ? 'chip active' : 'chip'} onClick={() => onChange(o.key)}>
             {o.icon && <span aria-hidden="true">{o.icon} </span>}
             {o.label}
           </button>

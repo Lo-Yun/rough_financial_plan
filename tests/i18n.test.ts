@@ -67,6 +67,7 @@ describe('zh-TW translations', () => {
       ...['cash', 'balanced', 'growth'].flatMap((p) => [`plans.profile.${p}.name`, `plans.profile.${p}.desc`]),
       ...['emergency_fund', 'retirement_fi', 'other'].map((x) => `plans.field.linkedHint.${x}`),
       ...['user', 'surplus'].map((x) => `plans.proj.contribution.${x}`),
+      ...['expenses', 'home', 'other'].map((x) => `plans.proj.noTarget.${x}`),
       ...['green', 'yellow', 'red'].map((x) => `plans.home.ratio.${x}`),
       ...twPack.forgottenExpenses,
       ...['equity', 'bond', 'cash', 'alternative'].map((g) => `portfolio.groupName.${g}`),

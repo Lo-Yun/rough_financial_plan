@@ -4,6 +4,7 @@ import { ProgressBar } from '../../components/Display';
 import { lightFor } from '../../core/health';
 import { DEFAULT_RETURN_PROFILE, scenarioRates, type GoalProjection } from '../../core/planning';
 import type { Goal } from '../../model/types';
+import { noTargetKey } from './PlansPage';
 
 /** 依月數推算達成的年月 */
 function addMonths(today: string, months: number): { y: number; m: number } {
@@ -18,7 +19,7 @@ export function ProjectionView({ goal, p }: { goal: Goal; p: GoalProjection }) {
   const fmt = useFormat(pack);
 
   if (!p.target) {
-    return <p className="muted">{t(goal.type === 'debt_payoff' ? 'plans.proj.pickDebts' : 'plans.proj.noTarget')}</p>;
+    return <p className="muted">{t(noTargetKey(goal.type))}</p>;
   }
 
   const when = (months: number) => {
