@@ -1,0 +1,30 @@
+Copyright (c) 2026 {著作權人姓名} (GitHub: Lo-Yun). All rights reserved.
+
+順便理財（Rough Financial Plan）的原始碼、文件、介面文字、設計與品牌素材，
+除另有標示者外，均保留所有權利。
+
+本專案的原始碼公開於 GitHub 僅供閱覽。依 GitHub 服務條款，您可以在 GitHub
+上檢視與 fork 本儲存庫；除此之外，未經著作權人事前書面同意，不得重製、修改、
+散布、公開傳輸、再授權或作商業使用。
+
+品牌名稱「順便理財」、白鶺鴒標誌及 public/icons/ 內所有圖檔另受
+TRADEMARKS.md 規範，不因本檔案或任何未來的程式碼授權而授予任何權利。
+
+本專案使用的第三方套件依各自的授權條款（見 package.json 與 node_modules
+內各套件的 LICENSE）。
+
+授權洽詢：請在 https://github.com/Lo-Yun/rough_financial_plan 開 issue。
+
+---
+
+Copyright (c) 2026 {Copyright holder name} (GitHub: Lo-Yun). All rights reserved.
+
+Unless otherwise noted, the source code, documentation, interface text,
+designs and brand assets of Rough Financial Plan (順便理財) are proprietary.
+The repository is published for viewing only. Apart from the viewing and
+forking on GitHub permitted by the GitHub Terms of Service, no permission is
+granted to copy, modify, distribute, publicly display, sublicense or
+commercially use any part of it without the copyright holder's prior written
+consent. The name "順便理財", the white wagtail logo and all files under
+public/icons/ are further governed by TRADEMARKS.md. Third-party packages
+remain under their own licenses.
