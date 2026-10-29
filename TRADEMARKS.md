@@ -2,7 +2,7 @@
 
 ## 涵蓋範圍
 
-以下統稱「品牌素材」，屬於 {著作權人姓名}（GitHub: Lo-Yun，以下稱「權利人」）：
+以下統稱「品牌素材」，屬於 Lo-Yun Lee（GitHub: Lo-Yun，以下稱「權利人」）：
 
 - 名稱「順便理財」及英文名稱「Rough Financial Plan」（作為 App 名稱使用時）
 - 白鶺鴒標誌：綠底圓角方塊上的綠白色白鶺鴒圖樣，以及其任何尺寸、配色、
@@ -41,7 +41,7 @@
 ## English summary
 
 The name "順便理財", the white wagtail logo, every file in `public/icons/` and
-the tagline "OK，順便做吧！" are brand assets of {Copyright holder name}
+the tagline "OK，順便做吧！" are brand assets of Lo-Yun Lee
 (GitHub: Lo-Yun). All rights reserved. No license to the code, present or
 future, extends to them. Do not use them, or confusingly similar names or
 marks, in any product, service or promotion without prior written permission.
