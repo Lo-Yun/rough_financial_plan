@@ -9,6 +9,7 @@ import type {
   ID,
   ISODate,
   Range,
+  Snapshot,
   TargetAllocation,
 } from '../model/types';
 import type { ResolvedItem } from './balanceSheet';
@@ -177,8 +178,38 @@ export interface PortfolioAnalysis {
 
 export function isInPortfolio(asset: Asset, pack: LocalePack, includeCash: boolean): boolean {
   if (asset.archivedAt) return false;
-  if (asset.category === 'cash') return includeCash;
-  return pack.categories.asset.find((c) => c.key === asset.category)?.inPortfolio ?? false;
+  return isPortfolioCategory(asset.category, pack, includeCash);
+}
+
+/** 某資產類別是否列入投資組合（與 isInPortfolio 同一套規則，給快照用） */
+export function isPortfolioCategory(category: AssetCategory, pack: LocalePack, includeCash: boolean): boolean {
+  if (category === 'cash') return includeCash;
+  return pack.categories.asset.find((c) => c.key === category)?.inPortfolio ?? false;
+}
+
+export interface PortfolioPoint {
+  date: ISODate;
+  value: number;
+  low: number;
+  high: number;
+}
+
+/**
+ * 投資組合總值的歷史，取自淨值快照的「各資產類別」加總。
+ * 快照只有類別合計，沒有持股，所以這是帳戶價值的走勢，不是報酬率；
+ * 中間的入金、出金也會算進去。沒有任何投資類別的快照略過。
+ */
+export function portfolioSeries(snapshots: Snapshot[], pack: LocalePack, includeCash: boolean): PortfolioPoint[] {
+  const points: PortfolioPoint[] = [];
+  for (const s of [...snapshots].sort((a, b) => a.date.localeCompare(b.date))) {
+    const ranges = (Object.entries(s.summary.byAssetCategory) as [AssetCategory, Range | undefined][])
+      .filter(([c, r]) => r && isPortfolioCategory(c, pack, includeCash))
+      .map(([, r]) => r!);
+    if (!ranges.length) continue;
+    const total = sum(ranges);
+    points.push({ date: s.date, value: total.mid, low: total.low, high: total.high });
+  }
+  return points;
 }
 
 export function analyzePortfolio(

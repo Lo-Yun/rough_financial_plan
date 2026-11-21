@@ -9,10 +9,11 @@ import {
   holdingsTotal,
   holdingValue,
   normalizeAllocation,
+  portfolioSeries,
   resolveTarget,
 } from '../../src/core/portfolio';
 import { twPack } from '../../src/locales/tw/pack';
-import type { Asset, Holding } from '../../src/model/types';
+import type { Asset, Holding, Snapshot } from '../../src/model/types';
 import { asset, ctx } from '../helpers';
 
 const today = '2026-10-22';
@@ -180,5 +181,27 @@ describe('unrealized profit and loss', () => {
     expect(a.items.find((i) => i.asset.id === 'o')?.profit).toMatchObject({ gain: -10_000, covered: 1, missing: 0 });
     expect(a.profit).toMatchObject({ cost: 160_000, value: 200_000, gain: 40_000, covered: 2, missing: 1 });
     expect(analyze([other]).profit).toBeNull();
+  });
+});
+
+describe('portfolioSeries', () => {
+  const r = (mid: number) => ({ low: mid * 0.9, mid, high: mid * 1.1 });
+  const snap = (date: string, byAssetCategory: Snapshot['summary']['byAssetCategory']) =>
+    ({ date, summary: { byAssetCategory } }) as unknown as Snapshot;
+
+  it('sums portfolio categories per snapshot in date order, skipping snapshots without investments', () => {
+    const snaps = [
+      snap('2026-03-01', { cash: r(100), investment: r(300), retirement: r(200), real_estate: r(9_000) }),
+      snap('2026-01-01', { cash: r(100), investment: r(200) }),
+      snap('2026-02-01', { cash: r(100) }),
+    ];
+    const s = portfolioSeries(snaps, twPack, false);
+    expect(s.map((p) => [p.date, p.value])).toEqual([
+      ['2026-01-01', 200],
+      ['2026-03-01', 500],
+    ]);
+    expect(s[1]!.low).toBeCloseTo(450);
+    expect(s[1]!.high).toBeCloseTo(550);
+    expect(portfolioSeries(snaps, twPack, true).map((p) => p.value)).toEqual([300, 100, 600]);
   });
 });
