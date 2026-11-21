@@ -68,7 +68,7 @@
 
 | 代號 | 功能 | 網址 | 畫面檔案 | 主要計算 | 資料表 | 文字 key 前綴 |
 |---|---|---|---|---|---|---|
-| `F-ONB` | 快速估算引導 | （未完成引導時自動顯示） | `features/onboarding/Onboarding.tsx` | `computeOverview` | 全部 | `onboarding.*` |
+| `F-ONB` | 快速估算引導（v1 只問存款、投資、房子、車子、負債 5 題；`cashflow` 開啟時另問家庭、收入、年終、花費，結果頁才顯示每月結餘） | （未完成引導時自動顯示） | `features/onboarding/Onboarding.tsx` | `computeOverview` | 全部 | `onboarding.*` |
 | `F-NW` | 淨值總覽、資產負債列表 | `#/` | `features/balance-sheet/NetWorthPage.tsx` | `computeBalanceSheet`、`precisionScore`、`findNextRefinement` | assets、liabilities | `netWorth.*` |
 | `F-ITEM` | 資產／負債編輯 | `#/asset/:id`、`#/liability/:id`（新增用 `new`） | `features/balance-sheet/ItemEditor.tsx` | `resolveDebt`（預覽每月還款） | assets、liabilities | `editor.*`、`allocation.*` |
 | `F-LAD` | 財富階梯位置 | 淨值頁、引導結果頁 | `features/balance-sheet/LadderSummary.tsx` | `ladderPosition` | — | `ladder.*` |
@@ -228,7 +228,7 @@
 | `tests/i18n.test.ts` | 程式中用到的文字 key 都存在於 `zh-TW.json` |
 | `tests/helpers.ts` | 測試用的資產、負債、設定工廠函式 |
 | `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧、示範模式進出且不影響真實資料 |
-| `tests/e2e/helpers.ts` | 共用步驟：`completeOnboarding`、`tap`、`tab`、`watchErrors`（任何主控台錯誤都會讓測試失敗） |
+| `tests/e2e/helpers.ts` | 共用步驟：`completeOnboarding`（依 `E2E_BUILD` 走 v1 的 5 題或全功能流程）、`tap`、`tab`、`watchErrors`（任何主控台錯誤都會讓測試失敗） |
 
 **持續整合**：`.github/workflows/ci.yml` 在 PR 與 `main` 上跑型別檢查、單元測試、建置、瀏覽器測試（失敗時會上傳 Playwright 報告）；`deploy.yml` 在 `main` 更新時部署到 GitHub Pages。
 

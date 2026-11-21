@@ -96,8 +96,7 @@ test('快速估算預設「大約」', async ({ page }) => {
   const errors = watchErrors(page);
   await openWelcome(page);
   await tap(page, '開始估算');
-  await tap(page, '單身');
-  await tap(page, '下一步');
+  // v1 第 1 題就是存款
   await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
   expect(errors).toEqual([]);
 });
