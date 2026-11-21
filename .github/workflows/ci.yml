@@ -7,7 +7,8 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 還不支援 ubuntu-latest（26.04）的瀏覽器相依套件，先固定 24.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,11 +23,12 @@ jobs:
       - id: build_all
         run: npm run build:all
       # 瀏覽器端對端測試（手機尺寸 Chromium）：v1 建置跑一般測試，全功能建置跑 @full 測試
-      - run: npx playwright install --with-deps chromium
+      - id: pw_install
+        run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:e2e:all
         # v1 測試失敗時仍要跑，才看得到兩組的結果
-        if: ${{ !cancelled() && steps.build_all.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.build_all.outcome == 'success' && steps.pw_install.outcome == 'success' }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
