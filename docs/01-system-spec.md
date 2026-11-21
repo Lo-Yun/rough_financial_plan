@@ -298,7 +298,7 @@ w: 不知道 = 0、區間 = 0.4、大約 = 0.75、精確 = 1.0
 | PWA | vite-plugin-pwa（Workbox） | 離線快取、安裝提示 |
 | 本機資料庫 | IndexedDB，透過 Dexie.js | 支援 schema 版本遷移與索引 |
 | 狀態管理 | dexie-react-hooks（`useLiveQuery`） | 資料庫即狀態，寫入後畫面自動更新；P1 不需要額外的狀態管理套件 |
-| 圖表 | Recharts（或 ECharts） | 圓餅、折線、區間帶 |
+| 圖表 | 手寫 SVG（`components/LineChart.tsx`；v1 移除 Recharts，見技術債 T10） | 折線、區間帶；配置圖用 CSS 長條 |
 | 國際化 | i18next | 文字與數字格式化抽離 |
 | 測試 | Vitest（計算核心）+ Playwright（E2E） | 計算核心要求高覆蓋率 |
 | 部署 | GitHub Pages（見 [部署說明](./03-deploy-github-pages.md)） | 沒有後端，免費；合併到 main 自動部署 |

@@ -9,6 +9,7 @@ import { daysBetween } from '../../core/date';
 import { groupByCategory, type ResolvedItem } from '../../core/balanceSheet';
 import { ModeBadge, PrecisionRing, RangeValue } from '../../components/Display';
 import { IconBadge } from '../../components/Icon';
+import { LineChart } from '../../components/LineChart';
 import type { Asset, Liability, Range } from '../../model/types';
 import { ActionsCard } from '../actions/ActionsCard';
 import { LadderSummary } from './LadderSummary';
@@ -142,10 +143,7 @@ export function NetWorthPage() {
 
       <LadderSummary showLink={isEnabled('ladderPage')} />
 
-      <Link to="/history" className="card link-card">
-        <span>{t('netWorth.historyLink')}</span>
-        <span className="chevron" aria-hidden="true">›</span>
-      </Link>
+      <TrendCard />
 
       <div className="actions">
         <button
@@ -264,6 +262,46 @@ function ItemRow({ kind, entry, icon }: { kind: 'asset' | 'liability'; entry: Re
           <span className="muted">？</span>
         )}
       </span>
+    </Link>
+  );
+}
+
+/** 淨值頁的小趨勢：近一年的快照（不足兩筆時用全部），點進去看完整歷史 */
+function TrendCard() {
+  const { t } = useTranslation();
+  const { snapshots, pack, today } = useApp();
+  const fmt = useFormat(pack);
+
+  if (snapshots.length < 2) {
+    return (
+      <Link to="/history" className="card link-card">
+        <span>{t('netWorth.historyLink')}</span>
+        <span className="chevron" aria-hidden="true">›</span>
+      </Link>
+    );
+  }
+
+  const recent = snapshots.filter((x) => daysBetween(x.date, today) <= 365);
+  const shown = recent.length >= 2 ? recent : snapshots;
+  const first = shown[0]!;
+  const last = shown.at(-1)!;
+  const delta = last.summary.netWorth.mid - first.summary.netWorth.mid;
+  const flat = Math.abs(delta) < Math.max(1, Math.abs(first.summary.netWorth.mid) * 0.005);
+  const key = flat ? 'same' : delta > 0 ? 'up' : 'down';
+
+  return (
+    <Link to="/history" className="card trend-card">
+      <div className="row-between">
+        <h2>{t('netWorth.trend.title')}</h2>
+        <span className="chevron" aria-hidden="true">›</span>
+      </div>
+      <LineChart
+        compact
+        height={64}
+        points={shown.map((x) => ({ date: x.date, value: x.summary.netWorth.mid, low: x.summary.netWorth.low, high: x.summary.netWorth.high }))}
+        formatValue={fmt.money}
+      />
+      <p className="muted small">{t(`netWorth.trend.${key}`, { date: first.date, amount: fmt.money(Math.abs(delta)) })}</p>
     </Link>
   );
 }

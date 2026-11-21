@@ -231,7 +231,13 @@
       "liability": "新增負債"
     },
     "noFx": "缺匯率",
-    "historyLink": "淨值歷史與曲線"
+    "historyLink": "淨值歷史與曲線",
+    "trend": {
+      "title": "淨值趨勢",
+      "up": "比 {{date}} 多了 {{amount}}",
+      "down": "比 {{date}} 少了 {{amount}}",
+      "same": "和 {{date}} 差不多"
+    }
   },
   "ladder": {
     "title": "財富階梯",
