@@ -79,7 +79,7 @@
 | `F-HLT` | 財務健檢（7 燈號＋財務自由進度） | `#/health` | `features/health/HealthPage.tsx` | `computeHealth`、`lightFor` | — | `health.*` |
 | `F-PLN` | 理財計畫列表 | `#/plans` | `features/plans/PlansPage.tsx` | `projectGoal` | goals | `plans.*` |
 | `F-GOAL` | 計畫編輯與即時試算 | `#/plans/new?type=…`、`#/plans/:id` | `features/plans/GoalEditor.tsx`、`ProjectionView.tsx` | `projectGoal`、`simulatePayoff`、`amortizedPayment` | goals | `plans.*` |
-| `F-PF` | 投資組合 | `#/portfolio` | `features/portfolio/PortfolioPage.tsx` | `analyzePortfolio`、`resolveTarget`、`deviations` | assets、holdings、assumptions | `portfolio.*` |
+| `F-PF` | 投資組合（摘要卡：總值・風險・配置長條・偏離；接著再平衡與集中度、帳戶、配置明細、幣別）；投資組合設定（目標配置、包含現金）在子頁 | `#/portfolio`、`#/portfolio/target` | `features/portfolio/PortfolioPage.tsx`、`PortfolioTargetPage.tsx` | `analyzePortfolio`、`resolveTarget`、`deviations` | assets、holdings、assumptions | `portfolio.*` |
 | `F-HOLD` | 持股明細 | `#/asset/:id/holdings`（編輯：`/new`、`/:holdingId`） | `features/portfolio/HoldingsPage.tsx`、`HoldingEditor.tsx` | `holdingValue`、`holdingsTotal`、`syncAssetFromHoldings` | holdings | `holdings.*` |
 | `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
 | `F-BAK` | 備份匯出／還原 | 設定頁 | `SettingsPage.tsx` 的 `BackupSection` | — | 全部 | `backup.*` |

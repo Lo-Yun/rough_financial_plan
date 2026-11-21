@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { HashRouter, NavLink, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { todayISO } from '../core/date';
 import { computeOverview } from '../core/overview';
@@ -26,6 +26,7 @@ const HealthPage = lazy(() => import('../features/health/HealthPage').then((m) =
 const PlansPage = lazy(() => import('../features/plans/PlansPage').then((m) => ({ default: m.PlansPage })));
 const GoalEditor = lazy(() => import('../features/plans/GoalEditor').then((m) => ({ default: m.GoalEditor })));
 const PortfolioPage = lazy(() => import('../features/portfolio/PortfolioPage').then((m) => ({ default: m.PortfolioPage })));
+const PortfolioTargetPage = lazy(() => import('../features/portfolio/PortfolioTargetPage').then((m) => ({ default: m.PortfolioTargetPage })));
 const HoldingsPage = lazy(() => import('../features/portfolio/HoldingsPage').then((m) => ({ default: m.HoldingsPage })));
 const HoldingEditor = lazy(() => import('../features/portfolio/HoldingEditor').then((m) => ({ default: m.HoldingEditor })));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
@@ -93,6 +94,7 @@ export function App() {
       {demo && <DemoBanner />}
       {data.settings.onboardingCompletedAt ? (
         <HashRouter>
+          <ScrollToTop />
           <div className="app-shell">
             <main className="app-main">
               <Suspense fallback={<div className="loading">{t('common.loading')}</div>}>
@@ -100,6 +102,7 @@ export function App() {
                 <Route path="/" element={<NetWorthPage />} />
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/portfolio/target" element={<PortfolioTargetPage />} />
                 <Route path="/asset/:id/holdings" element={<HoldingsPage />} />
                 <Route path="/asset/:id/holdings/new" element={<HoldingEditor />} />
                 <Route path="/asset/:id/holdings/:holdingId" element={<HoldingEditor />} />
@@ -183,4 +186,14 @@ function DemoBanner() {
       </button>
     </div>
   );
+}
+
+/** 進入新頁面時回到頂端；按返回（POP）時保留瀏覽器自己的捲動位置 */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const type = useNavigationType();
+  useEffect(() => {
+    if (type !== 'POP') window.scrollTo(0, 0);
+  }, [pathname, type]);
+  return null;
 }
