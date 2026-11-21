@@ -963,6 +963,11 @@ fieldset {
   grid-template-columns: 1fr;
   margin: 16px 0 8px;
 }
+.profit-line {
+  margin-top: 4px;
+  font-size: var(--fs-secondary);
+  font-variant-numeric: tabular-nums;
+}
 .alloc-legend {
   list-style: none;
   display: flex;

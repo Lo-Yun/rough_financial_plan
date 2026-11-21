@@ -7,7 +7,7 @@ import { AmountField } from '../../components/AmountField';
 import { ChipPicker, EditorShell, MoneyField } from '../../components/EditorParts';
 import { blankToUnknown } from '../../core/estimate';
 import { ASSET_CLASSES } from '../../core/portfolio';
-import type { Holding } from '../../model/types';
+import type { Holding, MoneyEstimate } from '../../model/types';
 
 type Draft = Omit<Holding, 'id' | 'householdId' | 'createdAt' | 'updatedAt'>;
 
@@ -31,6 +31,8 @@ export function HoldingEditor() {
   const [mode, setMode] = useState<'priced' | 'value'>(existing?.marketValue && existing.quantity === undefined ? 'value' : 'priced');
   if (!asset || (holdingId && !existing)) return <Navigate to="/portfolio" replace />;
 
+  const costValue = estimateValue(draft.costBasis);
+  const costCurrency = draft.costBasis?.currency ?? draft.price?.currency ?? asset.value.currency;
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
   const back = `/asset/${asset.id}/holdings`;
   const hid = data.household.id;
@@ -120,6 +122,34 @@ export function HoldingEditor() {
       ) : (
         draft.marketValue && <MoneyField label={t('holdings.marketValue')} value={draft.marketValue} onChange={(marketValue) => set({ marketValue })} />
       )}
+      <AmountField
+        pack={pack}
+        label={t('holdings.cost')}
+        value={costValue}
+        onChange={(v) => set({ costBasis: v ? { estimate: { mode: 'exact', value: v, asOf: today }, currency: costCurrency } : undefined })}
+        placeholder={t('holdings.costPlaceholder')}
+      />
+      <label className="inline-field">
+        <span>{t('estimate.currency')}</span>
+        <select
+          value={costCurrency}
+          onChange={(e) => set({ costBasis: costValue ? { estimate: { mode: 'exact', value: costValue, asOf: today }, currency: e.target.value } : undefined })}
+          disabled={!costValue}
+        >
+          {pack.commonCurrencies.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="muted small">{t('holdings.costHint')}</p>
     </EditorShell>
   );
+}
+
+/** 成本欄位只用精確或大約的數字；其他模式（或沒填）視為空白 */
+function estimateValue(m: MoneyEstimate | undefined): number | undefined {
+  const e = m?.estimate;
+  return e && (e.mode === 'exact' || e.mode === 'approx') && e.value > 0 ? e.value : undefined;
 }

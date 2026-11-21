@@ -44,6 +44,12 @@ export function PortfolioPage() {
       <section className="card hero portfolio-summary">
         <p className="eyebrow">{t('portfolio.total')}</p>
         <RangeValue range={a.total} pack={pack} size="lg" />
+        {a.profit && (
+          <p className="profit-line">
+            {t('portfolio.profit.label')} {t('portfolio.profit.value', { gain: fmt.signedMoney(a.profit.gain), pct: fmt.signedPct(a.profit.ratio) })}
+            {a.profit.missing > 0 && <small className="muted block">{t('portfolio.profit.missing', { count: a.profit.missing })}</small>}
+          </p>
+        )}
         {a.items.length > 0 && (
           <>
             <p className={`risk-badge risk-${a.risk.level}`}>
@@ -218,6 +224,11 @@ function AccountsCard({ a }: { a: PortfolioAnalysis }) {
                     .join('・')}
                 </span>
                 <span className={i.guessed ? 'mode-badge warn' : 'mode-badge'}>{t(`portfolio.source.${i.guessed ? 'guessed' : i.source}`)}</span>
+                {i.profit && (
+                  <span className="mode-badge">
+                    {t('portfolio.profit.label')} {t('portfolio.profit.value', { gain: fmt.signedMoney(i.profit.gain), pct: fmt.signedPct(i.profit.ratio) })}
+                  </span>
+                )}
               </Link>
               <span className="amount">
                 {fmt.money(i.value.mid)}

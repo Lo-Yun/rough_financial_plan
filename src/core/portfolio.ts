@@ -71,6 +71,51 @@ export function holdingValue(h: Holding, ctx: MoneyContext): Range | null {
   return null;
 }
 
+/** 單筆持股的總成本（主要幣別）；沒填成本時回傳 null */
+export function holdingCost(h: Holding, ctx: MoneyContext): Range | null {
+  if (!h.costBasis) return null;
+  const r = resolveMoney(h.costBasis, ctx);
+  return r.status === 'ok' && r.range.mid > 0 ? r.range : null;
+}
+
+/** 未實現損益（中間值）。只計算同時有市值與成本的持股。 */
+export interface ProfitSummary {
+  cost: number;
+  value: number;
+  /** value − cost */
+  gain: number;
+  /** gain ÷ cost */
+  ratio: number;
+  /** 有算進去的持股數 */
+  covered: number;
+  /** 有市值但沒填成本、沒有算進去的持股數 */
+  missing: number;
+}
+
+export function summarizeProfit(rows: { value: Range | null; cost: Range | null }[]): ProfitSummary | null {
+  let cost = 0;
+  let value = 0;
+  let covered = 0;
+  let missing = 0;
+  for (const r of rows) {
+    if (!r.value) continue;
+    if (!r.cost) {
+      missing++;
+      continue;
+    }
+    cost += r.cost.mid;
+    value += r.value.mid;
+    covered++;
+  }
+  if (covered === 0) return null;
+  return { cost, value, gain: value - cost, ratio: (value - cost) / cost, covered, missing };
+}
+
+/** 一組持股的未實現損益 */
+export function holdingsProfit(holdings: Holding[], ctx: MoneyContext): ProfitSummary | null {
+  return summarizeProfit(holdings.filter((h) => !h.archivedAt).map((h) => ({ value: holdingValue(h, ctx), cost: holdingCost(h, ctx) })));
+}
+
 export interface HoldingsTotal {
   total: Range;
   unresolvedCount: number;
@@ -99,7 +144,9 @@ export interface PortfolioItem {
   source: 'holdings' | 'user' | 'default';
   /** 預設配置只是猜測，建議使用者確認 */
   guessed: boolean;
-  holdings: { holding: Holding; value: Range | null }[];
+  holdings: { holding: Holding; value: Range | null; cost: Range | null }[];
+  /** 這個帳戶的未實現損益（依有填成本的持股） */
+  profit: ProfitSummary | null;
 }
 
 export interface Concentration {
@@ -124,6 +171,8 @@ export interface PortfolioAnalysis {
   unresolvedCount: number;
   /** 金額未知的投資帳戶，仍列出讓使用者補金額或新增持股 */
   unresolvedAssets: Asset[];
+  /** 整個投資組合的未實現損益（依有填成本的持股） */
+  profit: ProfitSummary | null;
 }
 
 export function isInPortfolio(asset: Asset, pack: LocalePack, includeCash: boolean): boolean {
@@ -148,7 +197,7 @@ export function analyzePortfolio(
       unresolvedAssets.push(asset);
       continue;
     }
-    const hs = holdings.filter((h) => h.assetId === asset.id && !h.archivedAt).map((holding) => ({ holding, value: holdingValue(holding, ctx) }));
+    const hs = holdings.filter((h) => h.assetId === asset.id && !h.archivedAt).map((holding) => ({ holding, value: holdingValue(holding, ctx), cost: holdingCost(holding, ctx) }));
 
     let allocation: Allocation | null = null;
     let source: PortfolioItem['source'] = 'default';
@@ -167,7 +216,15 @@ export function analyzePortfolio(
       allocation = normalizeAllocation(pack.categories.asset.find((c) => c.key === asset.category)?.defaultAllocation) ?? { other: 1 };
       source = 'default';
     }
-    items.push({ asset, value: range, allocation, source, guessed: source === 'default' && GUESSED_DEFAULT.includes(asset.category), holdings: hs });
+    items.push({
+      asset,
+      value: range,
+      allocation,
+      source,
+      guessed: source === 'default' && GUESSED_DEFAULT.includes(asset.category),
+      holdings: hs,
+      profit: summarizeProfit(hs),
+    });
   }
 
   const total = sum(items.map((i) => i.value));
@@ -213,6 +270,7 @@ export function analyzePortfolio(
     guessedCount: items.filter((i) => i.guessed).length,
     unresolvedCount: unresolvedAssets.length,
     unresolvedAssets,
+    profit: summarizeProfit(items.flatMap((i) => i.holdings)),
   };
 }
 

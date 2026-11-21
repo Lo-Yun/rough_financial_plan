@@ -814,7 +814,13 @@
     "holdingsLink": "持股 {{count}} 筆",
     "holdingsLink_other": "持股 {{count}} 筆",
     "disclaimer": "本頁只依你輸入的資料計算配置比例，不提供任何個別商品的買賣建議。",
-    "noValue": "還沒填金額"
+    "noValue": "還沒填金額",
+    "profit": {
+      "label": "未實現損益",
+      "value": "{{gain}}（{{pct}}）",
+      "missing": "{{count}} 筆持股沒填成本，沒有算進去",
+      "missing_other": "{{count}} 筆持股沒填成本，沒有算進去"
+    }
   },
   "holdings": {
     "title": "{{name}} 的持股",
@@ -841,7 +847,11 @@
     "pricePlaceholder": "例如 150",
     "priceDate": "價格日期：{{date}}（修改價格時會更新為今天）",
     "marketValue": "目前市值",
-    "unnamed": "未命名持股"
+    "unnamed": "未命名持股",
+    "cost": "總成本（可以不填）",
+    "costHint": "買進花的總金額（含手續費），大約是股數 × 平均成本。填了就能看到未實現損益。",
+    "costPlaceholder": "例如 280000",
+    "profit": "未實現損益"
   },
   "action": {
     "pay_off_revolving": {
