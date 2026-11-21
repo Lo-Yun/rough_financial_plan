@@ -38,3 +38,26 @@ test('投資儀表板：示範資料的偏離提示排在帳戶前面', async ({
   expect(headings.indexOf('投資帳戶')).toBeLessThan(headings.indexOf('資產配置'));
   expect(errors).toEqual([]);
 });
+
+test('持股損益：填總成本後，持股、帳戶與摘要都顯示未實現損益', async ({ page }) => {
+  const errors = watchErrors(page);
+  await completeOnboarding(page, { investment: true });
+  await tab(page, '投資');
+  await page.getByRole('link', { name: /持股 0 筆/ }).click();
+  await page.getByRole('link', { name: /新增持股/ }).click();
+
+  await page.getByLabel('名稱').fill('台灣 50');
+  await page.getByLabel(/股數/).fill('1000');
+  await page.getByPlaceholder('例如 150').fill('200');
+  await page.getByPlaceholder('例如 280000').fill('160000');
+  await tap(page, '儲存');
+
+  await expect(page.locator('.flow-summary')).toContainText('未實現損益');
+  await expect(page.locator('.flow-summary')).toContainText('+4 萬（+25%）');
+  await expect(page.locator('.item-list')).toContainText('未實現損益 +4 萬（+25%）');
+
+  await tab(page, '投資');
+  await expect(page.locator('.portfolio-summary .profit-line')).toContainText('未實現損益 +4 萬（+25%）');
+  await expect(page.locator('.item-list')).toContainText('未實現損益 +4 萬（+25%）');
+  expect(errors).toEqual([]);
+});

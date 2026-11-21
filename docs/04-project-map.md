@@ -80,7 +80,7 @@
 | `F-PLN` | 理財計畫列表 | `#/plans` | `features/plans/PlansPage.tsx` | `projectGoal` | goals | `plans.*` |
 | `F-GOAL` | 計畫編輯與即時試算 | `#/plans/new?type=…`、`#/plans/:id` | `features/plans/GoalEditor.tsx`、`ProjectionView.tsx` | `projectGoal`、`simulatePayoff`、`amortizedPayment` | goals | `plans.*` |
 | `F-PF` | 投資組合（摘要卡：總值・風險・配置長條・偏離；接著再平衡與集中度、帳戶、配置明細、幣別）；投資組合設定（目標配置、包含現金）在子頁 | `#/portfolio`、`#/portfolio/target` | `features/portfolio/PortfolioPage.tsx`、`PortfolioTargetPage.tsx` | `analyzePortfolio`、`resolveTarget`、`deviations` | assets、holdings、assumptions | `portfolio.*` |
-| `F-HOLD` | 持股明細 | `#/asset/:id/holdings`（編輯：`/new`、`/:holdingId`） | `features/portfolio/HoldingsPage.tsx`、`HoldingEditor.tsx` | `holdingValue`、`holdingsTotal`、`syncAssetFromHoldings` | holdings | `holdings.*` |
+| `F-HOLD` | 持股明細（含總成本與未實現損益） | `#/asset/:id/holdings`（編輯：`/new`、`/:holdingId`） | `features/portfolio/HoldingsPage.tsx`、`HoldingEditor.tsx` | `holdingValue`、`holdingsTotal`、`syncAssetFromHoldings` | holdings | `holdings.*` |
 | `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
 | `F-BAK` | 備份匯出／還原 | 設定頁 | `SettingsPage.tsx` 的 `BackupSection` | — | 全部 | `backup.*` |
 | `F-PWA` | 安裝、離線、持久化儲存 | — | `app/pwa.ts`、`vite.config.ts` | — | — | `pwa.*` |
@@ -116,7 +116,7 @@
 | `overview.ts` | **總整理**：把以上全部算一次 | `computeOverview`、`moneyContext`、`findNextRefinement`、`buildSnapshotData` | App.tsx、actions.ts |
 | `health.ts` | 財務健檢 7 個指標、最該處理的一件事、財務自由進度 | `computeHealth`、`lightFor`、`METRIC_PRIORITY` | HealthPage |
 | `planning.ts` | 目標試算（實質報酬、三種情境）、買房與還債 | `projectGoal`、`resolveAssumptions`、`requiredMonthly`、`monthsToTarget`、`scenarioRates` | PlansPage、GoalEditor |
-| `portfolio.ts` | 投資配置、目標、偏離、集中度、風險 | `analyzePortfolio`、`resolveTarget`、`deviations`、`holdingValue`、`holdingsTotal` | PortfolioPage、HoldingsPage、actions |
+| `portfolio.ts` | 投資配置、目標、偏離、集中度、風險、未實現損益 | `analyzePortfolio`、`resolveTarget`、`deviations`、`holdingValue`、`holdingsTotal`、`holdingCost`、`holdingsProfit`、`summarizeProfit` | PortfolioPage、HoldingsPage、actions |
 | `reconcile.ts` | 對帳檢查 | `reconcile` | CashflowPage |
 | `metrics.ts` | 把各項結果整理成規則可用的指標（見下表） | `computeMetrics` | advice |
 | `rules.ts` | 規則引擎、建議與使用者紀錄的合併 | `evalCondition`、`evalExpression`、`evaluateRules`、`buildActionBoard`、`MAX_ACTIVE` | advice、ActionParts |

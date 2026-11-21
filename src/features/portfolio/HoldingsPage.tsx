@@ -4,7 +4,7 @@ import { syncAssetFromHoldings } from '../../app/actions';
 import { useApp, useFormat } from '../../app/context';
 import { Toggle } from '../../components/EditorParts';
 import { moneyContext } from '../../core/overview';
-import { holdingsTotal, holdingValue } from '../../core/portfolio';
+import { holdingCost, holdingsProfit, holdingsTotal, holdingValue } from '../../core/portfolio';
 import { itemName } from '../balance-sheet/NetWorthPage';
 
 export function HoldingsPage() {
@@ -19,6 +19,7 @@ export function HoldingsPage() {
   const ctx = moneyContext(data, pack);
   const own = holdings.filter((h) => h.assetId === asset.id);
   const total = holdingsTotal(own, ctx);
+  const profit = holdingsProfit(own, ctx);
   const hid = data.household.id;
 
   const setFromHoldings = async (on: boolean) => {
@@ -45,7 +46,14 @@ export function HoldingsPage() {
                 <dt>{t('holdings.total')}</dt>
                 <dd>{fmt.range(total.total)}</dd>
               </div>
+              {profit && (
+                <div>
+                  <dt>{t('holdings.profit')}</dt>
+                  <dd>{t('portfolio.profit.value', { gain: fmt.signedMoney(profit.gain), pct: fmt.signedPct(profit.ratio) })}</dd>
+                </div>
+              )}
             </dl>
+            {profit && profit.missing > 0 && <p className="muted small">{t('portfolio.profit.missing', { count: profit.missing })}</p>}
             <Toggle checked={!!asset.valueFromHoldings} onChange={(on) => void setFromHoldings(on)} label={t('holdings.useTotal')} hint={t('holdings.useTotalHint')} />
           </>
         )}
@@ -56,6 +64,8 @@ export function HoldingsPage() {
         <ul className="item-list">
           {own.map((h) => {
             const v = holdingValue(h, ctx);
+            const cost = holdingCost(h, ctx);
+            const gain = v && cost ? v.mid - cost.mid : null;
             return (
               <li key={h.id}>
                 <Link to={`/asset/${asset.id}/holdings/${h.id}`}>
@@ -66,6 +76,11 @@ export function HoldingsPage() {
                       {t(`portfolio.class.${h.assetClass}`)}
                       {h.quantity !== undefined && h.price && ` · ${t('holdings.qtyPrice', { q: h.quantity.toLocaleString(), p: h.price.value.toLocaleString(), c: h.price.currency, date: h.price.asOf })}`}
                     </span>
+                    {gain !== null && cost && (
+                      <span className="mode-badge">
+                        {t('holdings.profit')} {t('portfolio.profit.value', { gain: fmt.signedMoney(gain), pct: fmt.signedPct(gain / cost.mid) })}
+                      </span>
+                    )}
                   </span>
                   <span className="amount">{v ? fmt.money(v.mid) : '？'}</span>
                 </Link>
