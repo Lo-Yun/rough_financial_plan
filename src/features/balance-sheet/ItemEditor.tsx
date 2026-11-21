@@ -181,7 +181,8 @@ function LiabilityEditor({ id }: { id?: string }) {
         />
       )}
       {!paidInFull && (
-        <>
+        <details className="more-details" open={!!(existing?.annualRate || existing?.monthlyPayment)}>
+          <summary>{t('editor.moreDetails')}</summary>
           <PercentField
             label={t('editor.rate')}
             value={rateValue}
@@ -208,7 +209,7 @@ function LiabilityEditor({ id }: { id?: string }) {
               </p>
             )
           )}
-        </>
+        </details>
       )}
       <Toggle
         checked={draft.secured}

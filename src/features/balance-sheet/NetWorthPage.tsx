@@ -6,14 +6,39 @@ import { useApp, useFormat } from '../../app/context';
 import { isEnabled } from '../../app/features';
 import { isIOS, isStandalone } from '../../app/pwa';
 import { daysBetween } from '../../core/date';
-import type { ResolvedItem } from '../../core/balanceSheet';
+import { groupByCategory, type ResolvedItem } from '../../core/balanceSheet';
 import { ModeBadge, PrecisionRing, RangeValue } from '../../components/Display';
 import { IconBadge } from '../../components/Icon';
-import type { Asset, Liability } from '../../model/types';
+import type { Asset, Liability, Range } from '../../model/types';
 import { ActionsCard } from '../actions/ActionsCard';
 import { LadderSummary } from './LadderSummary';
 
 const BACKUP_REMIND_DAYS = 30;
+/** 從沒備份過的話，開始使用滿這麼多天才提醒，讓新使用者先看到「下一步」 */
+const BACKUP_GRACE_DAYS = 7;
+
+export type Reminder = 'backup' | 'ios_install' | 'next_step';
+
+/**
+ * 淨值頁一次只放一張提醒卡。優先順序：
+ * 1. 備份（注意色）：超過 30 天沒備份；從沒備份過且已使用滿 7 天
+ * 2. iOS 加到主畫面（中性提示，可關閉）
+ * 3. 下一步：把哪一項改精確
+ */
+export function pickReminder(o: {
+  hasItems: boolean;
+  lastBackupDays: number | null;
+  householdAgeDays: number;
+  showIosInstall: boolean;
+  hasNextStep: boolean;
+}): Reminder | null {
+  const backupDue =
+    o.hasItems && (o.lastBackupDays === null ? o.householdAgeDays >= BACKUP_GRACE_DAYS : o.lastBackupDays > BACKUP_REMIND_DAYS);
+  if (backupDue) return 'backup';
+  if (o.showIosInstall) return 'ios_install';
+  if (o.hasNextStep) return 'next_step';
+  return null;
+}
 
 export function NetWorthPage() {
   const { t } = useTranslation();
@@ -23,6 +48,8 @@ export function NetWorthPage() {
   const bs = overview.balanceSheet;
   const s = data.settings;
   const pct = Math.round(overview.precision.score * 100);
+  const fmt = useFormat(pack);
+  const approx = (r: Range) => (r.low !== r.high ? <span className="approx-mark">{t('range.about')}</span> : null);
 
   const target = overview.nextRefinement;
   const targetItem = target
@@ -32,11 +59,19 @@ export function NetWorthPage() {
     : undefined;
 
   const todaySnap = snapshots.find((x) => x.date === today);
-  const lastBackupDays = s.lastBackupAt ? daysBetween(s.lastBackupAt.slice(0, 10), today) : null;
-  const showBackup = lastBackupDays === null || lastBackupDays > BACKUP_REMIND_DAYS;
-  const showIosInstall = isIOS() && !isStandalone() && !s.dismissedTips.includes('ios_install');
+  const reminder = pickReminder({
+    hasItems: bs.assets.length + bs.liabilities.length > 0,
+    lastBackupDays: s.lastBackupAt ? daysBetween(s.lastBackupAt.slice(0, 10), today) : null,
+    householdAgeDays: daysBetween(data.household.createdAt.slice(0, 10), today),
+    showIosInstall: isIOS() && !isStandalone() && !s.dismissedTips.includes('ios_install'),
+    hasNextStep: !!(target && targetItem),
+  });
 
   const dismissTip = (id: string) => void repo.updateSettings(data.household.id, { dismissedTips: [...s.dismissedTips, id] });
+
+  const accessible = view === 'accessible';
+  const eqAssets = accessible ? bs.accessibleAssets : bs.totalAssets;
+  const eqLiabilities = accessible ? bs.accessibleLiabilities : bs.totalLiabilities;
 
   return (
     <div className="page">
@@ -48,8 +83,19 @@ export function NetWorthPage() {
             </button>
           ))}
         </div>
-        <RangeValue range={view === 'all' ? bs.netWorth : bs.accessibleNetWorth} pack={pack} size="lg" />
-        {view === 'accessible' && <p className="muted small">{t('netWorth.accessibleHint')}</p>}
+        <RangeValue range={accessible ? bs.accessibleNetWorth : bs.netWorth} pack={pack} size="lg" />
+        <dl className="hero-equation">
+          <div>
+            <dt>{t('netWorth.equation.assets')}</dt>
+            <dd>{approx(eqAssets)}{fmt.money(eqAssets.mid)}</dd>
+          </div>
+          <span className="op" aria-hidden="true">−</span>
+          <div>
+            <dt>{t('netWorth.equation.liabilities')}</dt>
+            <dd>{approx(eqLiabilities)}{fmt.money(eqLiabilities.mid)}</dd>
+          </div>
+        </dl>
+        {accessible && <p className="muted small">{t('netWorth.accessibleHint')}</p>}
         <div className="precision-row">
           <PrecisionRing score={overview.precision.score} />
           <p>
@@ -67,17 +113,14 @@ export function NetWorthPage() {
 
       {isEnabled('actions') && <ActionsCard />}
 
-      {target && targetItem && (
-        <Link to={`/${target.kind}/${target.id}`} className="card next-step">
-          <p className="eyebrow">{t('netWorth.nextStep')}</p>
-          <p>
-            {t(`netWorth.refine.${target.reason}`, { name: itemName(targetItem, target.kind, t) })}
-          </p>
-          <span className="chevron" aria-hidden="true">›</span>
+      {/* 提醒一次只出現一張，依 pickReminder 的優先順序 */}
+      {reminder === 'backup' && (
+        <Link to="/settings" className="card attention">
+          <p>{s.lastBackupAt ? t('backup.remindDays', { days: daysBetween(s.lastBackupAt.slice(0, 10), today) }) : t('backup.remindNever')}</p>
         </Link>
       )}
 
-      {showIosInstall && (
+      {reminder === 'ios_install' && (
         <section className="card tip">
           <p>{t('pwa.iosInstall')}</p>
           <button type="button" className="btn ghost small" onClick={() => dismissTip('ios_install')}>
@@ -86,9 +129,11 @@ export function NetWorthPage() {
         </section>
       )}
 
-      {showBackup && bs.assets.length + bs.liabilities.length > 0 && (
-        <Link to="/settings" className="card attention">
-          <p>{lastBackupDays === null ? t('backup.remindNever') : t('backup.remindDays', { days: lastBackupDays })}</p>
+      {reminder === 'next_step' && target && targetItem && (
+        <Link to={`/${target.kind}/${target.id}`} className="card next-step">
+          <p className="eyebrow">{t('netWorth.nextStep')}</p>
+          <p>{t(`netWorth.refine.${target.reason}`, { name: itemName(targetItem, target.kind, t) })}</p>
+          <span className="chevron" aria-hidden="true">›</span>
         </Link>
       )}
 
@@ -134,14 +179,11 @@ export function itemName(item: Asset | Liability, kind: 'asset' | 'liability', t
 
 function ItemSection({ kind, items }: { kind: 'asset' | 'liability'; items: ResolvedItem<Asset | Liability>[] }) {
   const { t } = useTranslation();
-  const { pack, data, today, overview } = useApp();
+  const { pack, overview } = useApp();
   const fmt = useFormat(pack);
   const defs = kind === 'asset' ? pack.categories.asset : pack.categories.liability;
   const total = kind === 'asset' ? overview.balanceSheet.totalAssets : overview.balanceSheet.totalLiabilities;
-
-  const sorted = [...items].sort(
-    (a, b) => defs.findIndex((d) => d.key === a.item.category) - defs.findIndex((d) => d.key === b.item.category) || (b.range?.mid ?? 0) - (a.range?.mid ?? 0),
-  );
+  const groups = groupByCategory(items, defs.map((d) => d.key));
 
   return (
     <section className="card items">
@@ -149,34 +191,40 @@ function ItemSection({ kind, items }: { kind: 'asset' | 'liability'; items: Reso
         <h2>{t(`netWorth.section.${kind}`)}</h2>
         <span className="total">{fmt.money(total.mid)}</span>
       </header>
-      {sorted.length === 0 && <p className="muted">{t(`netWorth.empty.${kind}`)}</p>}
+      {groups.length === 0 && <p className="muted">{t(`netWorth.empty.${kind}`)}</p>}
       <ul className="item-list">
-        {sorted.map(({ item, range, resolution }) => {
-          const estimate = kind === 'asset' ? (item as Asset).value.estimate : (item as Liability).balance.estimate;
-          const currency = kind === 'asset' ? (item as Asset).value.currency : (item as Liability).balance.currency;
-          const icon = defs.find((d) => d.key === item.category)?.icon;
+        {groups.map((g) => {
+          const icon = defs.find((d) => d.key === g.category)?.icon;
+          if (g.items.length === 1) {
+            return (
+              <li key={g.category}>
+                <ItemRow kind={kind} entry={g.items[0]!} icon={icon ?? ''} />
+              </li>
+            );
+          }
           return (
-            <li key={item.id}>
-              <Link to={`/${kind}/${item.id}`}>
+            <li key={g.category} className="item-group">
+              <div className="group-head">
                 <IconBadge name={icon} />
-                <span className="name">
-                  {itemName(item, kind, t)}
-                  <ModeBadge estimate={estimate} today={today} staleAfterDays={data.settings.staleAfterDays} />
-                </span>
+                <span className="name">{t(`category.${kind}.${g.category}`)}</span>
                 <span className="amount">
-                  {range ? (
+                  {g.subtotal ? (
                     <>
-                      {range.low !== range.high && <span className="approx-mark">{t('range.about')}</span>}
-                      {fmt.money(range.mid)}
-                      {currency !== data.household.baseCurrency && <small className="muted block">{currency}</small>}
+                      {g.subtotal.low !== g.subtotal.high && <span className="approx-mark">{t('range.about')}</span>}
+                      {fmt.money(g.subtotal.mid)}
                     </>
-                  ) : resolution.status === 'missing_fx' ? (
-                    <span className="muted">{t('netWorth.noFx')}</span>
                   ) : (
                     <span className="muted">？</span>
                   )}
                 </span>
-              </Link>
+              </div>
+              <ul className="item-list sub">
+                {g.items.map((entry) => (
+                  <li key={entry.item.id}>
+                    <ItemRow kind={kind} entry={entry} />
+                  </li>
+                ))}
+              </ul>
             </li>
           );
         })}
@@ -185,5 +233,37 @@ function ItemSection({ kind, items }: { kind: 'asset' | 'liability'; items: Reso
         + {t(`netWorth.add.${kind}`)}
       </Link>
     </section>
+  );
+}
+
+/** 一筆資產或負債；分組內的項目不顯示圖示（圖示在分組標題） */
+function ItemRow({ kind, entry, icon }: { kind: 'asset' | 'liability'; entry: ResolvedItem<Asset | Liability>; icon?: string }) {
+  const { t } = useTranslation();
+  const { pack, data, today } = useApp();
+  const fmt = useFormat(pack);
+  const { item, range, resolution } = entry;
+  const estimate = kind === 'asset' ? (item as Asset).value.estimate : (item as Liability).balance.estimate;
+  const currency = kind === 'asset' ? (item as Asset).value.currency : (item as Liability).balance.currency;
+  return (
+    <Link to={`/${kind}/${item.id}`}>
+      {icon !== undefined && <IconBadge name={icon} />}
+      <span className="name">
+        {itemName(item, kind, t)}
+        <ModeBadge estimate={estimate} today={today} staleAfterDays={data.settings.staleAfterDays} />
+      </span>
+      <span className="amount">
+        {range ? (
+          <>
+            {range.low !== range.high && <span className="approx-mark">{t('range.about')}</span>}
+            {fmt.money(range.mid)}
+            {currency !== data.household.baseCurrency && <small className="muted block">{currency}</small>}
+          </>
+        ) : resolution.status === 'missing_fx' ? (
+          <span className="muted">{t('netWorth.noFx')}</span>
+        ) : (
+          <span className="muted">？</span>
+        )}
+      </span>
+    </Link>
   );
 }

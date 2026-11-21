@@ -25,6 +25,9 @@ export interface BalanceSheet {
   netWorth: Range;
   /** 不含難以變現資產（自住房、車、退休帳戶等）及其擔保負債 */
   accessibleNetWorth: Range;
+  /** 可動用淨值的兩個組成：可動用資產、不由難以變現資產擔保的負債 */
+  accessibleAssets: Range;
+  accessibleLiabilities: Range;
   byAssetCategory: Partial<Record<AssetCategory, Range>>;
   byLiabilityCategory: Partial<Record<LiabilityCategory, Range>>;
   unresolvedCount: number;
@@ -96,9 +99,45 @@ export function computeBalanceSheet(
     totalLiabilities,
     netWorth: sub(totalAssets, totalLiabilities),
     accessibleNetWorth: sub(accessibleAssets, accessibleLiabilities),
+    accessibleAssets,
+    accessibleLiabilities,
     byAssetCategory: groupSum(ra, (a) => a.category),
     byLiabilityCategory: groupSum(rl, (l) => l.category),
     unresolvedCount: all.filter((x) => x.range === null).length,
     missingFxCurrencies: [...missingFx],
   };
+}
+
+export interface CategoryGroup<T> {
+  category: string;
+  items: ResolvedItem<T>[];
+  /** 已知金額項目的小計；全部不知道金額時為 null */
+  subtotal: Range | null;
+}
+
+/**
+ * 依類別分組（淨值頁列表用）：類別照 `order`（資料包的類別順序），
+ * 組內依中間值由大到小，不知道金額的排最後。
+ */
+export function groupByCategory<T extends { category: string }>(
+  items: ResolvedItem<T>[],
+  order: readonly string[],
+): CategoryGroup<T>[] {
+  const byCat = new Map<string, ResolvedItem<T>[]>();
+  for (const r of items) {
+    const list = byCat.get(r.item.category) ?? [];
+    list.push(r);
+    byCat.set(r.item.category, list);
+  }
+  const rank = (c: string) => {
+    const i = order.indexOf(c);
+    return i === -1 ? order.length : i;
+  };
+  return [...byCat.entries()]
+    .sort(([a], [b]) => rank(a) - rank(b))
+    .map(([category, list]) => {
+      const sorted = [...list].sort((a, b) => (b.range?.mid ?? -Infinity) - (a.range?.mid ?? -Infinity));
+      const known = sorted.flatMap((x) => (x.range ? [x.range] : []));
+      return { category, items: sorted, subtotal: known.length ? sum(known) : null };
+    });
 }
