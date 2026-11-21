@@ -61,3 +61,24 @@ test('持股損益：填總成本後，持股、帳戶與摘要都顯示未實�
   await expect(page.locator('.item-list')).toContainText('未實現損益 +4 萬（+25%）');
   expect(errors).toEqual([]);
 });
+
+test('投資趨勢：快照不到兩筆時提示去記錄', async ({ page }) => {
+  const errors = watchErrors(page);
+  await completeOnboarding(page, { investment: true });
+  await tab(page, '投資');
+  const trend = page.locator('.card', { has: page.getByRole('heading', { name: '投資趨勢' }) });
+  await expect(trend).toContainText('記錄兩次以上');
+  await expect(trend.locator('svg')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('投資趨勢：示範資料畫出投資總值折線圖', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openWelcome(page);
+  await tap(page, '先看看填好的樣子（示範資料）');
+  await tab(page, '投資');
+  const trend = page.locator('.card', { has: page.getByRole('heading', { name: '投資趨勢' }) });
+  await expect(trend.getByRole('img', { name: '投資組合總值的走勢' })).toBeVisible();
+  await expect(trend).toContainText('不等於報酬率');
+  expect(errors).toEqual([]);
+});

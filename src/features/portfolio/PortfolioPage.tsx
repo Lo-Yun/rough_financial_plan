@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ageOf, useApp, useFormat } from '../../app/context';
 import { RangeValue } from '../../components/Display';
+import { LineChart } from '../../components/LineChart';
 import { moneyContext } from '../../core/overview';
 import {
   ALLOCATION_GROUPS,
@@ -11,6 +12,7 @@ import {
   ASSET_CLASSES,
   CLASS_GROUP,
   deviations,
+  portfolioSeries,
   resolveTarget,
   type PortfolioAnalysis,
 } from '../../core/portfolio';
@@ -119,6 +121,8 @@ export function PortfolioPage() {
             </section>
           )}
 
+          <TrendCard includeCash={includeCash} />
+
           <AccountsCard a={a} />
 
           {a.items.length > 0 && (
@@ -193,6 +197,34 @@ export function PortfolioPage() {
 
       <p className="disclaimer">{t('portfolio.disclaimer')}</p>
     </div>
+  );
+}
+
+/** 投資趨勢：淨值快照裡投資類別的加總 */
+function TrendCard({ includeCash }: { includeCash: boolean }) {
+  const { t } = useTranslation();
+  const { snapshots, pack } = useApp();
+  const fmt = useFormat(pack);
+  const points = useMemo(() => portfolioSeries(snapshots, pack, includeCash), [snapshots, pack, includeCash]);
+
+  return (
+    <section className="card chart-card">
+      <h2>{t('portfolio.trend.title')}</h2>
+      {points.length < 2 ? (
+        <p className="muted small">{t('portfolio.trend.needTwo', { action: t('snapshot.recordToday') })}</p>
+      ) : (
+        <>
+          <LineChart
+            points={points}
+            formatValue={fmt.money}
+            formatRange={(low, high) => fmt.range({ low, mid: (low + high) / 2, high })}
+            ariaLabel={t('portfolio.trend.aria')}
+            height={220}
+          />
+          <p className="muted small">{t('portfolio.trend.hint')}</p>
+        </>
+      )}
+    </section>
   );
 }
 
