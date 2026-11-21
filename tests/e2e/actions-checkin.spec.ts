@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { completeOnboarding, tap, watchErrors } from './helpers';
 
-test('卡債優先建議、接受行動、財富階梯、每月回顧', async ({ page }) => {
+test('卡債優先建議、接受行動、財富階梯、每月回顧', { tag: '@full' }, async ({ page }) => {
   const errors = watchErrors(page);
   await completeOnboarding(page, { cardDebt: true });
 

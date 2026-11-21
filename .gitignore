@@ -1,8 +1,11 @@
 node_modules
 dist
+dist-full
 dev-dist
 coverage
 *.log
 .DS_Store
 playwright-report
+playwright-report-full
 test-results
+test-results-full

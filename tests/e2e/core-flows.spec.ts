@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { amount, completeOnboarding, tab, tap, watchErrors } from './helpers';
 
-test('快速估算後，每個分頁都能正常開啟', async ({ page }) => {
+// @full：只在全功能建置（npm run build:all）跑，v1 的分頁列見 v1-scope.spec.ts
+test('快速估算後，每個分頁都能正常開啟', { tag: '@full' }, async ({ page }) => {
   const errors = watchErrors(page);
   await completeOnboarding(page, { investment: true });
   await expect(page.locator('.card.hero')).toContainText('精確度');
@@ -21,7 +22,7 @@ test('快速估算後，每個分頁都能正常開啟', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('新增支出、建立緊急預備金計畫，重新整理後資料仍在', async ({ page }) => {
+test('新增支出、建立緊急預備金計畫，重新整理後資料仍在', { tag: '@full' }, async ({ page }) => {
   const errors = watchErrors(page);
   await completeOnboarding(page);
   await tab(page, '收支');

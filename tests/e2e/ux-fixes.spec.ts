@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { completeOnboarding, openWelcome, tab, tap, watchErrors } from './helpers';
 
-test('買房提示、範圍留白、選項按鈕有選取狀態、對帳預設收合', async ({ page }) => {
+test('買房提示、範圍留白、選項按鈕有選取狀態、對帳預設收合', { tag: '@full' }, async ({ page }) => {
   const errors = watchErrors(page);
   await completeOnboarding(page);
 
@@ -80,21 +80,30 @@ test('新增項目預設「大約」；金額輸入框純數字時顯示千分�
   await expect(input).toHaveValue('152,000');
   await input.pressSequentially('9');
   await expect(input).toHaveValue('1,592,000');
+  expect(errors).toEqual([]);
+});
 
+test('新增支出預設「大約」', { tag: '@full' }, async ({ page }) => {
+  const errors = watchErrors(page);
+  await completeOnboarding(page);
   await tab(page, '收支');
   await page.getByRole('link', { name: '+ 新增支出' }).click();
   await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
   expect(errors).toEqual([]);
 });
 
-test('快速估算與對帳檢查預設「大約」；對帳可以填負數', async ({ page }) => {
+test('快速估算預設「大約」', async ({ page }) => {
   const errors = watchErrors(page);
   await openWelcome(page);
   await tap(page, '開始估算');
   await tap(page, '單身');
   await tap(page, '下一步');
   await expect(page.getByRole('radio', { name: '大約' })).toHaveAttribute('aria-checked', 'true');
+  expect(errors).toEqual([]);
+});
 
+test('對帳檢查預設「大約」；對帳可以填負數', { tag: '@full' }, async ({ page }) => {
+  const errors = watchErrors(page);
   await completeOnboarding(page);
   await tab(page, '收支');
   await tap(page, '檢查我的收支準不準 ›');

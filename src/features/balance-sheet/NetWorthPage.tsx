@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { recordSnapshot } from '../../app/actions';
 import { useApp, useFormat } from '../../app/context';
+import { isEnabled } from '../../app/features';
 import { isIOS, isStandalone } from '../../app/pwa';
 import { daysBetween } from '../../core/date';
 import type { ResolvedItem } from '../../core/balanceSheet';
@@ -64,7 +65,7 @@ export function NetWorthPage() {
         )}
       </section>
 
-      <ActionsCard />
+      {isEnabled('actions') && <ActionsCard />}
 
       {target && targetItem && (
         <Link to={`/${target.kind}/${target.id}`} className="card next-step">
@@ -94,7 +95,7 @@ export function NetWorthPage() {
       <ItemSection kind="asset" items={bs.assets} />
       <ItemSection kind="liability" items={bs.liabilities} />
 
-      <LadderSummary showLink />
+      <LadderSummary showLink={isEnabled('ladderPage')} />
 
       <Link to="/history" className="card link-card">
         <span>{t('netWorth.historyLink')}</span>

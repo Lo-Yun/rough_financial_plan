@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { openWelcome, tab, tap, watchErrors } from './helpers';
 
-test('視覺規範：分頁列與列表用 SVG 圖示，每月回顧卡用注意色', async ({ page }) => {
+test('視覺規範：分頁列與列表用 SVG 圖示，每月回顧卡用注意色', { tag: '@full' }, async ({ page }) => {
   const errors = watchErrors(page);
   await page.emulateMedia({ colorScheme: 'light' });
   await openWelcome(page);

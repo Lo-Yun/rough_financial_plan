@@ -14,9 +14,11 @@ import { Onboarding } from '../features/onboarding/Onboarding';
 import { defaultPack, getPack } from '../locales';
 import { AppContext, type AppState } from './context';
 import { DEMO_DB_NAME, discardDemoData, exitDemo, isDemoMode, seedDemo } from './demo';
+import { isEnabled } from './features';
 import { loadFinancialData } from './load';
 
-// 淨值頁與資產編輯以外的頁面都延遲載入，縮小首次載入的程式大小
+// 淨值頁與資產編輯以外的頁面都延遲載入，縮小首次載入的程式大小。
+// 關閉的功能（src/app/features.ts）不註冊路由，所以它們的程式不會被載入。
 const HistoryPage = lazy(() => import('../features/history/HistoryPage').then((m) => ({ default: m.HistoryPage })));
 const CashflowPage = lazy(() => import('../features/cashflow/CashflowPage').then((m) => ({ default: m.CashflowPage })));
 const FlowEditor = lazy(() => import('../features/cashflow/FlowEditor').then((m) => ({ default: m.FlowEditor })));
@@ -97,27 +99,35 @@ export function App() {
               <Routes>
                 <Route path="/" element={<NetWorthPage />} />
                 <Route path="/history" element={<HistoryPage />} />
-                <Route path="/actions" element={<ActionsPage />} />
-                <Route path="/ladder" element={<LadderPage />} />
-                <Route path="/checkin" element={<CheckInPage />} />
-                <Route path="/cashflow" element={<CashflowPage />} />
-                <Route path="/health" element={<HealthPage />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
                 <Route path="/asset/:id/holdings" element={<HoldingsPage />} />
                 <Route path="/asset/:id/holdings/new" element={<HoldingEditor />} />
                 <Route path="/asset/:id/holdings/:holdingId" element={<HoldingEditor />} />
-                <Route path="/plans" element={<PlansPage />} />
-                <Route path="/plans/new" element={<GoalEditor />} />
-                <Route path="/plans/:id" element={<GoalEditor />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/asset/new" element={<ItemEditor kind="asset" />} />
                 <Route path="/asset/:id" element={<ItemEditor kind="asset" />} />
                 <Route path="/liability/new" element={<ItemEditor kind="liability" />} />
                 <Route path="/liability/:id" element={<ItemEditor kind="liability" />} />
-                <Route path="/income/new" element={<FlowEditor kind="income" />} />
-                <Route path="/income/:id" element={<FlowEditor kind="income" />} />
-                <Route path="/expense/new" element={<FlowEditor kind="expense" />} />
-                <Route path="/expense/:id" element={<FlowEditor kind="expense" />} />
+                {isEnabled('actions') && <Route path="/actions" element={<ActionsPage />} />}
+                {isEnabled('ladderPage') && <Route path="/ladder" element={<LadderPage />} />}
+                {isEnabled('checkin') && <Route path="/checkin" element={<CheckInPage />} />}
+                {isEnabled('health') && <Route path="/health" element={<HealthPage />} />}
+                {isEnabled('cashflow') && (
+                  <>
+                    <Route path="/cashflow" element={<CashflowPage />} />
+                    <Route path="/income/new" element={<FlowEditor kind="income" />} />
+                    <Route path="/income/:id" element={<FlowEditor kind="income" />} />
+                    <Route path="/expense/new" element={<FlowEditor kind="expense" />} />
+                    <Route path="/expense/:id" element={<FlowEditor kind="expense" />} />
+                  </>
+                )}
+                {isEnabled('plans') && (
+                  <>
+                    <Route path="/plans" element={<PlansPage />} />
+                    <Route path="/plans/new" element={<GoalEditor />} />
+                    <Route path="/plans/:id" element={<GoalEditor />} />
+                  </>
+                )}
                 <Route path="*" element={<NetWorthPage />} />
               </Routes>
               </Suspense>
@@ -127,22 +137,28 @@ export function App() {
                 <Icon name="netWorth" size={22} />
                 {t('nav.netWorth')}
               </NavLink>
-              <NavLink to="/cashflow">
-                <Icon name="cashflow" size={22} />
-                {t('nav.cashflow')}
-              </NavLink>
+              {isEnabled('cashflow') && (
+                <NavLink to="/cashflow">
+                  <Icon name="cashflow" size={22} />
+                  {t('nav.cashflow')}
+                </NavLink>
+              )}
               <NavLink to="/portfolio">
                 <Icon name="portfolio" size={22} />
                 {t('nav.portfolio')}
               </NavLink>
-              <NavLink to="/health">
-                <Icon name="health" size={22} />
-                {t('nav.health')}
-              </NavLink>
-              <NavLink to="/plans">
-                <Icon name="plans" size={22} />
-                {t('nav.plans')}
-              </NavLink>
+              {isEnabled('health') && (
+                <NavLink to="/health">
+                  <Icon name="health" size={22} />
+                  {t('nav.health')}
+                </NavLink>
+              )}
+              {isEnabled('plans') && (
+                <NavLink to="/plans">
+                  <Icon name="plans" size={22} />
+                  {t('nav.plans')}
+                </NavLink>
+              )}
               <NavLink to="/settings">
                 <Icon name="settings" size={22} />
                 {t('nav.settings')}
