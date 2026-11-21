@@ -40,20 +40,28 @@ export interface OnboardingOptions {
   investment?: boolean;
 }
 
-/** 走完快速估算：單身、月收入 5～8 萬、年終 2 個月、月花費約 4 萬、存款 30～100 萬 */
+/** 是否在測全功能建置（VITE_FEATURES=all）；v1 建置的快速估算只有 5 題，沒有家庭、收入、年終、花費 */
+export const FULL_BUILD = process.env.E2E_BUILD === 'full';
+
+/**
+ * 走完快速估算：存款 30～100 萬。
+ * 全功能建置另外回答：單身、月收入 5～8 萬、年終 2 個月、月花費約 4 萬。
+ */
 export async function completeOnboarding(page: Page, opts: OnboardingOptions = {}) {
   await openWelcome(page);
   await tap(page, '開始估算');
-  await tap(page, '單身');
-  await tap(page, '下一步');
-  await tap(page, '範圍');
-  await tap(page, '5 萬 ～ 8 萬');
-  await tap(page, '下一步');
-  await tap(page, '2 個月');
-  await tap(page, '下一步');
-  await tap(page, '大約');
-  await amount(page, '4萬');
-  await tap(page, '下一步');
+  if (FULL_BUILD) {
+    await tap(page, '單身');
+    await tap(page, '下一步');
+    await tap(page, '範圍');
+    await tap(page, '5 萬 ～ 8 萬');
+    await tap(page, '下一步');
+    await tap(page, '2 個月');
+    await tap(page, '下一步');
+    await tap(page, '大約');
+    await amount(page, '4萬');
+    await tap(page, '下一步');
+  }
   await tap(page, '範圍');
   await tap(page, '30 萬 ～ 100 萬');
   await tap(page, '下一步');

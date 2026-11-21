@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { recordSnapshot } from '../../app/actions';
 import { useApp, useFormat } from '../../app/context';
+import { isEnabled } from '../../app/features';
 import { requestPersistentStorage } from '../../app/pwa';
 import { blankToUnknown, resolveEstimate } from '../../core/estimate';
 import { EstimateInput } from '../../components/EstimateInput';
@@ -11,7 +12,7 @@ import { statKeys, type Bracket, type LocalePack } from '../../model/localePack'
 import type { Estimate, HouseholdType, LiabilityCategory } from '../../model/types';
 import { LadderSummary } from '../balance-sheet/LadderSummary';
 
-const STEPS = [
+const ALL_STEPS = [
   'welcome',
   'household',
   'income',
@@ -24,7 +25,13 @@ const STEPS = [
   'debts',
   'result',
 ] as const;
-type Step = (typeof STEPS)[number];
+type Step = (typeof ALL_STEPS)[number];
+
+/** 收支相關的題目：家庭狀況（決定花費預設值）、收入、年終、花費 */
+const CASHFLOW_STEPS: readonly Step[] = ['household', 'income', 'bonus', 'expense'];
+/** 收支功能關閉時（v1）只問資產負債：存款、投資、房子、車子、負債 */
+const CASHFLOW_ON = isEnabled('cashflow');
+const STEPS: readonly Step[] = CASHFLOW_ON ? ALL_STEPS : ALL_STEPS.filter((s) => !CASHFLOW_STEPS.includes(s));
 
 const HOUSEHOLD_TYPES: HouseholdType[] = ['single', 'couple', 'couple_with_children', 'single_parent', 'other'];
 const DEBT_TYPES = ['mortgage', 'car_loan', 'personal_loan', 'credit_card', 'student_loan'] as const satisfies readonly LiabilityCategory[];
@@ -95,42 +102,46 @@ export function Onboarding() {
     const liquidityOf = (key: string) => pack.categories.asset.find((c) => c.key === key)!.defaultLiquidity;
 
     await repo.clearFinancialItems(hid);
-    await repo.updateHousehold(hid, { householdType: a.householdType });
-    if (a.birthYear) await repo.updatePrimaryMember(hid, { birthYear: { mode: 'exact', value: a.birthYear, asOf: today } });
+    // v1 沒有問家庭狀況、出生年、收入、年終、花費：家庭型態保留原本的值，也不建立收入與支出，
+    // 以免把沒問過的預設值存成答案（收支功能開放後，使用者再到收支頁補上）
+    if (CASHFLOW_ON) {
+      await repo.updateHousehold(hid, { householdType: a.householdType });
+      if (a.birthYear) await repo.updatePrimaryMember(hid, { birthYear: { mode: 'exact', value: a.birthYear, asOf: today } });
 
-    if (a.hasIncome) {
-      const income = blankToUnknown(a.income, statKeys.monthlyIncomePerEarner);
-      await repo.saveIncome(hid, {
-        ownerId: 'joint',
-        category: 'salary',
-        amount: money(income),
-        frequency: 'monthly',
-        isRecurring: true,
-        basis: 'net',
-      });
-      const r = resolveEstimate(income, { statistics: pack.statistics, defaultTolerance: tol });
-      if (r && a.bonusMonths) {
-        const m = a.bonusMonths;
-        const bonus: Estimate = r.low === r.high ? { mode: 'approx', value: r.mid * m } : { mode: 'range', low: r.low * m, high: r.high * m };
+      if (a.hasIncome) {
+        const income = blankToUnknown(a.income, statKeys.monthlyIncomePerEarner);
         await repo.saveIncome(hid, {
           ownerId: 'joint',
-          category: 'bonus',
-          amount: money(bonus),
-          frequency: 'yearly',
-          isRecurring: false,
+          category: 'salary',
+          amount: money(income),
+          frequency: 'monthly',
+          isRecurring: true,
           basis: 'net',
         });
+        const r = resolveEstimate(income, { statistics: pack.statistics, defaultTolerance: tol });
+        if (r && a.bonusMonths) {
+          const m = a.bonusMonths;
+          const bonus: Estimate = r.low === r.high ? { mode: 'approx', value: r.mid * m } : { mode: 'range', low: r.low * m, high: r.high * m };
+          await repo.saveIncome(hid, {
+            ownerId: 'joint',
+            category: 'bonus',
+            amount: money(bonus),
+            frequency: 'yearly',
+            isRecurring: false,
+            basis: 'net',
+          });
+        }
       }
-    }
 
-    await repo.saveExpense(hid, {
-      ownerId: 'joint',
-      category: 'other',
-      label: t('onboarding.expense.itemLabel'),
-      amount: money(blankToUnknown(a.expense, expenseStatKey)),
-      frequency: 'monthly',
-      essential: true,
-    });
+      await repo.saveExpense(hid, {
+        ownerId: 'joint',
+        category: 'other',
+        label: t('onboarding.expense.itemLabel'),
+        amount: money(blankToUnknown(a.expense, expenseStatKey)),
+        frequency: 'monthly',
+        essential: true,
+      });
+    }
 
     await repo.saveAsset(hid, { ownerId: 'joint', category: 'cash', value: money(blankToUnknown(a.cash)), liquidity: liquidityOf('cash') });
     if (a.investment) {
@@ -213,7 +224,7 @@ export function Onboarding() {
         <section className="card hero">
           {/* 文字中的 \n 是刻意的換行 */}
           <h1 className="pre-line">{t('onboarding.welcome.title')}</h1>
-          <p className="lead pre-line">{t('onboarding.welcome.lead')}</p>
+          <p className="lead pre-line">{CASHFLOW_ON ? t('onboarding.welcome.lead') : t('onboarding.welcome.leadV1')}</p>
           <ul className="bullets">
             <li>{t('onboarding.welcome.point1')}</li>
             <li>{t('onboarding.welcome.point2')}</li>
@@ -442,7 +453,8 @@ function Result({ onFinish }: { onFinish: () => Promise<void> }) {
   const { overview, pack } = useApp();
   const fmt = useFormat(pack);
   const bs = overview.balanceSheet;
-  const surplus = overview.surplus;
+  // v1 沒有問收支，不顯示每月結餘
+  const surplus = CASHFLOW_ON ? overview.surplus : null;
   const pct = Math.round(overview.precision.score * 100);
 
   return (

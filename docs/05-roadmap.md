@@ -26,6 +26,7 @@
 | 2026-10-23 | 調整：品牌 logo 與歡迎頁 | 新的像素風鶺鴒 logo 取代原本的折線圖示（PWA 圖示、favicon、apple-touch-icon）；歡迎頁分兩頁：品牌頁（logo、名稱、「OK，順便做吧！」）只在同一分頁第一次出現，第 2 頁在說明卡上方加 logo 與名稱 | #13 |
 | 2026-10-23 | 調整：重製品牌 logo | 換成重新繪製的白鶺鴒 logo（向量圖，不再描繪有浮水印的參考照片），檔名不變；歡迎頁 logo 拿掉像素渲染 | #14 |
 | 2026-10-29 | 調整：授權與品牌保護 | 加入 `LICENSE`（程式碼與品牌素材全部保留所有權利，權利人 Lo-Yun Lee）、`TRADEMARKS.md`（「順便理財」名稱、白鶺鴒 logo、`public/icons/` 的使用規範）、`public/icons/NOTICE`、README「授權」一節；決策紀錄 D20 | #15 |
+| 2026-11-21 | 調整：v1 範圍旗標 | 新增 `src/app/features.ts`，v1 只顯示淨值、投資、設定，其他功能隱藏不刪除；瀏覽器測試分 v1 與全功能兩組；CI 固定 ubuntu-24.04（Playwright 1.56 不支援 26.04） | #17 |
 
 網站：<https://lo-yun.github.io/rough_financial_plan/>（合併到 `main` 後自動部署）
 
