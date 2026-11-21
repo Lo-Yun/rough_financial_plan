@@ -70,7 +70,7 @@ export function SettingsPage() {
       )}
 
       {/* 試算假設屬於計畫功能（健檢的安全提領率也會用到） */}
-      {isEnabled('plans') && <AssumptionsSection />}
+      {(isEnabled('plans') || isEnabled('health')) && <AssumptionsSection />}
 
       {/* 示範模式下不提供備份與刪除，避免把虛構資料當成真的 */}
       {!isDemoMode() && <BackupSection />}
