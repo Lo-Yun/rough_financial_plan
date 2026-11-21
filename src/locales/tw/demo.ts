@@ -86,8 +86,8 @@ export function buildTwDemo(pack: LocalePack, today: ISODate): ExportPayload {
   ];
 
   const holdings: Holding[] = [
-    { ...base, id: ulid(), assetId: id.brokerage, symbol: '0050', name: '台灣 50', assetClass: 'equity_domestic', quantity: 2_000, price: { value: 190, currency: 'TWD', asOf: today } },
-    { ...base, id: ulid(), assetId: id.brokerage, symbol: 'VT', name: '全世界股票 ETF', assetClass: 'equity_global', quantity: 40, price: { value: 125, currency: 'USD', asOf: today } },
+    { ...base, id: ulid(), assetId: id.brokerage, symbol: '0050', name: '台灣 50', assetClass: 'equity_domestic', quantity: 2_000, price: { value: 190, currency: 'TWD', asOf: today }, costBasis: { estimate: { mode: 'exact', value: 300_000, asOf: today }, currency: 'TWD' } },
+    { ...base, id: ulid(), assetId: id.brokerage, symbol: 'VT', name: '全世界股票 ETF', assetClass: 'equity_global', quantity: 40, price: { value: 125, currency: 'USD', asOf: today }, costBasis: { estimate: { mode: 'exact', value: 4_200, asOf: today }, currency: 'USD' } },
     { ...base, id: ulid(), assetId: id.brokerage, name: '美國公債 ETF', assetClass: 'bond', marketValue: twd(approx(150_000)) },
   ];
 

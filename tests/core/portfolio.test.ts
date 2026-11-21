@@ -3,7 +3,9 @@ import { computeBalanceSheet } from '../../src/core/balanceSheet';
 import {
   analyzePortfolio,
   deviations,
+  holdingCost,
   holdingsEstimateForAsset,
+  holdingsProfit,
   holdingsTotal,
   holdingValue,
   normalizeAllocation,
@@ -137,5 +139,46 @@ describe('targets and deviations', () => {
     expect(eq.amount).toBeCloseTo(200_000);
     expect(d.items.find((x) => x.group === 'bond')!.outOfBand).toBe(true);
     expect(deviations(a, { equity: 0.78, bond: 0.22, cash: 0, alternative: 0 }, 0.05).needsRebalance).toBe(false);
+  });
+});
+
+describe('unrealized profit and loss', () => {
+  const twd = (value: number) => ({ estimate: exact(value), currency: 'TWD' });
+  const priced = (name: string, quantity: number, price: number, cost?: number) =>
+    holding('a', { name, quantity, price: { value: price, currency: 'TWD', asOf: today }, costBasis: cost === undefined ? undefined : twd(cost) });
+
+  it('converts the cost basis to the base currency and ignores blank or zero costs', () => {
+    expect(holdingCost(holding('a', { costBasis: { estimate: exact(100), currency: 'USD' } }), ctx)?.mid).toBe(3_200);
+    expect(holdingCost(holding('a', {}), ctx)).toBeNull();
+    expect(holdingCost(holding('a', { costBasis: twd(0) }), ctx)).toBeNull();
+    expect(holdingCost(holding('a', { costBasis: { estimate: { mode: 'unknown' }, currency: 'TWD' } }), ctx)).toBeNull();
+  });
+
+  it('sums gains only over holdings that have both a value and a cost', () => {
+    const p = holdingsProfit([priced('p', 1000, 150, 120_000), priced('q', 10, 1000, 12_000), priced('r', 10, 500)], ctx);
+    expect(p).toEqual({ cost: 132_000, value: 160_000, gain: 28_000, ratio: 28_000 / 132_000, covered: 2, missing: 1 });
+    expect(holdingsProfit([priced('r', 10, 500)], ctx)).toBeNull();
+    expect(holdingsProfit([holding('a', { name: 's', costBasis: twd(100) })], ctx)).toBeNull();
+  });
+
+  it('reports losses as negative', () => {
+    const p = holdingsProfit([priced('p', 100, 80, 10_000)], ctx);
+    expect(p?.gain).toBe(-2_000);
+    expect(p?.ratio).toBeCloseTo(-0.2);
+  });
+
+  it('adds profit per account and for the whole portfolio', () => {
+    const broker = asset(exact(160_000), { id: 'b', category: 'investment' });
+    const other = asset(exact(50_000), { id: 'o', category: 'investment' });
+    const hs = [
+      { ...priced('p', 1000, 150, 100_000), assetId: 'b' },
+      { ...priced('q', 10, 1000), assetId: 'b' },
+      { ...priced('x', 100, 500, 60_000), id: 'h-x', assetId: 'o' },
+    ];
+    const a = analyze([broker, other], hs);
+    expect(a.items.find((i) => i.asset.id === 'b')?.profit).toMatchObject({ gain: 50_000, covered: 1, missing: 1 });
+    expect(a.items.find((i) => i.asset.id === 'o')?.profit).toMatchObject({ gain: -10_000, covered: 1, missing: 0 });
+    expect(a.profit).toMatchObject({ cost: 160_000, value: 200_000, gain: 40_000, covered: 2, missing: 1 });
+    expect(analyze([other]).profit).toBeNull();
   });
 });

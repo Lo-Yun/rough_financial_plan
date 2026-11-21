@@ -54,6 +54,9 @@ export function useFormat(pack: LocalePack) {
       range: (r: Range) => formatRange(r, units),
       pct: formatPercent,
       pctRange: formatPercentRange,
+      /** 損益用：正數加「+」，負數沿用「-」 */
+      signedMoney: (n: number) => (n > 0 ? '+' : '') + formatCompact(n, units),
+      signedPct: (v: number) => (v > 0 ? '+' : '') + formatPercent(v),
       /** 月數 → 「3 年 2 個月」 */
       duration: (months: number) => {
         const y = Math.floor(months / 12);
