@@ -92,6 +92,10 @@
 
 下方分頁列（`App.tsx`）：淨值 `#/`・收支 `#/cashflow`・投資 `#/portfolio`・健檢 `#/health`・計畫 `#/plans`・設定 `#/settings`。
 
+**功能旗標（v1，決策 D21）**：`src/app/features.ts` 列出可以隱藏的功能：`cashflow`（`F-CF`、`F-FLOW`、`F-REC`）、`health`（`F-HLT`）、`plans`（`F-PLN`、`F-GOAL`、設定頁的試算假設）、`actions`（`F-ACT`）、`checkin`（`F-CHK`、設定頁的回顧頻率）、`ladderPage`（`F-LADP`；淨值頁的 `F-LAD` 摘要卡保留，只隱藏連結）。預設建置全部關閉：不註冊路由（網址會回到淨值頁）、不顯示入口，分頁列只有淨值・投資・設定。程式碼、計算、資料表與備份都不動。要判斷功能是否開啟用 `isEnabled(key)`。
+- 全功能建置：`npm run build:all`（`VITE_FEATURES=all`，輸出到 `dist-full`）；也可以用 `VITE_FEATURES=cashflow,health` 只開部分功能。
+- 瀏覽器測試：`npm run test:e2e` 跑 v1 建置；測試隱藏功能的測試標記 `@full`，用 `npm run test:e2e:all` 對全功能建置跑。
+
 ---
 
 ## 4. 計算核心 `src/core/`

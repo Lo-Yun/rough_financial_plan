@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:all": "tsc -b && VITE_FEATURES=all vite build --outDir dist-full",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:all": "E2E_BUILD=full playwright test"
   },
   "dependencies": {
     "dexie": "^4.4.6",

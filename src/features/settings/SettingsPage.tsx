@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp, useFormat } from '../../app/context';
 import { PercentField } from '../../components/EditorParts';
+import { isEnabled } from '../../app/features';
 import { canUseDemo, enterDemo, exitDemo, isDemoMode } from '../../app/demo';
 import { isIOS, isStandalone, useInstallPrompt } from '../../app/pwa';
 import { BackupError, buildExport, inspectExport, parseExport } from '../../data/backup';
@@ -49,6 +50,7 @@ export function SettingsPage() {
         </fieldset>
       </section>
 
+      {isEnabled('checkin') && (
       <section className="card">
         <h2>{t('settings.checkin.title')}</h2>
         <div className="chips">
@@ -65,8 +67,10 @@ export function SettingsPage() {
         </div>
         <p className="muted small">{t('settings.checkin.hint')}</p>
       </section>
+      )}
 
-      <AssumptionsSection />
+      {/* 試算假設屬於計畫功能（健檢的安全提領率也會用到） */}
+      {isEnabled('plans') && <AssumptionsSection />}
 
       {/* 示範模式下不提供備份與刪除，避免把虛構資料當成真的 */}
       {!isDemoMode() && <BackupSection />}

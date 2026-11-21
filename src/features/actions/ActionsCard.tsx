@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAdvice, useApp } from '../../app/context';
+import { isEnabled } from '../../app/features';
 import { isCheckInDue } from '../../core/checkin';
 import { ActiveActionRow, SuggestionCard } from './ActionParts';
 
@@ -9,7 +10,7 @@ export function ActionsCard() {
   const { t } = useTranslation();
   const { data, checkIns, today } = useApp();
   const { board } = useAdvice();
-  const due = isCheckInDue(data.settings, checkIns.at(-1)?.date, today);
+  const due = isEnabled('checkin') && isCheckInDue(data.settings, checkIns.at(-1)?.date, today);
   const top = board.canAcceptMore ? board.suggestions[0] : undefined;
 
   return (

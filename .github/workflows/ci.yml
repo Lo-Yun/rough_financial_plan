@@ -18,12 +18,20 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      # 瀏覽器端對端測試（手機尺寸 Chromium）
+      # 全功能建置（VITE_FEATURES=all，輸出到 dist-full），給隱藏功能的測試用
+      - id: build_all
+        run: npm run build:all
+      # 瀏覽器端對端測試（手機尺寸 Chromium）：v1 建置跑一般測試，全功能建置跑 @full 測試
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run test:e2e:all
+        # v1 測試失敗時仍要跑，才看得到兩組的結果
+        if: ${{ !cancelled() && steps.build_all.outcome == 'success' }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
-          path: playwright-report
+          path: |
+            playwright-report
+            playwright-report-full
           retention-days: 7

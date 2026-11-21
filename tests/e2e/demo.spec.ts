@@ -10,14 +10,21 @@ test('從歡迎頁進入示範，每個頁面都有資料，離開後回到歡�
 
   await tab(page, '投資');
   await expect(page.getByRole('heading', { name: '再平衡提示' })).toBeVisible();
-  await tab(page, '計畫');
-  await expect(page.locator('.goal-card')).toHaveCount(3);
   await page.goto('./#/history');
   await expect(page.locator('.recharts-surface').first()).toBeVisible();
 
   await page.locator('.demo-banner').getByRole('button', { name: '離開示範' }).click();
   await expect(page.getByRole('button', { name: '開始估算' })).toBeVisible();
   await expect(page.locator('.demo-banner')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('示範資料的計畫頁有三個目標', { tag: '@full' }, async ({ page }) => {
+  const errors = watchErrors(page);
+  await openWelcome(page);
+  await tap(page, '先看看填好的樣子（示範資料）');
+  await tab(page, '計畫');
+  await expect(page.locator('.goal-card')).toHaveCount(3);
   expect(errors).toEqual([]);
 });
 
