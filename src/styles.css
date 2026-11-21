@@ -155,7 +155,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 0 6px;
+  padding: 8px 0;
   font-size: var(--fs-caption);
   color: var(--muted);
   text-decoration: none;
@@ -255,7 +255,7 @@ a {
 }
 .next-step .chevron {
   position: absolute;
-  right: 14px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   font-size: var(--fs-title);
@@ -277,7 +277,7 @@ a {
   margin: 12px 0;
 }
 .bullets li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .muted {
   color: var(--muted);
@@ -340,6 +340,33 @@ a {
 }
 
 /* Precision ring */
+/* 淨值頁總覽：資產 − 負債（= 上方的淨值） */
+.hero-equation {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 8px 0 0;
+}
+.hero-equation div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-equation dt {
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+.hero-equation dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.hero-equation .op {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .precision-row {
   display: flex;
   align-items: center;
@@ -410,7 +437,7 @@ a {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 16px;
   border-radius: var(--r-md);
   border: 1px solid transparent;
   font: inherit;
@@ -437,7 +464,7 @@ a {
 }
 .btn.small {
   min-height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: var(--fs-secondary);
 }
 .btn:disabled {
@@ -468,7 +495,7 @@ a {
   width: 100%;
 }
 .actions p {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 /* Chips & segmented */
@@ -480,7 +507,7 @@ a {
 }
 .chip {
   min-height: 40px;
-  padding: 0 14px;
+  padding: 0 12px;
   border-radius: var(--r-full);
   border: 1px solid var(--line);
   background: var(--surface);
@@ -534,7 +561,7 @@ textarea {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  padding: 10px 12px;
+  padding: 8px 12px;
   width: 100%;
   min-height: 44px;
 }
@@ -564,7 +591,7 @@ fieldset {
 }
 .field {
   display: block;
-  margin: 14px 0;
+  margin: 16px 0;
 }
 .field > span,
 .field > legend,
@@ -572,13 +599,13 @@ fieldset {
   display: block;
   font-weight: 600;
   font-size: var(--fs-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .inline-field {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 10px 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 .inline-field span {
   flex: none;
@@ -586,10 +613,10 @@ fieldset {
 }
 .toggle-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: flex-start;
   text-align: left;
-  margin: 14px 0;
+  margin: 16px 0;
   cursor: pointer;
 }
 .field-hint {
@@ -602,7 +629,7 @@ fieldset {
   color: var(--alert);
 }
 .estimate-body {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .range-fields {
   display: grid;
@@ -611,8 +638,8 @@ fieldset {
 }
 .sub-question {
   border-top: 1px solid var(--line);
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
 }
 
 /* Lists */
@@ -620,7 +647,7 @@ fieldset {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
 }
 .goal-card .section-head {
   align-items: center;
@@ -644,8 +671,8 @@ fieldset {
 .item-list .row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0;
+  gap: 12px;
+  padding: 12px 0;
   color: inherit;
   text-decoration: none;
   min-height: 52px;
@@ -674,6 +701,24 @@ fieldset {
   vertical-align: -3px;
   color: var(--accent);
 }
+/* 同類別兩筆以上：分組標題（圖示、類別、小計），項目縮排對齊標題文字 */
+.item-list .group-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 4px;
+}
+.item-list .group-head .amount {
+  color: var(--muted);
+}
+.item-list.sub li {
+  border-top: none;
+}
+.item-list.sub a {
+  padding: 8px 0 8px 48px;
+  min-height: 44px;
+}
+
 .item-list .name {
   flex: 1;
   min-width: 0;
@@ -977,6 +1022,17 @@ fieldset {
   font-weight: 500;
   font-size: var(--fs-caption);
 }
+/* 編輯頁的「更多細節」：次要欄位預設收合 */
+.more-details {
+  margin: 16px 0;
+}
+.more-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: var(--fs-secondary);
+  padding: 12px 0;
+}
+
 .class-breakdown {
   margin-top: 10px;
 }
@@ -1176,7 +1232,7 @@ fieldset {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: calc(6px + env(safe-area-inset-top)) 16px 6px;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
   background: var(--banner-bg);
   color: var(--banner-text);
   font-size: var(--fs-secondary);

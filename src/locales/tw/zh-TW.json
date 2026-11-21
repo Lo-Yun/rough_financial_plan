@@ -201,6 +201,10 @@
       "all": "淨值",
       "accessible": "可動用淨值"
     },
+    "equation": {
+      "assets": "資產",
+      "liabilities": "負債"
+    },
     "accessibleHint": "不含自住房、車子、退休帳戶等不容易變現的資產，以及它們的貸款。",
     "precision": "精確度 {{pct}}%",
     "stale": "{{count}} 個精確數字超過有效期，該更新了",
@@ -311,6 +315,7 @@
     "rateHint": "不知道的話留空，會用常見的 {{pct}}% 計算。",
     "knowPayment": "我知道每月要還多少",
     "payment": "每月還款",
+    "moreDetails": "更多細節：利率與每月還款",
     "derivedPayment": "推算每月約還 {{amount}}（依利率與 {{months}} 期估算）。知道實際金額的話，勾選上面填入會更準。"
   },
   "history": {

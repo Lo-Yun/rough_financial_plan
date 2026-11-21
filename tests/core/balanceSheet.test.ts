@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeBalanceSheet } from '../../src/core/balanceSheet';
+import { computeBalanceSheet, groupByCategory } from '../../src/core/balanceSheet';
 import { asset, ctx, liability } from '../helpers';
 
 describe('computeBalanceSheet', () => {
@@ -48,6 +48,8 @@ describe('computeBalanceSheet', () => {
     const bs = computeBalanceSheet([home, cash], [linked, unlinkedCar, card], ctx);
     expect(bs.netWorth.mid).toBe(1100 - 680);
     expect(bs.accessibleNetWorth.mid).toBe(100 - 30);
+    expect(bs.accessibleAssets.mid).toBe(100);
+    expect(bs.accessibleLiabilities.mid).toBe(30);
   });
 
   it('a loan secured by an accessible asset counts against accessible net worth', () => {
@@ -73,5 +75,25 @@ describe('interval div', () => {
     expect(div({ low: 10, mid: 20, high: 30 }, { low: 2, mid: 4, high: 5 })).toEqual({ low: 2, mid: 5, high: 15 });
     expect(div({ low: -10, mid: 0, high: 10 }, { low: 2, mid: 4, high: 5 })).toEqual({ low: -5, mid: 0, high: 5 });
     expect(div({ low: 1, mid: 1, high: 1 }, { low: 0, mid: 1, high: 2 })).toBeNull();
+  });
+});
+
+describe('groupByCategory', () => {
+  it('orders groups by pack order, items by amount, and sums known items', () => {
+    const home = asset({ mode: 'exact', value: 1000, asOf: '2026-10-01' }, { category: 'real_estate' });
+    const small = asset({ mode: 'exact', value: 10, asOf: '2026-10-01' }, { category: 'cash' });
+    const big = asset({ mode: 'range', low: 100, high: 300 }, { category: 'cash' });
+    const unknown = asset({ mode: 'unknown' }, { category: 'cash' });
+    const bs = computeBalanceSheet([home, small, unknown, big], [], ctx);
+    const groups = groupByCategory(bs.assets, ['cash', 'investment', 'real_estate']);
+    expect(groups.map((g) => g.category)).toEqual(['cash', 'real_estate']);
+    expect(groups[0]!.items.map((x) => x.item.id)).toEqual([big.id, small.id, unknown.id]);
+    expect(groups[0]!.subtotal).toEqual({ low: 110, mid: 210, high: 310 });
+    expect(groups[1]!.subtotal?.mid).toBe(1000);
+  });
+
+  it('subtotal is null when no item in the group has a known amount', () => {
+    const bs = computeBalanceSheet([asset({ mode: 'unknown' }, { category: 'other' })], [], ctx);
+    expect(groupByCategory(bs.assets, ['cash'])[0]!.subtotal).toBeNull();
   });
 });
