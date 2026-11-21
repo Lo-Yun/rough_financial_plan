@@ -17,6 +17,8 @@ test('v1 分頁列只有淨值、投資、設定，每個分頁與淨值歷史�
   await expect(page.getByRole('heading', { level: 1, name: '設定' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '試算假設' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '定期回顧' })).toHaveCount(0);
+  // 統計預設值只用在收支，v1 不列出來源
+  await expect(page.getByText('統計預設值的來源')).toHaveCount(0);
   await page.goto('./#/history');
   await expect(page.getByRole('heading', { level: 1, name: '淨值歷史' })).toBeVisible();
   expect(errors).toEqual([]);

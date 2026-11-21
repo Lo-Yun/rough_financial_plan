@@ -99,11 +99,14 @@ export function SettingsPage() {
       <section className="card about">
         <h2>{t('settings.about.title')}</h2>
         <p className="muted small">{t('settings.about.version', { version: __APP_VERSION__, pack: pack.version })}</p>
-        <details className="small">
-          <summary>{t('stats.title')}</summary>
-          <p className="muted">{t('settings.about.stats')}</p>
-          <StatsSources />
-        </details>
+        {/* 統計預設值只用在收支（收入、花費選「不確定」時），收支隱藏時就不列出 */}
+        {isEnabled('cashflow') && (
+          <details className="small">
+            <summary>{t('stats.title')}</summary>
+            <p className="muted">{t('settings.about.stats')}</p>
+            <StatsSources />
+          </details>
+        )}
         <p className="disclaimer">{t('common.disclaimer')}</p>
       </section>
     </div>

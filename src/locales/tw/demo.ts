@@ -85,11 +85,22 @@ export function buildTwDemo(pack: LocalePack, today: ISODate): ExportPayload {
     expense('leisure_travel', '旅遊', approx(80_000), 'yearly', false),
   ];
 
+  // 持股都填了總成本，有賺有賠，損益才有東西可以看；美元的成本用美元記。
+  // 這一年股票漲得多，股票比目標配置多出一截，投資頁會出現再平衡提示。
+  const holding = (h: Omit<Holding, keyof typeof base | 'id' | 'assetId'>): Holding => ({ ...base, id: ulid(), assetId: id.brokerage, ...h });
   const holdings: Holding[] = [
-    { ...base, id: ulid(), assetId: id.brokerage, symbol: '0050', name: '台灣 50', assetClass: 'equity_domestic', quantity: 2_000, price: { value: 190, currency: 'TWD', asOf: today } },
-    { ...base, id: ulid(), assetId: id.brokerage, symbol: 'VT', name: '全世界股票 ETF', assetClass: 'equity_global', quantity: 40, price: { value: 125, currency: 'USD', asOf: today } },
-    { ...base, id: ulid(), assetId: id.brokerage, name: '美國公債 ETF', assetClass: 'bond', marketValue: twd(approx(150_000)) },
+    holding({ symbol: '0050', name: '元大台灣50', assetClass: 'equity_domestic', quantity: 1_500, price: { value: 190, currency: 'TWD', asOf: today }, costBasis: twd(exact(228_000)) }),
+    holding({ symbol: '00878', name: '國泰永續高股息', assetClass: 'equity_domestic', quantity: 5_000, price: { value: 22, currency: 'TWD', asOf: today }, costBasis: twd(exact(104_000)) }),
+    holding({ symbol: 'VT', name: '全世界股票 ETF', assetClass: 'equity_global', quantity: 50, price: { value: 125, currency: 'USD', asOf: today }, costBasis: { estimate: exact(5_200), currency: 'USD' } }),
+    holding({ symbol: '00679B', name: '元大美債20年', assetClass: 'bond', quantity: 4_000, price: { value: 29, currency: 'TWD', asOf: today }, costBasis: twd(exact(138_000)) }),
+    // 沒有股數與現價、只估市值的寫法：成本也用「大約」
+    holding({ name: '全球股票基金（定期定額）', assetClass: 'equity_global', marketValue: twd(approx(96_000)), costBasis: twd(approx(84_000)) }),
+    // 現金沒有損益，不填成本
+    holding({ name: '交割戶餘額', assetClass: 'cash', marketValue: twd(exact(50_000)) }),
   ];
+
+  /** 目標配置：儲蓄險解約金算在「其他」，所以自訂一個留給它的比例 */
+  const targetAllocation = { custom: { equity: 0.5, bond: 0.25, cash: 0.05, alternative: 0.2 } };
 
   const mortgagePayment = 30_000;
   const carPayment = 9_000;
@@ -223,7 +234,7 @@ export function buildTwDemo(pack: LocalePack, today: ISODate): ExportPayload {
     userActions,
     checkIns,
     settings,
-    assumptions: { householdId, targetAllocation: { preset: 'balanced' } },
+    assumptions: { householdId, targetAllocation },
   };
 }
 

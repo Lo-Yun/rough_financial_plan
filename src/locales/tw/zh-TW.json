@@ -295,7 +295,7 @@
     "hint": "建議每個月記錄一次，就能看到淨值的變化。",
     "trigger": {
       "manual": "手動記錄",
-      "check_in": "定期回顧",
+      "check_in": "定期記錄",
       "onboarding": "首次估算"
     }
   },

@@ -208,7 +208,7 @@
 
 文字在 `zh-TW.json`，依功能代號表的「文字 key 前綴」分區。
 
-示範資料在 `src/locales/tw/demo.ts`（`buildTwDemo`）：虛構的雙薪有小孩家庭，含 12 個月的歷史快照與回顧、持股、理財目標與行動紀錄。改了資料模型時要一起更新，`tests/locales/demo.test.ts` 會檢查資料是否完整。
+示範資料在 `src/locales/tw/demo.ts`（`buildTwDemo`）：虛構的雙薪有小孩家庭，含 12 個月的歷史快照與回顧、持股（都有總成本，有賺有賠；現金不填成本）、自訂目標配置（股票偏多，會出現再平衡提示）、理財目標與行動紀錄。改了資料模型時要一起更新，`tests/locales/demo.test.ts` 會檢查資料是否完整。
 
 ---
 
@@ -225,7 +225,7 @@
 |---|---|
 | `tests/core/*.test.ts` | 每個計算核心模組一個檔案 |
 | `tests/data/repo.test.ts` | Repo 讀寫、快照、備份加密、v1→v2→v3 資料庫升級與備份遷移、持股同步 |
-| `tests/locales/demo.test.ts` | 示範資料：每筆都能解析、歷史淨值逐月上升、所有關聯 id 都存在、行動清單有內容 |
+| `tests/locales/demo.test.ts` | 示範資料：每筆都能解析、歷史淨值逐月上升、所有關聯 id 都存在、持股有成本且有賺有賠、目標配置有偏離、行動清單有內容 |
 | `tests/i18n.test.ts` | 程式中用到的文字 key 都存在於 `zh-TW.json` |
 | `tests/helpers.ts` | 測試用的資產、負債、設定工廠函式 |
 | `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧、示範模式進出且不影響真實資料 |
