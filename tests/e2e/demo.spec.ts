@@ -11,7 +11,7 @@ test('從歡迎頁進入示範，每個頁面都有資料，離開後回到歡�
   await tab(page, '投資');
   await expect(page.getByRole('heading', { name: '再平衡提示' })).toBeVisible();
   await page.goto('./#/history');
-  await expect(page.locator('.recharts-surface').first()).toBeVisible();
+  await expect(page.locator('.line-chart svg .lc-line').first()).toBeVisible();
 
   await page.locator('.demo-banner').getByRole('button', { name: '離開示範' }).click();
   await expect(page.getByRole('button', { name: '開始估算' })).toBeVisible();

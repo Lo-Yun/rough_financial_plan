@@ -72,7 +72,7 @@
 | `F-NW` | 淨值總覽、資產負債列表 | `#/` | `features/balance-sheet/NetWorthPage.tsx` | `computeBalanceSheet`、`precisionScore`、`findNextRefinement` | assets、liabilities | `netWorth.*` |
 | `F-ITEM` | 資產／負債編輯 | `#/asset/:id`、`#/liability/:id`（新增用 `new`） | `features/balance-sheet/ItemEditor.tsx` | `resolveDebt`（預覽每月還款） | assets、liabilities | `editor.*`、`allocation.*` |
 | `F-LAD` | 財富階梯位置 | 淨值頁、引導結果頁 | `features/balance-sheet/LadderSummary.tsx` | `ladderPosition` | — | `ladder.*` |
-| `F-HIST` | 淨值歷史曲線與快照 | `#/history` | `features/history/HistoryPage.tsx`（延遲載入） | `buildSnapshotData` | snapshots | `history.*`、`snapshot.*` |
+| `F-HIST` | 淨值歷史曲線與快照（淨值頁的「淨值趨勢」小卡也連到這裡） | `#/history` | `features/history/HistoryPage.tsx`（延遲載入）、`NetWorthPage.tsx` 的 `TrendCard` | `buildSnapshotData` | snapshots | `history.*`、`snapshot.*` |
 | `F-CF` | 收支總覽、每月結餘 | `#/cashflow` | `features/cashflow/CashflowPage.tsx` | `monthlyIncome`、`monthlyExpense`、`overview.surplus` | incomeItems、expenseItems | `cashflow.*` |
 | `F-FLOW` | 收入／支出編輯 | `#/income/:id`、`#/expense/:id` | `features/cashflow/FlowEditor.tsx` | — | incomeItems、expenseItems | `cashflow.*`、`frequency.*` |
 | `F-REC` | 對帳檢查 | 收支頁下方 | `CashflowPage.tsx` 的 `ReconcileCard` | `reconcile` | settings.reconciliation | `reconcile.*`、`forgotten.*` |
@@ -88,6 +88,7 @@
 | `F-ACT` | 行動建議與行動清單 | 淨值頁「下一步行動」卡片、`#/actions` | `features/actions/ActionsCard.tsx`、`ActionsPage.tsx`、`ActionParts.tsx` | `computeAdvice`、`computeMetrics`、`evaluateRules`、`buildActionBoard` | userActions | `actions.*`、`action.*` |
 | `F-LADP` | 財富階梯完整頁 | `#/ladder` | `features/ladder/LadderPage.tsx` | `ladderPosition`、`monthsToNextLevel`、`worryFreeSpending` | — | `ladder.*` |
 | `F-CHK` | 每月回顧 | `#/checkin`（淨值頁到期提醒） | `features/checkin/CheckInPage.tsx` | `isCheckInDue`、`pickReviewItems`、`compareSnapshots`、`nextCheckInDate` | checkIns、snapshots、settings | `checkin.*` |
+| `F-CHART` | 折線圖元件（全 App 共用：淨值歷史、淨值頁趨勢卡、投資趨勢） | — | `components/LineChart.tsx` | `core/chart.ts`（`niceTicks`、`linearScale`、`nearestIndex`） | — | — |
 | `F-EST` | 估算輸入元件（全 App 共用） | — | `components/EstimateInput.tsx`、`AmountField.tsx` | `convertEstimate`、`parseAmount` | — | `estimate.*`、`amount.*` |
 
 下方分頁列（`App.tsx`）：淨值 `#/`・收支 `#/cashflow`・投資 `#/portfolio`・健檢 `#/health`・計畫 `#/plans`・設定 `#/settings`。
