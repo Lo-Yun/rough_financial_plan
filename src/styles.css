@@ -959,6 +959,22 @@ fieldset {
   gap: 8px;
   margin: 10px 0;
 }
+.alloc-bar-row.compact {
+  grid-template-columns: 1fr;
+  margin: 16px 0 8px;
+}
+.alloc-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 12px;
+  margin: 0 0 8px;
+  padding: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 .alloc-bar-label {
   font-size: var(--fs-secondary);
   color: var(--muted);
@@ -1049,9 +1065,6 @@ fieldset {
   background: var(--bg);
   border: 1px solid var(--line);
   font-size: var(--fs-secondary);
-}
-.toggle-row.inline {
-  justify-content: center;
 }
 .mode-badge.warn {
   color: var(--attention);
@@ -1339,5 +1352,8 @@ fieldset {
   gap: 8px;
 }
 .trend-card h2 {
+
+/* 卡片裡只有一個開關時，不要再多一層上下間距 */
+.card > .toggle-row:only-child {
   margin: 0;
 }

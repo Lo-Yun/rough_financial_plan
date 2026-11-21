@@ -735,6 +735,16 @@
     "title": "投資組合",
     "total": "投資組合總值",
     "includeCash": "包含現金與存款",
+    "includeCashShort": "包含現金",
+    "includeCashHint": "存款通常是生活費與緊急預備金，預設不算進投資組合。開啟後，總值、配置與風險都會把現金算進去。",
+    "settingsTitle": "投資組合設定",
+    "targetNone": "還沒設定",
+    "summary": {
+      "ok": "配置在目標的 ±{{band}} 個百分點內",
+      "off": "有 {{count}} 類偏離目標，見下方再平衡提示",
+      "off_other": "有 {{count}} 類偏離目標，見下方再平衡提示",
+      "noTarget": "設定目標配置，看看偏離多少"
+    },
     "unresolved": "有 {{count}} 筆投資還不知道金額，暫時沒有算進去",
     "unresolved_other": "有 {{count}} 筆投資還不知道金額，暫時沒有算進去",
     "empty": "還沒有投資類的資產（股票、基金、ETF、加密資產、退休帳戶、儲蓄險）。",
