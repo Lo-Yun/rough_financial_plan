@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApp, useFormat } from '../../app/context';
 import { RangeValue } from '../../components/Display';
 import { Icon } from '../../components/Icon';
+import { LineChart } from '../../components/LineChart';
 
 export function HistoryPage() {
   const { t } = useTranslation();
@@ -11,8 +11,9 @@ export function HistoryPage() {
 
   const points = snapshots.map((s) => ({
     date: s.date,
-    mid: s.summary.netWorth.mid,
-    band: [s.summary.netWorth.low, s.summary.netWorth.high] as [number, number],
+    value: s.summary.netWorth.mid,
+    low: s.summary.netWorth.low,
+    high: s.summary.netWorth.high,
   }));
 
   return (
@@ -27,25 +28,13 @@ export function HistoryPage() {
         </section>
       ) : (
         <section className="card chart-card">
-          <div className="chart" role="img" aria-label={t('history.chartAria')}>
-            <ResponsiveContainer width="100%" height={240}>
-              <ComposedChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--muted)' }} tickFormatter={(d: string) => d.slice(5)} />
-                <YAxis width={64} tick={{ fontSize: 11, fill: 'var(--muted)' }} tickFormatter={(v: number) => fmt.money(v)} />
-                <Tooltip
-                  formatter={(v, name) =>
-                    name === 'band' && Array.isArray(v)
-                      ? [fmt.range({ low: Number(v[0]), mid: 0, high: Number(v[1]) }), t('history.band')]
-                      : [fmt.money(Number(v)), t('history.mid')]
-                  }
-                  contentStyle={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 8 }}
-                />
-                <Area dataKey="band" stroke="none" fill="var(--accent)" fillOpacity={0.15} isAnimationActive={false} />
-                <Line dataKey="mid" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3 }} isAnimationActive={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+          <LineChart
+            points={points}
+            formatValue={fmt.money}
+            formatRange={(low, high) => fmt.range({ low, mid: (low + high) / 2, high })}
+            ariaLabel={t('history.chartAria')}
+            height={280}
+          />
           <p className="muted small">{t('history.bandHint')}</p>
         </section>
       )}
