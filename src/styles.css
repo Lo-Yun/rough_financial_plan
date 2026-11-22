@@ -31,6 +31,7 @@
   --attention-soft: #fdf3dc;
   --alert: #b3261e;
   --alert-soft: #fbe9e7;
+  --alert-text: #ffffff;
   --banner-bg: #2b302d;
   --banner-text: #f3f3ef;
   --ok: #2f6b4f;
@@ -55,6 +56,7 @@
     --attention-soft: #2e2716;
     --alert: #ff8a80;
     --alert-soft: #35201d;
+    --alert-text: #2a0f0c;
     --banner-bg: #2d332f;
     --banner-text: #e8ebe8;
     --ok: #6fbf95;
@@ -96,6 +98,10 @@ h3 {
 }
 p {
   margin: 0 0 0.5rem;
+}
+/* <small> 是補充說明（幣別、快照來源、欄位提示），用標籤字級，不吃瀏覽器的 smaller */
+small {
+  font-size: var(--fs-caption);
 }
 a {
   color: var(--accent);
@@ -273,7 +279,7 @@ a {
 }
 .bullets {
   text-align: left;
-  padding-left: 1.2em;
+  padding-left: 20px;
   margin: 12px 0;
 }
 .bullets li {
@@ -456,7 +462,7 @@ a {
 }
 .btn.danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--alert-text);
 }
 .btn.danger.ghost {
   background: transparent;
@@ -527,12 +533,13 @@ a {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  padding: 3px;
-  gap: 2px;
+  padding: 4px;
+  gap: 4px;
 }
 .segmented button {
   flex: 1;
   min-height: 36px;
+  padding: 0 8px;
   border: none;
   border-radius: var(--r-sm);
   background: transparent;
@@ -733,6 +740,9 @@ fieldset {
   font-size: var(--fs-caption);
   color: var(--muted);
   font-weight: 400;
+}
+.mode-badge .icon-svg {
+  vertical-align: -2px;
 }
 .mode-badge.mode-exact {
   color: var(--accent);
@@ -957,7 +967,7 @@ fieldset {
   grid-template-columns: 40px 1fr;
   align-items: center;
   gap: 8px;
-  margin: 10px 0;
+  margin: 12px 0;
 }
 .alloc-bar-row.compact {
   grid-template-columns: 1fr;
@@ -1018,7 +1028,7 @@ fieldset {
   width: 10px;
   height: 10px;
   border-radius: var(--r-full);
-  margin-right: 6px;
+  margin-right: 4px;
   vertical-align: 0;
 }
 .alloc-table {
@@ -1029,7 +1039,7 @@ fieldset {
 }
 .alloc-table th,
 .alloc-table td {
-  padding: 6px 4px;
+  padding: 8px 4px;
   border-bottom: 1px solid var(--line);
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -1055,7 +1065,7 @@ fieldset {
 }
 
 .class-breakdown {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .class-breakdown summary {
   cursor: pointer;
@@ -1065,7 +1075,7 @@ fieldset {
 .risk-badge {
   display: inline-block;
   margin-top: 8px;
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: var(--r-sm);
   background: var(--bg);
   border: 1px solid var(--line);
@@ -1357,6 +1367,8 @@ fieldset {
   gap: 8px;
 }
 .trend-card h2 {
+  margin: 0;
+}
 
 /* 卡片裡只有一個開關時，不要再多一層上下間距 */
 .card > .toggle-row:only-child {

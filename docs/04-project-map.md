@@ -1,7 +1,7 @@
 # 專案地圖
 
 > 用途：之後要修改功能或回報問題時，用這份文件的**功能代號**和**檔案路徑**溝通，就能快速對到程式碼。
-> 最後更新：2026-10-22（第四期完成之後）
+> 最後更新：2026-11-22（v1.0 發布檢查之後；版本 1.0.0）
 > 相關文件：[系統規格書](./01-system-spec.md)・[資料模型](./02-data-model.md)・[部署說明](./03-deploy-github-pages.md)・[開發歷程與路線圖](./05-roadmap.md)
 
 ---
@@ -81,7 +81,7 @@
 | `F-GOAL` | 計畫編輯與即時試算 | `#/plans/new?type=…`、`#/plans/:id` | `features/plans/GoalEditor.tsx`、`ProjectionView.tsx` | `projectGoal`、`simulatePayoff`、`amortizedPayment` | goals | `plans.*` |
 | `F-PF` | 投資組合（摘要卡：總值・風險・配置長條・偏離；接著再平衡與集中度、投資趨勢（快照裡投資類別的加總，`LineChart`）、帳戶、配置明細、幣別）；投資組合設定（目標配置、包含現金）在子頁 | `#/portfolio`、`#/portfolio/target` | `features/portfolio/PortfolioPage.tsx`、`PortfolioTargetPage.tsx` | `analyzePortfolio`、`resolveTarget`、`deviations` | assets、holdings、assumptions | `portfolio.*` |
 | `F-HOLD` | 持股明細（含總成本與未實現損益） | `#/asset/:id/holdings`（編輯：`/new`、`/:holdingId`） | `features/portfolio/HoldingsPage.tsx`、`HoldingEditor.tsx` | `holdingValue`、`holdingsTotal`、`syncAssetFromHoldings` | holdings | `holdings.*` |
-| `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
+| `F-SET` | 設定（匯率、估算、試算假設、安裝、刪除；「關於」顯示 App 版本，取自 `package.json` 的 `version`，經 `vite.config.ts` 的 `__APP_VERSION__` 帶入，備份檔也記錄這個版本） | `#/settings` | `features/settings/SettingsPage.tsx` | `resolveAssumptions` | settings、assumptions | `settings.*` |
 | `F-BAK` | 備份匯出／還原 | 設定頁 | `SettingsPage.tsx` 的 `BackupSection` | — | 全部 | `backup.*` |
 | `F-PWA` | 安裝、離線、持久化儲存 | — | `app/pwa.ts`、`vite.config.ts` | — | — | `pwa.*` |
 | `F-DEMO` | 示範資料模式 | 歡迎頁連結、設定頁、頂端橫幅 | `app/demo.ts`、`locales/tw/demo.ts`、`App.tsx` 的 `DemoBanner` | — | 另一個資料庫 `rough-financial-plan-demo` | `demo.*` |
@@ -91,7 +91,7 @@
 | `F-CHART` | 折線圖元件（全 App 共用：淨值歷史、淨值頁趨勢卡、投資趨勢） | — | `components/LineChart.tsx` | `core/chart.ts`（`niceTicks`、`linearScale`、`nearestIndex`） | — | — |
 | `F-EST` | 估算輸入元件（全 App 共用） | — | `components/EstimateInput.tsx`、`AmountField.tsx` | `convertEstimate`、`parseAmount` | — | `estimate.*`、`amount.*` |
 
-下方分頁列（`App.tsx`）：淨值 `#/`・收支 `#/cashflow`・投資 `#/portfolio`・健檢 `#/health`・計畫 `#/plans`・設定 `#/settings`。
+下方分頁列（`App.tsx`）：v1 只有淨值 `#/`・投資 `#/portfolio`・設定 `#/settings`；全功能建置另有收支 `#/cashflow`・健檢 `#/health`・計畫 `#/plans`。
 
 **功能旗標（v1，決策 D21）**：`src/app/features.ts` 列出可以隱藏的功能：`cashflow`（`F-CF`、`F-FLOW`、`F-REC`）、`health`（`F-HLT`）、`plans`（`F-PLN`、`F-GOAL`、設定頁的試算假設）、`actions`（`F-ACT`）、`checkin`（`F-CHK`、設定頁的回顧頻率）、`ladderPage`（`F-LADP`；淨值頁的 `F-LAD` 摘要卡保留，只隱藏連結）。預設建置全部關閉：不註冊路由（網址會回到淨值頁）、不顯示入口，分頁列只有淨值・投資・設定。程式碼、計算、資料表與備份都不動。要判斷功能是否開啟用 `isEnabled(key)`。
 - 全功能建置：`npm run build:all`（`VITE_FEATURES=all`，輸出到 `dist-full`）；也可以用 `VITE_FEATURES=cashflow,health` 只開部分功能。
@@ -216,10 +216,11 @@
 
 | 指令 | 內容 |
 |---|---|
-| `npm test` | 單元測試（Vitest），目前 122 個 |
+| `npm test` | 單元測試（Vitest），目前 144 個 |
 | `npm run typecheck` | TypeScript 型別檢查 |
 | `npm run build` | 建置到 `dist/` |
 | `npm run test:e2e` | 瀏覽器端對端測試（Playwright，手機尺寸 Chromium）；需先 `npm run build` |
+| `npm run build:all`、`npm run test:e2e:all` | 全功能建置（`dist-full`）與標記 `@full` 的瀏覽器測試 |
 
 | 測試檔 | 涵蓋 |
 |---|---|
@@ -229,6 +230,7 @@
 | `tests/i18n.test.ts` | 程式中用到的文字 key 都存在於 `zh-TW.json` |
 | `tests/helpers.ts` | 測試用的資產、負債、設定工廠函式 |
 | `tests/e2e/*.spec.ts` | 瀏覽器流程：快速估算與各分頁、新增支出與計畫、行動建議與每月回顧、示範模式進出且不影響真實資料 |
+| `tests/e2e/layout.spec.ts` | v1 版面守門：淺色與深色、320px 寬，歡迎頁、示範模式的各頁與持股頁沒有橫向捲動、字級都在規範的 6 級內 |
 | `tests/e2e/helpers.ts` | 共用步驟：`completeOnboarding`（依 `E2E_BUILD` 走 v1 的 5 題或全功能流程）、`tap`、`tab`、`watchErrors`（任何主控台錯誤都會讓測試失敗） |
 
 **持續整合**：`.github/workflows/ci.yml` 在 PR 與 `main` 上跑型別檢查、單元測試、建置、瀏覽器測試（失敗時會上傳 Playwright 報告）；`deploy.yml` 在 `main` 更新時部署到 GitHub Pages。
