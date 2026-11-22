@@ -121,7 +121,7 @@ function DemoSection() {
     <section className="card">
       <h2>{t('demo.title')}</h2>
       <p className="muted small">{demo ? t('demo.activeHint') : t('demo.hint')}</p>
-      <button type="button" className="btn" onClick={demo ? exitDemo : enterDemo}>
+      <button type="button" className="btn ghost" onClick={demo ? exitDemo : enterDemo}>
         {demo ? t('demo.exit') : t('demo.enter')}
       </button>
     </section>

@@ -3,6 +3,7 @@ import { isStale } from '../core/precision';
 import type { LocalePack } from '../model/localePack';
 import type { Estimate, ISODate, Range } from '../model/types';
 import { useFormat } from '../app/context';
+import { Icon } from './Icon';
 
 /** 中間值大字、區間小字 */
 export function RangeValue({ range, pack, size = 'md' }: { range: Range; pack: LocalePack; size?: 'md' | 'lg' }) {
@@ -46,14 +47,15 @@ export function PrecisionRing({ score, size = 56 }: { score: number; size?: numb
   );
 }
 
-/** 估算模式的小標籤：○ 不確定、◔ 範圍、◑ 大約、● 精確 */
+const MODE_ICON = { unknown: 'modeUnknown', range: 'modeRange', approx: 'modeApprox', exact: 'modeExact' } as const;
+
+/** 估算模式的小標籤：Lucide 圓形圖示＋文字（虛線圓 不確定、虛線點 範圍、點 大約、勾 精確） */
 export function ModeBadge({ estimate, today, staleAfterDays }: { estimate: Estimate; today: ISODate; staleAfterDays: number }) {
   const { t } = useTranslation();
   const stale = isStale(estimate, { today, staleAfterDays });
-  const symbol = { unknown: '○', range: '◔', approx: '◑', exact: '●' }[estimate.mode];
   return (
     <span className={`mode-badge mode-${estimate.mode}${stale ? ' stale' : ''}`} title={t(`estimate.mode.${estimate.mode}`)}>
-      <span aria-hidden="true">{symbol}</span> {stale ? t('estimate.stale') : t(`estimate.mode.${estimate.mode}`)}
+      <Icon name={MODE_ICON[estimate.mode]} size={12} /> {stale ? t('estimate.stale') : t(`estimate.mode.${estimate.mode}`)}
     </span>
   );
 }

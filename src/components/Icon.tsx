@@ -6,6 +6,10 @@ import {
   Car,
   Check,
   ChartPie,
+  CircleCheck,
+  CircleDashed,
+  CircleDot,
+  CircleDotDashed,
   CreditCard,
   FileText,
   Flag,
@@ -73,6 +77,11 @@ const ICONS = {
   // 動作與狀態
   check: Check,
   close: X,
+  // 估算模式（ModeBadge）：不確定、範圍、大約、精確
+  modeUnknown: CircleDashed,
+  modeRange: CircleDotDashed,
+  modeApprox: CircleDot,
+  modeExact: CircleCheck,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof ICONS;
